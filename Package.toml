@@ -1,0 +1,28 @@
+# package configurations
+[package]
+    # package name
+    name =                 "Framework"
+    # contributors
+    author =               "JustGod"
+    # version
+    version =              "0.0.1"
+    # image URL
+    image =                ""
+    # package type: 'script' (normal package), 'game-mode' (unique package - can only load one at a time), 'library' (doesn't start a Lua VM) or 'loading-screen' (special package for loading screen)
+    type =                 "game-mode"
+    # whether to force the custom map script to do not load
+    force_no_map_script =  false
+    # auto destroy all entities spawned by this package when it unloads
+    auto_cleanup =         true
+    # packages requirements
+    packages_requirements = [
+        
+    ]
+    # asset packs requirements
+    assets_requirements = [
+        
+    ]
+    # compatible maps - maps to be highlighted when starting a new game through main menu
+    compatible_maps = [
+        
+    ]
