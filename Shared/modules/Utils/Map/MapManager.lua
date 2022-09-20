@@ -22,28 +22,36 @@ function MapManager:new()
 
     self.maps = {};
 
-    Package.Log("Shared: [MapManager] initialized.");
+    Package.Log("Shared: [ MapManager ] initialized.");
     
     return self;
 end
 
 ---@param id string
+---@param type? string
 ---@param data? table
 ---@return Map
 function MapManager:register(id, type, data)
-    if not self.maps[type] then
+    if (type and not self.maps[type]) then
         self.maps[type] = {};
     end
-    self.maps[type][id] = Map:new(id, data);
-    Package.Log("Map [ type: " .. type .. " Id: ".. id .. "] created.")
-    return self.maps[type][id];
+    if (type) then
+        self.maps[type][id] = Map:new(id, data);
+        Package.Log("Map [ type: " .. type .. " Id: ".. id .. " ] created.");
+        return self.maps[type][id];
+    else
+        self.maps[id] = Map:new(id, data);
+        Package.Log("Map [ ".. id .. " ] created.");
+        return self.maps[id];
+    end
 end
 
 ---@param id string
 ---@param type string
 ---@return Map
 function MapManager:get(id, type)
-    return self.maps[type][id];
+    if (type) then return self.maps[type][id] end
+    return self.maps[id];
 end
 
 ---@return table
@@ -57,6 +65,9 @@ function MapManager:delete(id)
     for map, value in pairs(self.maps) do
         if value[id] then
             self.maps[map][id] = nil;
+            return true
+        elseif self.maps[id] then
+            self.maps[id] = nil;
             return true
         end
     end

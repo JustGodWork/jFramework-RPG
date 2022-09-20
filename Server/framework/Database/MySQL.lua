@@ -22,7 +22,7 @@ function MySQL:new(connectionParameters)
 
     self.params = connectionParameters;
 
-    Package.Log("Server: [MySQL] initialized.");
+    Package.Log("Server: [ MySQL ] initialized.");
     return self;
 end
 
@@ -71,7 +71,6 @@ function MySQL:convert(query, parameters)
         end
         return string.format(execute, table.unpack(parameters))
     end
-
     return query
 end
 
@@ -100,7 +99,6 @@ end
 ---@param callback fun(result: table)
 function MySQL:select(query, params, callback)
     local converted_query = self:convert(query, params);
-    print(converted_query)
     self.database:Select(converted_query, function(result)
         if (callback) then
             callback(result);
@@ -126,4 +124,4 @@ jServer.mysql = MySQL:new({
     user = "root",
     host = "localhost",
     port = 3307
-}):createConnection()
+}):createConnection();

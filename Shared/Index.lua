@@ -24,7 +24,7 @@ function _Shared:new()
 
     self.utils = {}
 
-    Package.Log("Shared: [jShared] initialized.");
+    Package.Log("Shared: [ jShared ] initialized.");
     return self;
 end
 

@@ -20,9 +20,9 @@ function PlayerManager:new()
     local class = {}
     setmetatable(class, {__index = PlayerManager});
 
-    self.players = jShared.utils.mapManager:register("players", "playerList");
+    self.players = jShared.utils.mapManager:register("players");
 
-    Package.Log("Server: [PlayerManager] initialized.");
+    Package.Log("Server: [ PlayerManager ] initialized.");
 
     return self;
 end

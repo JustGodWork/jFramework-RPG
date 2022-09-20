@@ -22,7 +22,7 @@ function RepositoryManager:new()
 
     self.repositories = {};
 
-    Package.Log("Server: [RepositoryManager] initialized.");
+    Package.Log("Server: [ RepositoryManager ] initialized.");
     return self;
 end
 

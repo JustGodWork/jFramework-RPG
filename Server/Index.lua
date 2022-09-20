@@ -30,7 +30,7 @@ function _Server:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
-    Package.Log("Server: [jServer] initialized.");
+    Package.Log("Server: [ jServer ] initialized.");
 
     return self
 end
