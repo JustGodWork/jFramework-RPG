@@ -19,9 +19,6 @@ local _Server = {}
 function _Server:new()
     local class = {}
     setmetatable(class, {__index = _Server});
-    function self:constructor()
-        Package.Log("Server loaded.");
-    end
 
     ---@param module string
     function self:loadFrameworkModule(module)
@@ -33,7 +30,7 @@ function _Server:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
-    self:constructor();
+    Package.Log("Server: [jServer] initialized.");
 
     return self
 end
@@ -41,5 +38,3 @@ end
 jServer = _Server:new();
 
 Package.Require("./loader.lua");
-
-jServer.repositoryManager:loadAll();

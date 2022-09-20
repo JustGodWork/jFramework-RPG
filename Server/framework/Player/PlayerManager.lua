@@ -1,9 +1,9 @@
 --[[
---Created Date: Monday September 19th 2022
+--Created Date: Tuesday September 20th 2022
 --Author: JustGod
 --Made with ❤
 -------
---Last Modified: Monday September 19th 2022 7:30:11 pm
+--Last Modified: Tuesday September 20th 2022 7:57:12 pm
 -------
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -13,104 +13,55 @@
 --]]
 
 ---@class PlayerManager
-local _PlayerManager = {}
+local PlayerManager = {}
 
 ---@return PlayerManager
-function _PlayerManager:new()
+function PlayerManager:new()
     local class = {}
-    setmetatable(class, {__index = _PlayerManager})
+    setmetatable(class, {__index = PlayerManager});
 
-    self.repository = jServer.repositoryManager:register("players", {
-        skin = "",
-        name = "newPlayer",
-        firstname = "new",
-        lastname = "player",
-        steamId = "",
-        ip = ""
-    })
-    self.players = jShared.utils.map:new("Players")
-    self:constructor()
+    self.players = jShared.utils.mapManager:register("players", "playerList");
 
-    return self
+    Package.Log("Server: [PlayerManager] initialized.");
+
+    return self;
 end
 
----@return void
-function _PlayerManager:constructor()
-    if (jShared:isDebugMode()) then -- Bypass Nanos connexion system
-        Package.Warn("PlayerManager: Bypassing Nanos connexion system...")
-        self:addPlayer({})
-        return
-    end
-    -- Spawns and possess a Character when a Player joins the server
-    Player.Subscribe("Spawn", function(nPlayer)
-        local new_char = Character()
-        nPlayer:Possess(new_char)
-        self:addPlayer(nPlayer)
-    end)
-
-    -- Destroys the Character when the Player leaves the server
-    Player.Subscribe("Destroy", function(nPlayer)
-        local character = nPlayer:GetControlledCharacter()
-        local player = self:getPlayer(nPlayer:GetId())
-        if (character) then
-            character:Destroy()
-        end
-        if (player) then
-            self:removePlayer(player)
-        end
-    end)
-    Package.Log("PlayerManager initialized")
-end
-
----@param nanosPlayer Player
----@param callback fun(player: jPlayer)
-function _PlayerManager:addPlayer(nanosPlayer, callback)
-    local debug = jShared:isDebugMode()
-    self.repository:find("steamId", (debug and "11000013d019ee1") or nanosPlayer:GetSteamID(), function (result)
-        if (result) then
-            self.players:set((debug and 1) or nanosPlayer:GetId(), jPlayer:new(nanosPlayer, {
-                id = result.id,
-                skin = result.skin,
-                firstname = result.firstname,
-                lastname = result.lastname,
-            }))
-        else
-            self.players:set((debug and 1) or nanosPlayer:GetId(), jPlayer:new(nanosPlayer, {}))
-        end
-        local player = self.players:get((debug and 1) or nanosPlayer:GetId())
-        if (player) then
-            self.repository:save(player)
-            Package.Log(string.format("Player [%s] has been added to the player manager.", player:getName()))
-            if (callback) then
-                callback(player)
-            end
-        else
-            Package.Error("There was an error while adding the player to the player manager.")
-            callback({})
-        end
-    end)
-end
-
----@param playerId number
----@return void
-function _PlayerManager:removePlayer(playerId)
-    local player = self.players:get(playerId)
-    if (player) then
-        Package.Log(string.format("Player [%s] has been removed from the player manager.", player:getName()))
-        self.players:remove(playerId)
-    end
-end
-
----@param playerId number
+---@param id string
 ---@return jPlayer
-function _PlayerManager:getPlayer(playerId)
-    return self.players:get(playerId)
+function PlayerManager:getFromId(id)
+    return self.players:get(id);
 end
 
----@return Map
-function _PlayerManager:getPlayers()
-    return self.players
+---@param name string
+---@return jPlayer
+function PlayerManager:getFromName(name)
+    for _, player in pairs(self.players:getAll()) do
+        if player:getName() == name then
+            return self.players:get(player:getId());
+        end
+    end
 end
 
-jServer.playerManager = _PlayerManager:new();
+---@param idenfitier string
+---@return jPlayer
+function PlayerManager:getFromIdentifier(idenfitier)
+    for _, player in pairs(self.players:getAll()) do
+        if player:getIdentifier() == idenfitier then
+            return self.players:get(player:getId());
+        end
+    end
+end
 
+---@param data table
+---@param nanosPlayer Player
+function PlayerManager:registerPlayer(data, nanosPlayer)
+    self.players:set(nanosPlayer:GetID(), jPlayer:new(data, nanosPlayer));
+end
+
+---@param playerId number
+function PlayerManager:removePlayer(playerId)
+    self.players:remove(playerId);
+end
+
+jServer.playerManager = PlayerManager:new();

@@ -22,12 +22,10 @@ function Map:new(name, data)
     local class = {}
     setmetatable(class, {__index = Map})
     
-    self.name = name
-    self.data = data or {}
-        
-    Package.Log("Map [" .. name .. "] created.")
+    self.name = name;
+    self.data = data or {};
 
-    return self
+    return self;
 end
 
 ---Get value for key

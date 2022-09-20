@@ -14,9 +14,8 @@
 
 ---@class _Shared
 local _Shared = {}
+
 Package.Require("./Config.lua")
-Package.Require("./modules/Utils/Lang.lua")
-Package.Require("./modules/Utils/Map.lua")
 
 ---@return _Shared
 function _Shared:new()
@@ -24,11 +23,9 @@ function _Shared:new()
     setmetatable(class, {__index = _Shared})
 
     self.utils = {}
-    self.utils.map = Map
-    --self.langs = Lang:new()
-    Package.Log("Shared loaded.")
 
-    return class
+    Package.Log("Shared: [jShared] initialized.");
+    return self;
 end
 
 ---@return boolean
@@ -52,5 +49,11 @@ function _Shared:uuid(pattern)
     end)
 end
 
-jShared = _Shared:new()
---jShared.langs:loadLocales()
+---@param module string
+function _Shared:loadModule(module)
+    Package.Require(string.format("./modules/%s", module));
+end
+
+jShared = _Shared:new();
+
+Package.Require("./loader.lua");
