@@ -21,6 +21,8 @@ function AccountManager:new()
 
     self.accounts = jShared.utils.mapManager:register("accounts");
 
+    Package.Log("Server: [ AccountManager ] initialized.");
+
     return self;
 end
 

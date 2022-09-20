@@ -36,21 +36,21 @@ end
 ---@param name string
 ---@return jPlayer
 function PlayerManager:getFromName(name)
-    for _, player in pairs(self.players:getAll()) do
-        if player:getName() == name then
+    self.players:values(function (player)
+        if (player:getName() == name) then
             return self.players:get(player:getId());
         end
-    end
+    end)
 end
 
 ---@param idenfitier string
 ---@return jPlayer
 function PlayerManager:getFromIdentifier(idenfitier)
-    for _, player in pairs(self.players:getAll()) do
-        if player:getIdentifier() == idenfitier then
+    self.players:values(function (player)
+        if (player:getIdentifier() == idenfitier) then
             return self.players:get(player:getId());
         end
-    end
+    end)
 end
 
 ---@param data table
