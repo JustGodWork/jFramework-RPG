@@ -35,12 +35,7 @@ end
 ---@param langName string Name of the language
 ---@param data table
 function Lang:create(langName, data)
-    print(JSON.stringify(data))
     self.langs[string.upper(langName)] = data
-    for k, v in pairs(self.langs) do
-        print(k, v)
-    end
-    print(JSON.stringify(self.langs["FR"]))
 end
 
 ---@param str string

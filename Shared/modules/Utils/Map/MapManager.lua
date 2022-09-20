@@ -33,12 +33,12 @@ end
 ---@return Map
 function MapManager:register(id, type, data)
     if (type and not self.maps[type]) then
-        self.maps[type] = {};
+        self.maps[type] = Map:new(type);
     end
     if (type) then
-        self.maps[type][id] = Map:new(id, data);
+        self.maps[type]:set(id, Map:new(id, data));
         Package.Log("Map [ type: " .. type .. " Id: ".. id .. " ] created.");
-        return self.maps[type][id];
+        return self.maps[type]:get(id);
     else
         self.maps[id] = Map:new(id, data);
         Package.Log("Map [ ".. id .. " ] created.");
@@ -50,7 +50,7 @@ end
 ---@param type string
 ---@return Map
 function MapManager:get(id, type)
-    if (type) then return self.maps[type][id] end
+    if (type) then return self.maps[type]:get(id) end
     return self.maps[id];
 end
 
@@ -64,7 +64,7 @@ end
 function MapManager:delete(id)
     for map, value in pairs(self.maps) do
         if value[id] then
-            self.maps[map][id] = nil;
+            self.maps[map]:set(id, nil);
             return true
         elseif self.maps[id] then
             self.maps[id] = nil;

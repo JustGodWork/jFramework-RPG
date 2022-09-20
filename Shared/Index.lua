@@ -49,6 +49,15 @@ function _Shared:uuid(pattern)
     end)
 end
 
+---@param Object table
+function _Shared:printObject(Object)
+    for k, v in pairs(Object) do
+        if (type(v) ~= "function") then
+            print("[ ".. k .. " ] =", JSON.stringify(v))
+        end
+    end
+end
+
 ---@param module string
 function _Shared:loadModule(module)
     Package.Require(string.format("./modules/%s", module));

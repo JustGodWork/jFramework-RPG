@@ -2,7 +2,7 @@
 jServer:loadFrameworkModule("Database/MySQL.lua");
 jServer:loadFrameworkModule("Database/repository/entities/Repository.lua");
 jServer:loadFrameworkModule("Database/repository/RepositoryManager.lua");
---jServer:loadFrameworkModule("Account/entities/Account.lua");
+jServer:loadFrameworkModule("Account/entities/Account.lua");
 jServer:loadFrameworkModule("Account/AccountManager.lua");
 -- jServer:loadFrameworkModule("Inventory/entities/Inventory.lua");
 -- jServer:loadFrameworkModule("Inventory/InventoryManager.lua");

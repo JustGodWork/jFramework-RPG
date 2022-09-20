@@ -15,17 +15,23 @@
 ---@class Map
 Map = {}
 
----@param name string
+---@param id string
 ---@param data table
 ---@return Map
-function Map:new(name, data)
+function Map:new(id, data)
     local class = {}
     setmetatable(class, {__index = Map})
     
-    self.name = name;
+    self.id = id;
     self.data = data or {};
 
     return self;
+end
+
+---Get map id
+---@return string
+function Map:getId()
+    return self.id;
 end
 
 ---Get value for key
