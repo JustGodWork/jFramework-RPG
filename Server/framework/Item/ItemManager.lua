@@ -59,7 +59,7 @@ function ItemManager:setItemData(id, data)
 end
 
 ---@param id string
----@return Map
+---@return table
 function ItemManager:getItemData(id)
     return self.items[id]:getData();
 end

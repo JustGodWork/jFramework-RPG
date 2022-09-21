@@ -42,7 +42,7 @@ function Item:getName()
     return self.name;
 end
 
----@return Map
+---@return table
 function Item:getData()
     return self.data;
 end

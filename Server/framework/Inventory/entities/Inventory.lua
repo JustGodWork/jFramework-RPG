@@ -18,7 +18,7 @@ Inventory = {}
 ---@param id string
 ---@param name string
 ---@param owner string
----@param items Map
+---@param items Item[]
 ---@param inventoryType number
 ---@return Inventory
 function Inventory:new(id, name, owner, items, inventoryType)
@@ -50,7 +50,7 @@ function Inventory:getOwner()
     return self.owner;
 end
 
----@return Map
+---@return Item[]
 function Inventory:getItems()
     return self.items;
 end
