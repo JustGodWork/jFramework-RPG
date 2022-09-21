@@ -17,20 +17,25 @@ Inventory = {}
 
 ---@param id string
 ---@param name string
+---@param label string
 ---@param owner string
 ---@param items Item[]
+---@param maxWeight number
 ---@param inventoryType number
 ---@return Inventory
-function Inventory:new(id, name, owner, items, inventoryType)
+function Inventory:new(id, name, label, owner, items, maxWeight, inventoryType)
+    ---@type Inventory
     local self = {}
     setmetatable(self, { __index = Inventory});
 
     self.id = id;
     self.name = name;
+    self.label = label;
     self.owner = owner;
     ---@type Item[]
-    self.items = items;
-    self.inventoryType = inventoryType;
+    self.items = items or {};
+    self.maxWeight = maxWeight or 0;
+    self.inventoryType = inventoryType or 0;
 
     return self;
 end
@@ -43,6 +48,16 @@ end
 ---@return string
 function Inventory:getName()
     return self.name;
+end
+
+---@return string
+function Inventory:getLabel()
+    return self.label;
+end
+
+---@param label string
+function Inventory:setLabel(label)
+    self.label = label;
 end
 
 ---@return string
@@ -65,42 +80,85 @@ function Inventory:hasItem(itemName)
     return self.items[itemName] ~= nil
 end
 
+---@return number
+function Inventory:getWeight()
+    local weight = 0;
+    for _, item in pairs(self.items) do
+        weight = weight + (item:getWeight() * item:getCount())
+    end
+    return weight;
+end
+
+---@param itemName string
+---@param count number
+---@return boolean
+function Inventory:canCarryItem(itemName, count)
+    local item = jServer.itemManager:getItem(itemName)
+    if (item) then
+        if (self:getWeight() + (item:getWeight() * count)) <= self.maxWeight then
+            return true;
+        end
+        return false;
+    else
+        Package.Warn("Inventory:canCarryItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName)
+        return false;
+    end
+    return false;
+end
+
 ---@param itemName string
 ---@param count number
 ---@return boolean
 function Inventory:addItem(itemName, count)
     local item = jServer.itemManager:getItem(itemName)
-    if item then
-        if (item:isUnique() and count == 1) then
-            self.items[itemName] = item
-            self.items[itemName].count = 1
-            return true;
-        elseif (not item:isUnique() and self:hasItem(itemName)) then
-            self.items[itemName].count = self.items[itemName].count + count
-            return true;
-        elseif (not item:isUnique()) then
-            self.items[itemName] = item
-            self.items[itemName].count = count
-            return true;
-        elseif (item:isUnique()) then
-            Package.Log("Inventory:addItem(): item [ ".. itemName .." ] is unique but count is not 1")
+    if (item) then
+        if (self:canCarryItem(itemName, count)) then
+            if (item:isUnique() and count == 1) then
+                self.items[itemName] = item
+                self.items[itemName].count = 1
+                return true;
+            elseif (not item:isUnique() and self:hasItem(itemName)) then
+                self.items[itemName].count = self.items[itemName].count + count
+                return true;
+            elseif (not item:isUnique()) then
+                self.items[itemName] = item
+                self.items[itemName].count = count
+                return true;
+            elseif (item:isUnique()) then
+                Package.Warn("Inventory:addItem(): Inventory: [ %s ] item [ %s ] is unique but count is not 1", self.id, itemName)
+                return false;
+            end
+        else
+            Package.Warn("Inventory:addItem(): Inventory: [ %s ] item [ %s ] can't be carried", self.id, itemName)
             return false;
         end
+    else
+        Package.Warn("Inventory:addItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName)
+        return false;
     end
 end
 
 ---@param itemName string
 ---@param count number
+---@return boolean
 function Inventory:removeItem(itemName, count)
-    local item = jServer.itemManager:getItem(itemName)
-    if item then
+    local item = jServer.itemManager:getItem(itemName);
+    if (item) then
         if self:hasItem(itemName) then
-            if self.items[itemName]:getCount() - count <= 0 then
+            local invItem = self.items[itemName]
+            if invItem:getCount() - count == 0 then
                 self.items[itemName] = nil;
+                return true;
+            elseif invItem:getCount() - count < 0 then
+                Package.Warn("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] count is less than 0", self.id, itemName);
+                return false;
             else
-                self.items[itemName]:setCount(self.items[itemName]:getCount() - count)
+                invItem:setCount(invItem:getCount() - count);
+                return true;
             end
         end
+    else
+        Package.Warn("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName);
     end
 end
 

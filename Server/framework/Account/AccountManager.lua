@@ -16,11 +16,14 @@
 local AccountManager = {}
 
 function AccountManager:new()
+    ---@type AccountManager
     local self = {}
     setmetatable(self, { __index = AccountManager});
 
     ---@type Account[]
     self.accounts = {};
+    ---@type Account[][]
+    self.owned = {}
 
     if (Config.debug) then
         Package.Log("Server: [ AccountManager ] initialized.");
@@ -31,13 +34,25 @@ end
 
 ---@param id string
 ---@param name string
+---@param label string
 ---@param owner string
 ---@param money number
 ---@param accountType number
 ---@return Account
-function AccountManager:register(id, name, owner, money, accountType)
-    if (not self.accounts[id]) then
-        self.accounts[id] = Account:new(id, name, owner, money, accountType);
+function AccountManager:register(id, name, label, owner, money, accountType)
+    if (owner) then
+        if (not self.owned[owner]) then
+            self.owned[owner] = {};
+        end
+        if (not self.owned[owner][id]) then
+            self.owned[owner][id] = Account:new(id, name, label, owner, money, accountType);
+            return self.owned[owner][id];
+        else
+            Package.Warn("AccountManager:register(): account [ ".. name .." ] already exists");
+            return nil;
+        end
+    elseif (not self.accounts[id]) then
+        self.accounts[id] = Account:new(id, name, label, owner, money, accountType);
         return self.accounts[id];
     else
         Package.Warn("AccountManager:register(): account [ ".. name .." ] already exists");
@@ -49,17 +64,23 @@ end
 ---@return Account
 function AccountManager:getByOwner(owner, accountName)
     local found = false;
-    for account, _ in pairs(self.accounts) do
-        local acc = self.accounts[account];
-        if (acc) then
-            if (acc.owner == owner and acc.name == accountName) then
-                found = true;
-                return acc;
+    if (self.owned[owner]) then
+        for account, _ in pairs(self.owned[owner]) do
+            local acc = self.owned[owner][account];
+            if (acc) then
+                if (acc.owner == owner and acc.name == accountName) then
+                    found = true;
+                    return acc;
+                end
             end
         end
+    else
+        Package.Warn('AccountManager:getByOwner(): owner [ '.. owner ..' ] not found');
+        return nil;
     end
     if (not found) then
         Package.Warn('AccountManager:getByOwner(): account [ Owner: "'.. owner.. '" name: "'.. accountName ..'" ] not found');
+        return nil;
     end
 end
 

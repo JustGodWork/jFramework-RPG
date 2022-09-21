@@ -17,19 +17,24 @@ Item = {}
 
 ---@param id string
 ---@param name string
+---@param label string
 ---@param data table
 ---@param type string
+---@param weight number
 ---@param unique boolean
 ---@return Item
-function Item:new(id, name, data, type, unique)
+function Item:new(id, name, label, data, type, weight, unique)
+    ---@type Item
     local self = {}
     setmetatable(self, { __index = Item});
 
     self.id = id;
     self.name = name;
+    self.label = label;
     self.data = data or {};
     self.type = type;
-    self.unique = unique;
+    self.unique = unique or false;
+    self.weight = weight or 0;
     self.count = 0;
 
     return self;
@@ -43,6 +48,16 @@ end
 ---@return string
 function Item:getName()
     return self.name;
+end
+
+---@return string
+function Item:getLabel()
+    return self.label;
+end
+
+---@param label string
+function Item:setLabel(label)
+    self.label = label;
 end
 
 ---@return table
@@ -70,6 +85,11 @@ end
 
 function Item:setCallback(callback)
     self.callback = callback;
+end
+
+---@return number
+function Item:getWeight()
+    return self.weight;
 end
 
 ---@return boolean

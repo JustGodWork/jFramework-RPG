@@ -16,6 +16,7 @@
 Repository = {}
 
 function Repository:new(name)
+    ---@type Repository
     local self = {}
     setmetatable(self, { __index = Repository});
 

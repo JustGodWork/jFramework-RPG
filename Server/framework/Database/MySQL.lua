@@ -17,6 +17,7 @@ local MySQL = {}
 
 ---@param connectionParameters table[ db: string, user: string, host: string, port: number, password: string ]
 function MySQL:new(connectionParameters)
+    ---@type MySQL
     local self = {}
     setmetatable(self, { __index = MySQL});
 

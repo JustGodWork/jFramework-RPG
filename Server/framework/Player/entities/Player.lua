@@ -19,16 +19,22 @@ jPlayer = {}
 ---@param nanosPlayer Player
 ---@return jPlayer
 function jPlayer:new(data, nanosPlayer)
+    ---@type jPlayer
     local self = {}
     setmetatable(self, { __index = jPlayer});
 
-    self.character_id = data.character_id;
+    self.character_id = data.id;
     self.identifier = nanosPlayer:GetSteamID();
     self.id = nanosPlayer:GetID();
     self.handle = nanosPlayer;
     self.name = nanosPlayer:GetName();
+    self.firstname = data.firstname;
+    self.lastname = data.lastname;
+    self.position = data.position or Config.player.defaultPosition;
+    ---@type Account[]
     self.accounts = {};
-    self.inventory = {};
+    ---@type Inventory[]
+    self.inventories = {};
 
     if (Config.debug) then
         Package.Log("Server: [Player: ".. self.name .."] initialized.");
@@ -57,12 +63,53 @@ function jPlayer:getName()
     return self.name;
 end
 
+---@return string
+function jPlayer:getFirstName()
+    return self.firstname;
+end
+
+---@param name string
+---@return void
+function jPlayer:setFirstName(name)
+    self.firstname = name;
+end
+
+---@return string
+function jPlayer:getLastName()
+    return self.lastname;
+end
+
+---@param name string
+---@return void
+function jPlayer:setLastName(name)
+    self.lastname = name;
+end
+
+---@return string
+function jPlayer:getFullName()
+    if  (self.firstname == nil or self.lastname == nil) then
+        return self.name;
+    end
+    return string.format("%s %s", self.firstname, self.lastname);
+end
+
 ---@return Account[]
 function jPlayer:getAccounts()
     return self.accounts;
 end
 
+---@param name string
+function jPlayer:getAccount(name)
+    return self.accounts[name];
+end
+
 ---@return Inventory[]
-function jPlayer:getInventory()
-    return self.inventory;
+function jPlayer:getInventories()
+    return self.inventories;
+end
+
+---@param name string
+---@return Inventory
+function jPlayer:getInventory(name)
+    return self.inventories[name];
 end

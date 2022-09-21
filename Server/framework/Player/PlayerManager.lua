@@ -17,6 +17,7 @@ local PlayerManager = {}
 
 ---@return PlayerManager
 function PlayerManager:new()
+    ---@type PlayerManager
     local self = {}
     setmetatable(self, { __index = PlayerManager});
 
@@ -58,8 +59,10 @@ end
 
 ---@param data table
 ---@param nanosPlayer Player
+---@return jPlayer
 function PlayerManager:registerPlayer(data, nanosPlayer)
     self.players[nanosPlayer:GetID()] = jPlayer:new(data, nanosPlayer);
+    return self.players[nanosPlayer:GetID()];
 end
 
 ---@param playerId number

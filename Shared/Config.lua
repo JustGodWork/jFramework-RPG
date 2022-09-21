@@ -17,3 +17,19 @@ Config = {}
 
 Config.debug = true
 Config.lang = "fr"
+
+Config.player = {
+    accounts = {
+        {name = "bank", label = "Banque", money = 1000},
+        {name = "cash", label = "Cash", money = 500},
+    },
+    inventory = {
+        {name = "main", label = "Inventaire", maxWeight = 50},
+    },
+    defaultPosition = {
+        x = 0, 
+        y = 0, 
+        z = 0, 
+        heading = 0
+    },
+}

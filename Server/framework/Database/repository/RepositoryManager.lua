@@ -17,6 +17,7 @@ local RepositoryManager = {}
 
 ---@return RepositoryManager
 function RepositoryManager:new()
+    ---@type RepositoryManager
     local self = {}
     setmetatable(self, { __index = RepositoryManager});
 
