@@ -15,6 +15,7 @@
 ---@class ItemManager
 local ItemManager = {}
 
+---@return ItemManager
 function ItemManager:new()
     local self = {}
     setmetatable(self, { __index = ItemManager});
@@ -29,9 +30,10 @@ end
 ---@param name string
 ---@param data table
 ---@param type string
+---@param unique boolean
 ---@return void
-function ItemManager:addItem(id, name, data, type)
-    self.items[id] = Item:new(id, name, data or {}, type);
+function ItemManager:addItem(id, name, data, type, unique)
+    self.items[id] = Item:new(id, name, data or {}, type, unique);
 end
 
 ---@param id string id or name of item

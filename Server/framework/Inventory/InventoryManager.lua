@@ -17,8 +17,8 @@ local InventoryManager = {}
 
 ---@return InventoryManager
 function InventoryManager:new()
-    setmetatable(InventoryManager, self)
-    self.__index = self
+    local self = {}
+    setmetatable(self, { __index = InventoryManager});
 
     ---@type Inventory[]
     self.inventories = {};
@@ -27,7 +27,7 @@ function InventoryManager:new()
         Package.Log("Server: [ InventoryManager ] initialized.");
     end
 
-    return InventoryManager;
+    return self;
 end
 
 ---todo modify params
@@ -52,7 +52,7 @@ end
 function InventoryManager:getByOwner(owner, inventoryName)
     local found = false;
     for inventory, _ in pairs(self.inventories) do
-        local inv = self.accounts[inventory];
+        local inv = self.inventories[inventory];
         if (inv) then
             if (inv.owner == owner and inv.name == inventoryName) then
                 found = true;
@@ -62,6 +62,19 @@ function InventoryManager:getByOwner(owner, inventoryName)
     end
     if (not found) then
         Package.Warn('InventoryManager:getByOwner(): inventory [ Owner: "'.. owner.. '" name: "'.. inventoryName ..'" ] not found');
+    end
+end
+
+---@param inventory Inventory
+---@param owner string
+---@return void
+function InventoryManager:setOwner(inventory, owner)
+    if (inventory) then
+        if (self.inventories[inventory:getId()]) then
+            self.inventories[inventory:getId()].owner = owner;
+        else
+            Package.Warn('InventoryManager:setOwner(): inventory [ '.. inventory ..' ] not found');
+        end
     end
 end
 

@@ -28,9 +28,9 @@ function Inventory:new(id, name, owner, items, inventoryType)
     self.id = id;
     self.name = name;
     self.owner = owner;
+    ---@type Item[]
     self.items = items;
     self.inventoryType = inventoryType;
-    self.items = items;
 
     return self;
 end
@@ -55,6 +55,7 @@ function Inventory:getItems()
     return self.items;
 end
 
+---@return number
 function Inventory:getType()
     return self.inventoryType;
 end
@@ -66,19 +67,24 @@ end
 
 ---@param itemName string
 ---@param count number
+---@return boolean
 function Inventory:addItem(itemName, count)
     local item = jServer.itemManager:getItem(itemName)
     if item then
-        if self:hasItem(itemName) then
-            self.items:get(itemName).count = self.items:get(itemName).count + count
-        else
-            self.items:set(itemName, {
-                id = item:getId(),
-                name = item:getName(),
-                data = item:getData(),
-                type = item:getType(),
-                count = count
-            })
+        if (item:isUnique() and count == 1) then
+            self.items[itemName] = item
+            self.items[itemName].count = 1
+            return true;
+        elseif (not item:isUnique() and self:hasItem(itemName)) then
+            self.items[itemName].count = self.items[itemName].count + count
+            return true;
+        elseif (not item:isUnique()) then
+            self.items[itemName] = item
+            self.items[itemName].count = count
+            return true;
+        elseif (item:isUnique()) then
+            Package.Log("Inventory:addItem(): item [ ".. itemName .." ] is unique but count is not 1")
+            return false;
         end
     end
 end
@@ -86,13 +92,13 @@ end
 ---@param itemName string
 ---@param count number
 function Inventory:removeItem(itemName, count)
-    local item = ItemManager:getItem(itemName)
+    local item = jServer.itemManager:getItem(itemName)
     if item then
         if self:hasItem(itemName) then
-            if self.items:get(itemName).count - count <= 0 then
-                self.items:set(itemName, nil)
+            if self.items[itemName]:getCount() - count <= 0 then
+                self.items[itemName] = nil;
             else
-                self.items:get(itemName).count = self.items:get(itemName).count - count
+                self.items[itemName]:setCount(self.items[itemName]:getCount() - count)
             end
         end
     end
@@ -101,5 +107,5 @@ end
 ---@param itemName string
 ---@return Item
 function Inventory:getItem(itemName)
-    return self.items:get(itemName)
+    return self.items[itemName];
 end

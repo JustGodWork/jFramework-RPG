@@ -19,8 +19,9 @@ Item = {}
 ---@param name string
 ---@param data table
 ---@param type string
+---@param unique boolean
 ---@return Item
-function Item:new(id, name, data, type)
+function Item:new(id, name, data, type, unique)
     local self = {}
     setmetatable(self, { __index = Item});
 
@@ -28,6 +29,8 @@ function Item:new(id, name, data, type)
     self.name = name;
     self.data = data or {};
     self.type = type;
+    self.unique = unique;
+    self.count = 0;
 
     return self;
 end
@@ -67,6 +70,26 @@ end
 
 function Item:setCallback(callback)
     self.callback = callback;
+end
+
+---@return boolean
+function Item:isUnique()
+    return self.unique;
+end
+
+---@param bool boolean
+function Item:setUnique(bool)
+    self.unique = bool;
+end
+
+---@return number
+function Item:getCount()
+    return self.count;
+end
+
+---@param count number
+function Item:setCount(count)
+    self.count = count;
 end
 
 ---@param player jPlayer
