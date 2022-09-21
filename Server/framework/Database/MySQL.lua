@@ -26,8 +26,15 @@ function MySQL:new(connectionParameters)
     if (Config.debug) then
         Package.Log("Server: [ MySQL ] initialized.");
     end
-    
+
     return self;
+end
+
+function MySQL:onClose()
+    Server.Subscribe("Stop", function()
+        self.database:Close()
+        Package.Log("[MySQL] Connection closed.")
+    end)
 end
 
 ---Connect to database
@@ -61,6 +68,7 @@ function MySQL:createConnection()
             )
         )
     end
+    self:onClose()
     return self;
 end
 
