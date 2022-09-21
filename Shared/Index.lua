@@ -12,35 +12,38 @@
 -------
 --]]
 
----@class _Shared
-local _Shared = {}
+---@class Shared
+local Shared = {}
 
 Package.Require("./Config.lua")
 
----@return _Shared
-function _Shared:new()
-    local class = {}
-    setmetatable(class, {__index = _Shared})
+---@return Shared
+function Shared:new()
+    local self = {}
+    setmetatable(self, { __index = Shared});
 
     self.utils = {}
 
-    Package.Log("Shared: [ jShared ] initialized.");
+    if (Config.debug) then
+        Package.Log("Shared: [ jShared ] initialized.");
+    end
+
     return self;
 end
 
 ---@return boolean
-function _Shared:isDebugMode()
+function Shared:isDebugMode()
     return Config.debug
 end
 
 ---@param bool boolean
-function _Shared:setDebugMode(bool)
+function Shared:setDebugMode(bool)
     Config.debug = bool
 end
 
 ---@param pattern  string
 ---@return string
-function _Shared:uuid(pattern)
+function Shared:uuid(pattern)
     local random = math.random
     local template = pattern and type(pattern) == "string" and pattern or 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     return string.gsub(template, '[xy]', function (c)
@@ -50,7 +53,7 @@ function _Shared:uuid(pattern)
 end
 
 ---@param Object table
-function _Shared:printObject(Object)
+function Shared:printObject(Object)
     for k, v in pairs(Object) do
         if (type(v) ~= "function") then
             print("[ ".. k .. " ] =", JSON.stringify(v))
@@ -59,10 +62,10 @@ function _Shared:printObject(Object)
 end
 
 ---@param module string
-function _Shared:loadModule(module)
+function Shared:loadModule(module)
     Package.Require(string.format("./modules/%s", module));
 end
 
-jShared = _Shared:new();
+jShared = Shared:new();
 
 Package.Require("./loader.lua");

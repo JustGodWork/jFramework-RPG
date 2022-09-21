@@ -12,71 +12,68 @@
 -------
 --]]
 
----@class AccountManager
+---@class InventoryManager
 local InventoryManager = {}
 
+---@return InventoryManager
 function InventoryManager:new()
-    local class = {};
-    setmetatable(class, {__index = InventoryManager});
+    setmetatable(InventoryManager, self)
+    self.__index = self
 
-    self.inventories = jShared.utils.mapManager:register("inventories");
+    ---@type Inventory[]
+    self.inventories = {};
 
-    Package.Log("Server: [ InventoryManager ] initialized.");
+    if (Config.debug) then
+        Package.Log("Server: [ InventoryManager ] initialized.");
+    end
 
-    return self;
+    return InventoryManager;
 end
 
 ---todo modify params
 ---@param id string
 ---@param name string
 ---@param owner string
----@param items Map
+---@param items Item[]
 ---@param inventoryType number
 ---@return Inventory
-function InventoryManager:register(id, name, owner, money, inventoryType)
-    local inventoryOwners = jShared.utils.mapManager:get("inventoriesOwners");
-    if (owner) then
-        if (not inventoryOwners or not inventoryOwners:get(owner)) then
-            jShared.utils.mapManager:register(owner, "inventoriesOwners");
-            inventoryOwners = jShared.utils.mapManager:get("inventoriesOwners");
-        end
-        inventoryOwners:get(owner):set(name, Inventory:new(id, name, owner, money, inventoryType));
-        return inventoryOwners:get(owner):get(name);
+function InventoryManager:register(id, name, owner, items, inventoryType)
+    if (not self.inventories[id]) then
+        self.inventories[id] = Inventory:new(id, name, owner, items, inventoryType);
+        return self.inventories[id];
     else
-        self.inventories:set(name, Inventory:new(id, name, owner, money, inventoryType));
-        return self.inventories:get(name);
+        Package.Warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
     end
 end
 
 ---@param owner string
 ---@param inventoryName string
----@param callback fun(inventory: Inventory)
-function InventoryManager:getByOwner(owner, inventoryName, callback)
-    local inventoryOwners = jShared.utils.mapManager:get("inventoriesOwners")
-    if (inventoryOwners) then
-        local inventories = inventoryOwners:get(owner)
-        if (inventories) then
-            inventories:foreach(function(name, inventory)
-                if (inventory ~= nil and name == inventoryName) then
-                    if (callback) then
-                        callback(inventories:get(name));
-                    end
-                end
-            end)
+---@return Inventory
+function InventoryManager:getByOwner(owner, inventoryName)
+    local found = false;
+    for inventory, _ in pairs(self.inventories) do
+        local inv = self.accounts[inventory];
+        if (inv) then
+            if (inv.owner == owner and inv.name == inventoryName) then
+                found = true;
+                return inv;
+            end
         end
-    else
-        return nil;
+    end
+    if (not found) then
+        Package.Warn('InventoryManager:getByOwner(): inventory [ Owner: "'.. owner.. '" name: "'.. inventoryName ..'" ] not found');
     end
 end
 
 ---@param id string id or name of Inventory
 ---@return Inventory
 function InventoryManager:get(id)
-    self.inventories:values(function(data)
-        if (data:getId() == id or data:getName() == id) then
-            return self.inventories:get(data:getName());
+    for inventory, _ in pairs(self.inventories) do
+        local inv = self.inventories[inventory]
+        if (inv:getId() == id or inv:getName() == id) then
+            return inv;
         end
-    end)
+    end
 end
 
 jServer.inventoryManager = InventoryManager:new();

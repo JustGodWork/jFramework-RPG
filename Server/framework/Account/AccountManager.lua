@@ -16,13 +16,16 @@
 local AccountManager = {}
 
 function AccountManager:new()
-    local class = {};
-    setmetatable(class, {__index = AccountManager});
+    local self = {}
+    setmetatable(self, { __index = AccountManager});
 
-    self.accounts = jShared.utils.mapManager:register("accounts");
+    ---@type Account[]
+    self.accounts = {};
 
-    Package.Log("Server: [ AccountManager ] initialized.");
-
+    if (Config.debug) then
+        Package.Log("Server: [ AccountManager ] initialized.");
+    end
+    
     return self;
 end
 
@@ -33,49 +36,42 @@ end
 ---@param accountType number
 ---@return Account
 function AccountManager:register(id, name, owner, money, accountType)
-    local accountsOwners = jShared.utils.mapManager:get("accountsOwners");
-    if (owner) then
-        if (not accountsOwners or not accountsOwners:get(owner)) then
-            jShared.utils.mapManager:register(owner, "accountsOwners");
-            accountsOwners = jShared.utils.mapManager:get("accountsOwners");
-        end
-        accountsOwners:get(owner):set(name, Account:new(id, name, owner, money, accountType));
-        return accountsOwners:get(owner):get(name);
+    if (not self.accounts[id]) then
+        self.accounts[id] = Account:new(id, name, owner, money, accountType);
+        return self.accounts[id];
     else
-        self.accounts:set(name, Account:new(id, name, owner, money, accountType));
-        return self.accounts:get(name);
+        Package.Warn("AccountManager:register(): account [ ".. name .." ] already exists");
     end
 end
 
 ---@param owner string
 ---@param accountName string
----@param callback fun(account: Account)
-function AccountManager:getByOwner(owner, accountName, callback)
-    local accountsOwners = jShared.utils.mapManager:get("accountsOwners")
-    if (accountsOwners) then
-        local accounts = accountsOwners:get(owner)
-        if (accounts) then
-            accounts:foreach(function(name, account)
-                if (account ~= nil and name == accountName) then
-                    if (callback) then
-                        callback(accounts:get(name));
-                    end
-                end
-            end)
+---@return Account
+function AccountManager:getByOwner(owner, accountName)
+    local found = false;
+    for account, _ in pairs(self.accounts) do
+        local acc = self.accounts[account];
+        if (acc) then
+            if (acc.owner == owner and acc.name == accountName) then
+                found = true;
+                return acc;
+            end
         end
-    else
-        return nil;
+    end
+    if (not found) then
+        Package.Warn('AccountManager:getByOwner(): account [ Owner: "'.. owner.. '" name: "'.. accountName ..'" ] not found');
     end
 end
 
 ---@param id string id or name of account
 ---@return Account
 function AccountManager:get(id)
-    self.accounts:values(function(data)
-        if (data:getId() == id or data:getName() == id) then
-            return self.accounts:get(data:getName());
+    for account, _ in pairs(self.accounts) do
+        local acc = self.accounts[account];
+        if (acc:getId() == id or acc:getName() == id) then
+            return self.accounts[account];
         end
-    end)
+    end
 end
 
 jServer.accountManager = AccountManager:new();

@@ -22,8 +22,8 @@ Inventory = {}
 ---@param inventoryType number
 ---@return Inventory
 function Inventory:new(id, name, owner, items, inventoryType)
-    local class = {};
-    setmetatable(class, {__index = Inventory});
+    local self = {}
+    setmetatable(self, { __index = Inventory});
 
     self.id = id;
     self.name = name;
@@ -55,6 +55,51 @@ function Inventory:getItems()
     return self.items;
 end
 
-function Inventory:getInventoryType()
+function Inventory:getType()
     return self.inventoryType;
+end
+
+---@param itemName string
+function Inventory:hasItem(itemName)
+    return self.items[itemName] ~= nil
+end
+
+---@param itemName string
+---@param count number
+function Inventory:addItem(itemName, count)
+    local item = jServer.itemManager:getItem(itemName)
+    if item then
+        if self:hasItem(itemName) then
+            self.items:get(itemName).count = self.items:get(itemName).count + count
+        else
+            self.items:set(itemName, {
+                id = item:getId(),
+                name = item:getName(),
+                data = item:getData(),
+                type = item:getType(),
+                count = count
+            })
+        end
+    end
+end
+
+---@param itemName string
+---@param count number
+function Inventory:removeItem(itemName, count)
+    local item = ItemManager:getItem(itemName)
+    if item then
+        if self:hasItem(itemName) then
+            if self.items:get(itemName).count - count <= 0 then
+                self.items:set(itemName, nil)
+            else
+                self.items:get(itemName).count = self.items:get(itemName).count - count
+            end
+        end
+    end
+end
+
+---@param itemName string
+---@return Item
+function Inventory:getItem(itemName)
+    return self.items:get(itemName)
 end

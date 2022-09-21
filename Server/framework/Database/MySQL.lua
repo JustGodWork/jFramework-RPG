@@ -17,12 +17,15 @@ local MySQL = {}
 
 ---@param connectionParameters table[ db: string, user: string, host: string, port: number, password: string ]
 function MySQL:new(connectionParameters)
-    local class = {}
-    setmetatable(class, {__index = MySQL});
+    local self = {}
+    setmetatable(self, { __index = MySQL});
 
     self.params = connectionParameters;
 
-    Package.Log("Server: [ MySQL ] initialized.");
+    if (Config.debug) then
+        Package.Log("Server: [ MySQL ] initialized.");
+    end
+    
     return self;
 end
 

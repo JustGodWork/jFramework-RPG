@@ -12,6 +12,4 @@
 -------
 --]]
 
-jShared:loadModule("Utils/Lang.lua");
-jShared:loadModule("Utils/Map/entities/Map.lua");
-jShared:loadModule("Utils/Map/MapManager.lua");
+---LOAD SHARED MODULES HERE

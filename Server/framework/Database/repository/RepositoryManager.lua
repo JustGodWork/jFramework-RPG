@@ -17,12 +17,15 @@ local RepositoryManager = {}
 
 ---@return RepositoryManager
 function RepositoryManager:new()
-    local class = {}
-    setmetatable(class, {__index = RepositoryManager});
+    local self = {}
+    setmetatable(self, { __index = RepositoryManager});
 
     self.repositories = {};
 
-    Package.Log("Server: [ RepositoryManager ] initialized.");
+    if (Config.debug) then
+        Package.Log("Server: [ RepositoryManager ] initialized.");
+    end
+    
     return self;
 end
 

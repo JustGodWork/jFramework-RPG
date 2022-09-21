@@ -17,51 +17,54 @@ local PlayerManager = {}
 
 ---@return PlayerManager
 function PlayerManager:new()
-    local class = {}
-    setmetatable(class, {__index = PlayerManager});
+    local self = {}
+    setmetatable(self, { __index = PlayerManager});
 
-    self.players = jShared.utils.mapManager:register("players");
+    ---@type jPlayer[]
+    self.players = {};
 
-    Package.Log("Server: [ PlayerManager ] initialized.");
-
+    if (Config.debug) then
+        Package.Log("Server: [ PlayerManager ] initialized.");
+    end
+    
     return self;
 end
 
 ---@param id string
 ---@return jPlayer
 function PlayerManager:getFromId(id)
-    return self.players:get(id);
+    return self.players[id];
 end
 
 ---@param name string
 ---@return jPlayer
 function PlayerManager:getFromName(name)
-    self.players:values(function (player)
+    for id, player in pairs(self.players) do
         if (player:getName() == name) then
-            return self.players:get(player:getId());
+            return self.players[id];
         end
-    end)
+    end
 end
 
 ---@param idenfitier string
 ---@return jPlayer
 function PlayerManager:getFromIdentifier(idenfitier)
-    self.players:values(function (player)
+    for id, player in pairs(self.players) do
         if (player:getIdentifier() == idenfitier) then
-            return self.players:get(player:getId());
+            return self.players[id];
         end
-    end)
+    end
 end
 
 ---@param data table
 ---@param nanosPlayer Player
 function PlayerManager:registerPlayer(data, nanosPlayer)
-    self.players:set(nanosPlayer:GetID(), jPlayer:new(data, nanosPlayer));
+    self.players[nanosPlayer:GetID()] = jPlayer:new(data, nanosPlayer);
 end
 
 ---@param playerId number
 function PlayerManager:removePlayer(playerId)
-    self.players:remove(playerId);
+    self.players[playerId] = nil;
 end
 
 jServer.playerManager = PlayerManager:new();

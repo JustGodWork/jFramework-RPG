@@ -21,8 +21,8 @@ Account = {}
 ---@param money number
 ---@param accountType number
 function Account:new(id, name, owner, money, accountType)
-    local class = {}
-    setmetatable(class, {__index = Account});
+    local self = {}
+    setmetatable(self, { __index = Account});
 
     self.id = id;
     self.name = name;
@@ -53,15 +53,15 @@ function Account:getMoney()
     return self.money;
 end
 
----@return number
-function Account:getType()
-    return self.type;
-end
-
 ---@param money number
 ---@return void
 function Account:setMoney(money)
     self.money = money;
+end
+
+---@return number
+function Account:getType()
+    return self.type;
 end
 
 ---@param type number

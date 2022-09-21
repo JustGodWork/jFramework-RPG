@@ -17,8 +17,8 @@ local _Server = {}
 
 ---@return _Server
 function _Server:new()
-    local class = {}
-    setmetatable(class, {__index = _Server});
+    local self = {}
+    setmetatable(self, { __index = _Server});
 
     ---@param module string
     function self:loadFrameworkModule(module)
@@ -30,7 +30,9 @@ function _Server:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
-    Package.Log("Server: [ jServer ] initialized.");
+    if (Config.debug) then
+        Package.Log("Server: [ jServer ] initialized.");
+    end
 
     return self
 end

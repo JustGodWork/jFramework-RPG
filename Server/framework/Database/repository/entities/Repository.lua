@@ -16,12 +16,14 @@
 Repository = {}
 
 function Repository:new(name)
-    local class = {}
-    setmetatable(class, {__index = Repository});
+    local self = {}
+    setmetatable(self, { __index = Repository});
 
     self.name = name;
 
-    Package.Log("Server: [Repository: ".. name .."] initialized.");
+    if (Config.debug) then
+        Package.Log("Server: [Repository: ".. name .."] initialized.");
+    end
 
     return self;
 end

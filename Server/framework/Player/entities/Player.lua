@@ -19,8 +19,8 @@ jPlayer = {}
 ---@param nanosPlayer Player
 ---@return jPlayer
 function jPlayer:new(data, nanosPlayer)
-    local class = {}
-    setmetatable(class, {__index = jPlayer});
+    local self = {}
+    setmetatable(self, { __index = jPlayer});
 
     self.character_id = data.character_id;
     self.identifier = nanosPlayer:GetSteamID();
@@ -30,8 +30,10 @@ function jPlayer:new(data, nanosPlayer)
     self.accounts = {};
     self.inventory = {};
 
-    Package.Log("Server: [Player: ".. self.name .."] initialized.");
-
+    if (Config.debug) then
+        Package.Log("Server: [Player: ".. self.name .."] initialized.");
+    end
+    
     return self;
 end
 
