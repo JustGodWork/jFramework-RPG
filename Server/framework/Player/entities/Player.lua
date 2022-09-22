@@ -26,7 +26,7 @@ function Player:onCreate(data)
     );
     self:SetValue("heading", 
         (data.heading ~= "" and JSON.parse(data.heading))
-        or Rotator(heading.x, heading.y, heading.z)
+        or Rotator(heading.Pitch, heading.Yaw, heading.Roll)
     );
     self:SetValue("skin", (data.skin ~= "" and data.skin or Config.player.defaultSkin));
     self:SetValue("accounts", {});
@@ -41,10 +41,12 @@ end
 
 function Player:onConnect()
     local playerCharacter = Character(self:getPosition(), self:getHeading(), self:getSkin())
+    playerCharacter:SetScale(Vector(1, 1, 1))
     self:Possess(playerCharacter)
 
     local character = self:GetControlledCharacter()
     character:Subscribe("Death", function(chara, last_damage_taken, last_bone_damaged, damage_reason, hit_from, instigator)
+        Package.Log("Player [%s] %s die.", self:GetSteamID(), self:getFullName())
         if (instigator) then
             if (instigator == self) then
                 Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> committed suicide")
@@ -57,6 +59,7 @@ function Player:onConnect()
     
         -- Respawns the Character after 5 seconds, we Bind the Timer to the Character, this way if the Character gets destroyed in the meanwhile, this Timer never gets destroyed
         Timer.Bind(Timer.SetTimeout(function(character)
+            Package.Log("Respawing Player [%s] %s...", self:GetSteamID(), self:getFullName())
             self:SetValue("position", character:GetLocation())
             self:SetValue("heading", character:GetRotation())
             -- If he is not dead anymore after 5 seconds, ignores it

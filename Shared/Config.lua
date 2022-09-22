@@ -27,14 +27,14 @@ Config.player = {
         {name = "main", label = "Inventaire", maxWeight = 50},
     },
     defaultPosition = {
-        x = 0, 
-        y = 0, 
-        z = 50,
+        x = 799.400, 
+        y = 1755.599, 
+        z = 101.5,
     },
     defaultHeading = {
-        x = 0, 
-        y = 0,
-        z = 0,
+        Pitch = 0.0,
+        Yaw = -92.521,
+        Roll = 0.0
     },
     defaultSkin = "nanos-world::SK_Male"
 }

@@ -3,7 +3,7 @@
 --Author: JustGod
 --Made with ❤
 -------
---Last Modified: Thursday September 22nd 2022 3:35:39 am
+--Last Modified: Thursday September 22nd 2022 11:35:53 pm
 -------
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -12,10 +12,16 @@
 -------
 --]]
 
-Events.Subscribe("jServer:modules:world:time:sync", function(hour, minute)
-    World.SetTime(hour, minute)
-end)
+---@class jWorld
+local jWorld = {}
 
-Events.Subscribe("jServer:modules:world:weather:sync", function(weather)
-    World.SetWeather(weather)
-end)
+---@return jWorld
+function jWorld:new()
+    local self = {}
+    setmetatable(self, { __index = jWorld});
+    return self;
+end
+
+jServer.modules.world = jWorld:new();
+
+jServer:loadModule("World/loader.lua");

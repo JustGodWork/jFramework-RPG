@@ -19,6 +19,7 @@ Package.Require("./Config.lua")
 
 ---@return Shared
 function Shared:new()
+    ---@type Shared
     local self = {}
     setmetatable(self, { __index = Shared});
 
@@ -51,7 +52,7 @@ function Shared:setDebugMode(bool)
     Config.debug = bool
 end
 
----@param pattern  string
+---@param pattern string
 ---@return string
 function Shared:uuid(pattern)
     local random = math.random

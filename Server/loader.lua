@@ -28,6 +28,10 @@ jServer:loadFrameworkModule("Player/entities/Player.lua");
 jServer:loadFrameworkModule("Player/PlayerManager.lua");
 jServer:loadFrameworkModule("Player/ConnexionHandler.lua");
 jServer:loadFrameworkModule("Player/Events.lua");
+jServer:loadFrameworkModule("Command/entities/Command.lua");
+jServer:loadFrameworkModule("Command/CommandManager.lua");
+jServer:loadFrameworkModule("Command/Commands.lua");
 
 --MODULES
+jServer:loadModule("World/World.lua");
 jServer:loadModule("test.lua");

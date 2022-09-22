@@ -23,18 +23,17 @@ Account = {}
 ---@param accountType number
 ---@return Account
 function Account:new(id, name, label, owner, money, accountType)
-    ---@type Account
-    local self = {}
-    setmetatable(self, { __index = Account});
+    local self = {};
+    setmetatable(self, { __index = Account });
 
     self.id = id;
     self.name = name;
-    self.label = label
+    self.label = label;
     self.owner = owner;
     self.money = money or 0;
     self.type = accountType or 0;
 
-    return self;
+	return self;
 end
 
 ---@return string

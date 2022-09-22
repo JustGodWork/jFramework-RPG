@@ -31,7 +31,7 @@ function PlayerManager:new()
     return self;
 end
 
----@param id string
+---@param id number
 ---@return Player
 function PlayerManager:getFromId(id)
     return self.players[id];

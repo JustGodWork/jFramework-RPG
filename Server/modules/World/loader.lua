@@ -1,9 +1,9 @@
 --[[
---Created Date: Tuesday September 20th 2022
+--Created Date: Thursday September 22nd 2022
 --Author: JustGod
 --Made with ❤
 -------
---Last Modified: Tuesday September 20th 2022 7:46:37 pm
+--Last Modified: Thursday September 22nd 2022 11:43:46 pm
 -------
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -12,8 +12,5 @@
 -------
 --]]
 
----LOAD SHARED FRAMEWORK MODULES HERE
-jShared:loadFrameworkModule("Utils/String/String.lua");
-jShared:loadFrameworkModule("Utils/Thread/Thread.lua"); -- DO NOT USE FOR NOW
-
----LOAD SHARED MODULES HERE
+jServer:loadModule("World/Time/Time.lua");
+jServer:loadModule("World/Weather/Weather.lua");

@@ -20,6 +20,8 @@ function _Server:new()
     local self = {}
     setmetatable(self, { __index = _Server});
 
+    self.modules = {};
+
     ---@param module string
     function self:loadFrameworkModule(module)
         Package.Require(string.format("./framework/%s", module));

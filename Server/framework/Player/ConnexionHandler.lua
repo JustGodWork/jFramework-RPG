@@ -37,7 +37,9 @@ function ConnexionHandler:requestData(nanosPlayer, callback)
     local identifier = nanosPlayer:GetSteamID();
     jServer.mysql:select("SELECT * FROM players WHERE identifier = ?", { identifier }, function (result)
         self.players[identifier] = result[1];
-        callback(self.players[identifier]);
+        if (callback) then
+            callback(self.players[identifier]);
+        end
     end);
 end
 
@@ -72,6 +74,7 @@ function ConnexionHandler:connect(nanosPlayer, callback)
         Package.Log("Server: [ConnexionHandler] Player [%s] %s %s connected !", identifier, data.firstname, data.lastname);
         local player = jServer.playerManager:registerPlayer(data, nanosPlayer);
         self.players[identifier] = nil;
+        Events.Call("onPlayerConnecting", player);
         if (callback) then
             callback(player);
         end
@@ -94,10 +97,10 @@ function ConnexionHandler:createPlayer(nanosPlayer, callback)
         if (result ~= 0) then
             self:requestData(nanosPlayer, function (playerData)
                 Package.Log("Server: [ConnexionHandler] Player [%s] %s %s created !", identifier, playerData.firstname, playerData.lastname);
+                if (callback) then
+                    callback(result);
+                end
             end);
-        end
-        if (callback) then
-            callback(result);
         end
     end);
 end
