@@ -29,7 +29,12 @@ Config.player = {
     defaultPosition = {
         x = 0, 
         y = 0, 
-        z = 0, 
-        heading = 0
+        z = 50,
     },
+    defaultHeading = {
+        x = 0, 
+        y = 0,
+        z = 0,
+    },
+    defaultSkin = "nanos-world::SK_Male"
 }

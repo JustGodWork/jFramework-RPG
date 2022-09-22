@@ -12,104 +12,136 @@
 -------
 --]]
 
----@class jPlayer
-jPlayer = {}
+function Player:onCreate(data)
+    local position = Config.player.defaultPosition;
+    local heading = Config.player.defaultHeading;
 
----@param data table
----@param nanosPlayer Player
----@return jPlayer
-function jPlayer:new(data, nanosPlayer)
-    ---@type jPlayer
-    local self = {}
-    setmetatable(self, { __index = jPlayer});
+    self:SetValue("character_id", data.id);
+    self:SetValue("identifier", self:GetSteamID());
+    self:SetValue("firstname", data.firstname);
+    self:SetValue("lastname", data.lastname);
+    self:SetValue("position", 
+        (data.position ~= "" and JSON.parse(data.position))
+        or Vector(position.x, position.y, position.z)
+    );
+    self:SetValue("heading", 
+        (data.heading ~= "" and JSON.parse(data.heading))
+        or Rotator(heading.x, heading.y, heading.z)
+    );
+    self:SetValue("skin", (data.skin ~= "" and data.skin or Config.player.defaultSkin));
+    self:SetValue("accounts", {});
+    self:SetValue("inventories", {});
 
-    self.character_id = data.id;
-    self.identifier = nanosPlayer:GetSteamID();
-    self.id = nanosPlayer:GetID();
-    self.handle = nanosPlayer;
-    self.name = nanosPlayer:GetName();
-    self.firstname = data.firstname;
-    self.lastname = data.lastname;
-    self.position = data.position or Config.player.defaultPosition;
-    ---@type Account[]
-    self.accounts = {};
-    ---@type Inventory[]
-    self.inventories = {};
+    self:onConnect()
 
     if (Config.debug) then
-        Package.Log("Server: [Player: ".. self.name .."] initialized.");
+        Package.Log("Server: [Player: ".. self:getFullName() .."] initialized.");
     end
+end
+
+function Player:onConnect()
+    local playerCharacter = Character(self:getPosition(), self:getHeading(), self:getSkin())
+    self:Possess(playerCharacter)
+
+    local character = self:GetControlledCharacter()
+    character:Subscribe("Death", function(chara, last_damage_taken, last_bone_damaged, damage_reason, hit_from, instigator)
+        if (instigator) then
+            if (instigator == self) then
+                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> committed suicide")
+            else
+                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> killed <cyan>" .. self:GetName() .. "</>")
+            end
+        else
+            Server.BroadcastChatMessage("<cyan>" .. self:GetName() .. "</> died")
+        end
     
-    return self;
+        -- Respawns the Character after 5 seconds, we Bind the Timer to the Character, this way if the Character gets destroyed in the meanwhile, this Timer never gets destroyed
+        Timer.Bind(Timer.SetTimeout(function(character)
+            self:SetValue("position", character:GetLocation())
+            self:SetValue("heading", character:GetRotation())
+            -- If he is not dead anymore after 5 seconds, ignores it
+            if (character:GetHealth() ~= 0) then return end
+            -- Respawns the Character at a random point
+            character:Respawn(self:getPosition(), self:getHeading())
+        end, 5000, chara), chara)
+    end)
 end
 
 ---@return number
-function jPlayer:getCharacterId()
-    return self.character_id;
-end
-
----@return number
-function jPlayer:getId()
-    return self.id;
-end
-
----@return Player
-function jPlayer:getHandle()
-    return self.handle;
+function Player:getCharacterId()
+    return self:GetValue("character_id");
 end
 
 ---@return string
-function jPlayer:getName()
-    return self.name;
-end
-
----@return string
-function jPlayer:getFirstName()
-    return self.firstname;
+function Player:getFirstName()
+    return self:GetValue("firstname");
 end
 
 ---@param name string
 ---@return void
-function jPlayer:setFirstName(name)
-    self.firstname = name;
+function Player:setFirstName(name)
+    self:SetValue("firstname", name);
 end
 
 ---@return string
-function jPlayer:getLastName()
-    return self.lastname;
+function Player:getLastName()
+    return self:GetValue("lastname");
 end
 
 ---@param name string
 ---@return void
-function jPlayer:setLastName(name)
-    self.lastname = name;
+function Player:setLastName(name)
+    self:SetValue("lastname", name);
 end
 
 ---@return string
-function jPlayer:getFullName()
-    if  (self.firstname == nil or self.lastname == nil) then
-        return self.name;
+function Player:getFullName()
+    local firstname = self:GetValue("firstname");
+    local lastname = self:GetValue("lastname");
+    if  (firstname == nil or lastname == nil) then
+        return self:GetName();
     end
-    return string.format("%s %s", self.firstname, self.lastname);
+    return string.format("%s %s", firstname, lastname);
+end
+
+---@return Vector
+function Player:getPosition()
+    return self:GetValue("position");
+end
+
+---@return Rotator
+function Player:getHeading()
+    return self:GetValue("heading");
 end
 
 ---@return Account[]
-function jPlayer:getAccounts()
-    return self.accounts;
+function Player:getAccounts()
+    return self:GetValue("accounts");
 end
 
 ---@param name string
-function jPlayer:getAccount(name)
-    return self.accounts[name];
+---@return Account
+function Player:getAccount(name)
+    return self:GetValue("accounts")[name];
 end
 
 ---@return Inventory[]
-function jPlayer:getInventories()
-    return self.inventories;
+function Player:getInventories()
+    return self:GetValue("inventories");
 end
 
 ---@param name string
 ---@return Inventory
-function jPlayer:getInventory(name)
-    return self.inventories[name];
+function Player:getInventory(name)
+    return self:GetValue("inventories")[name];
+end
+
+function Player:getSkin()
+    return self:GetValue("skin");
+end
+
+---@param skin string
+---@return void
+function Player:setSkin(skin)
+    self:SetValue("skin", skin);
 end

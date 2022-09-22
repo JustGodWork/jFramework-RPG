@@ -21,7 +21,7 @@ function PlayerManager:new()
     local self = {}
     setmetatable(self, { __index = PlayerManager});
 
-    ---@type jPlayer[]
+    ---@type Player[]
     self.players = {};
 
     if (Config.debug) then
@@ -32,26 +32,26 @@ function PlayerManager:new()
 end
 
 ---@param id string
----@return jPlayer
+---@return Player
 function PlayerManager:getFromId(id)
     return self.players[id];
 end
 
 ---@param name string
----@return jPlayer
+---@return Player
 function PlayerManager:getFromName(name)
     for id, player in pairs(self.players) do
-        if (player:getName() == name) then
+        if (player:GetName() == name) then
             return self.players[id];
         end
     end
 end
 
 ---@param idenfitier string
----@return jPlayer
+---@return Player
 function PlayerManager:getFromIdentifier(idenfitier)
     for id, player in pairs(self.players) do
-        if (player:getIdentifier() == idenfitier) then
+        if (player:GetSteamID() == idenfitier) then
             return self.players[id];
         end
     end
@@ -61,13 +61,32 @@ end
 ---@param nanosPlayer Player
 ---@return jPlayer
 function PlayerManager:registerPlayer(data, nanosPlayer)
-    self.players[nanosPlayer:GetID()] = jPlayer:new(data, nanosPlayer);
+    nanosPlayer:onCreate(data);
+    self.players[nanosPlayer:GetID()] = nanosPlayer;
     return self.players[nanosPlayer:GetID()];
 end
 
 ---@param playerId number
 function PlayerManager:removePlayer(playerId)
-    self.players[playerId] = nil;
+    local player = self.players[playerId];
+    if (player) then
+        Package.Log("Player [%s] %s removed from playerManager", player:GetSteamID(), player:getFullName())
+        self.players[playerId] = nil;
+    else
+        Package.Log("Player [%s] not found in playerManager", playerId)
+    end
+end
+
+---Remove all player from PlayerManager
+function PlayerManager:removeAll()
+    for id, _ in pairs(self.players) do
+        self:removePlayer(id);
+    end
+end
+
+---@return Player[]
+function PlayerManager:getAll()
+    return self.players;
 end
 
 jServer.playerManager = PlayerManager:new();

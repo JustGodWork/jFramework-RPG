@@ -26,7 +26,7 @@ function ConnexionHandler:new()
     if (Config.debug) then
         Package.Log("Server: [ConnexionHandler] initialized.");
     end
-    
+
     return self;
 end
 
@@ -42,7 +42,7 @@ function ConnexionHandler:requestData(nanosPlayer, callback)
 end
 
 ---@param nanosPlayer Player
----@param callback fun(player: jPlayer)
+---@param callback fun(player: Player)
 function ConnexionHandler:handle(nanosPlayer, callback)
     local name = nanosPlayer:GetName();
 
@@ -63,7 +63,7 @@ function ConnexionHandler:handle(nanosPlayer, callback)
 end
 
 ---@param nanosPlayer Player
----@param callback fun(player: jPlayer)
+---@param callback fun(player: Player)
 function ConnexionHandler:connect(nanosPlayer, callback)
     local identifier = nanosPlayer:GetSteamID();
     local name = nanosPlayer:GetName();
@@ -92,8 +92,9 @@ function ConnexionHandler:createPlayer(nanosPlayer, callback)
         "player"
     }, function (result)
         if (result ~= 0) then
-            local playerData = self:requestData(nanosPlayer);
-            Package.Log("Server: [ConnexionHandler] Player [%s] %s %s created !", identifier, playerData.firstname, playerData.lastname);
+            self:requestData(nanosPlayer, function (playerData)
+                Package.Log("Server: [ConnexionHandler] Player [%s] %s %s created !", identifier, playerData.firstname, playerData.lastname);
+            end);
         end
         if (callback) then
             callback(result);
@@ -102,21 +103,3 @@ function ConnexionHandler:createPlayer(nanosPlayer, callback)
 end
 
 jServer.connexionHandler = ConnexionHandler:new();
-
-local fakePlayer = {}
-
-function fakePlayer:GetSteamID()
-    return "11000013d019ee11";
-end
-
-function fakePlayer:GetName()
-    return "JustGod";
-end
-
-function fakePlayer:GetID()
-    return 1;
-end
-
-jServer.connexionHandler:handle(fakePlayer, function(player)
-    print("MyPlayerNameIs:", player:getFullName())
-end);

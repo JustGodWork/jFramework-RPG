@@ -72,16 +72,16 @@ function MySQL:createConnection()
     return self;
 end
 
+---@param query string
 ---@param parameters table
 function MySQL:convert(query, parameters)
     if (parameters and #parameters > 0) then
         local execute = string.gsub(query, "?", "%%s")
-        for i = 1, #parameters do
-            if (type(parameters[i]) == "string") then
-                parameters[i] = string.format('"%s"', parameters[i])
-            end
+        local params_converted = {}
+        for i = 0, #parameters - 1 do
+            params_converted[#params_converted + 1] = string.format(':%s', tostring(i))
         end
-        return string.format(execute, table.unpack(parameters))
+        return string.format(execute, table.unpack(params_converted))
     end
     return query
 end
@@ -95,14 +95,14 @@ function MySQL:query(query, params, callback)
         if (callback) then
             callback(result);
         end
-    end);
+    end, table.unpack(params));
 end
 
 ---@param query string
 ---@param params table
 function MySQL:querySync(query, params)
     local converted_query = self:convert(query, params);
-    local result = self.database:ExecuteSync(converted_query);
+    local result = self.database:ExecuteSync(converted_query, table.unpack(params));
     return result;
 end
 
@@ -115,14 +115,14 @@ function MySQL:select(query, params, callback)
         if (callback) then
             callback(result);
         end
-    end);
+    end, table.unpack(params));
 end
 
 ---@param query string
 ---@param params table
 function MySQL:selectSync(query, params)
     local converted_query = self:convert(query, params);
-    local result = self.database:SelectSync(converted_query);
+    local result = self.database:SelectSync(converted_query, table.unpack(params));
     return result;
 end
 
