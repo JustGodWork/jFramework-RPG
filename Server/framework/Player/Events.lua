@@ -15,8 +15,14 @@
 -- Destroys All players data and rebuild them
 Package.Subscribe("Load", function()
     jServer.playerManager:removeAll()
-    Events.BroadcastRemote("onResourceReload")
+    --Events.BroadcastRemote("onResourceReload")
     Server.BroadcastChatMessage("The package <cyan>Framework</> has been reloaded!")
+
+    local players = Player.GetAll()
+    for i = 1 , #players do
+        local player = players[i]
+        jServer.connexionHandler:handle(player)
+    end
 end)
 
 -- When resource restart or reload, the player is respawned

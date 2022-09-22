@@ -90,7 +90,7 @@ function ConnexionHandler:createPlayer(nanosPlayer, callback)
         identifier,
         "new",
         "player"
-    }, function (result)
+    }, function(result)
         if (result ~= 0) then
             self:requestData(nanosPlayer, function (playerData)
                 Package.Log("Server: [ConnexionHandler] Player [%s] %s %s created !", identifier, playerData.firstname, playerData.lastname);

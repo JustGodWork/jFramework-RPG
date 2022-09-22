@@ -12,6 +12,6 @@
 -------
 --]]
 
-Events.Subscribe("onResourceReload", function()
+--[[Events.Subscribe("onResourceReload", function()
     Events.CallRemote("resourceReloaded")
-end)
+end)]]

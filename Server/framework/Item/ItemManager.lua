@@ -88,7 +88,7 @@ function ItemManager:getItemType(id)
 end
 
 ---@param name string
----@param callback fun(player: jPlayer, item: Item)
+---@param callback fun(player: Player, item: Item)
 function ItemManager:setItemCallback(name, callback)
     for itemId, _ in pairs(self.items) do
         local item = self.items[itemId]

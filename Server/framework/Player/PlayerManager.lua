@@ -59,7 +59,7 @@ end
 
 ---@param data table
 ---@param nanosPlayer Player
----@return jPlayer
+---@return Player
 function PlayerManager:registerPlayer(data, nanosPlayer)
     nanosPlayer:onCreate(data);
     self.players[nanosPlayer:GetID()] = nanosPlayer;
