@@ -25,9 +25,7 @@ function StorageManager:new()
     ---@type Storage[][]
     self.owned = {}
 
-    if (Config.debug) then
-        Package.Log("Server: [ StorageManager ] initialized.");
-    end
+    jShared.log:debug("[ StorageManager ] initialized.");
     
     return self;
 end
@@ -48,14 +46,14 @@ function StorageManager:register(id, name, label, owner, data, storageType)
             self.owned[owner][id] = Storage:new(id, name, label, owner, data, storageType);
             return self.owned[owner][id];
         else
-            Package.Warn("StorageManager:register(): storage [ ".. name .." ] already exists");
+            jShared.log:warn("StorageManager:register(): storage [ ".. name .." ] already exists");
             return nil;
         end
     elseif (not self.storages[id]) then
         self.storages[id] = Storage:new(id, name, label, owner, data, storageType);
         return self.storages[id];
     else
-        Package.Warn("StorageManager:register(): storage [ ".. name .." ] already exists");
+        jShared.log:warn("StorageManager:register(): storage [ ".. name .." ] already exists");
     end
 end
 
@@ -75,11 +73,11 @@ function StorageManager:getByOwner(owner, accountName)
             end
         end
     else
-        Package.Warn('StorageManager:getByOwner(): owner [ '.. owner ..' ] not found');
+        jShared.log:warn('StorageManager:getByOwner(): owner [ '.. owner ..' ] not found');
         return nil;
     end
     if (not found) then
-        Package.Warn('StorageManager:getByOwner(): storage [ Owner: "'.. owner.. '" name: "'.. accountName ..'" ] not found');
+        jShared.log:warn('StorageManager:getByOwner(): storage [ Owner: "'.. owner.. '" name: "'.. accountName ..'" ] not found');
         return nil;
     end
 end

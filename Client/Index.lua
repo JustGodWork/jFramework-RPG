@@ -12,10 +12,31 @@
 -------
 --]]
 
-Events.Subscribe("jServer:modules:world:time:sync", function(hour, minute)
-    World.SetTime(hour, minute)
-end)
+---@class jClient
+local _jClient = {}
 
-Events.Subscribe("jServer:modules:world:weather:sync", function(weather)
-    World.SetWeather(weather)
-end)
+---@return jClient
+function _jClient:new()
+    local self = {}
+    setmetatable(self, { __index = _jClient});
+
+    self.modules = {};
+
+    ---@param module string
+    function self:loadFrameworkModule(module)
+        Package.Require(string.format("./framework/%s", module));
+    end
+
+    ---@param module string
+    function self:loadModule(module)
+        Package.Require(string.format("./modules/%s", module));
+    end
+
+    jShared.log:debug("[ jClient ] initialized.");
+
+    return self;
+end
+
+jClient = _jClient:new()
+
+Package.Require("./loader.lua");

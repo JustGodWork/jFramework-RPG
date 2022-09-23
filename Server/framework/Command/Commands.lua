@@ -17,7 +17,6 @@ jServer.commandManager:register("setTime", function (player, args)
 end)
 
 jServer.commandManager:register("diable", function(player, args)
-    print(JSON.stringify(args))
     local jPlayer = jServer.playerManager:getFromId(player:GetID())
     local location = jPlayer:GetControlledCharacter():GetLocation()
     local vehicle = SpawnVehicle(location, jPlayer:GetControlledCharacter():GetRotation(), nil, {

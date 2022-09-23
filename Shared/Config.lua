@@ -18,6 +18,16 @@ Config = {}
 Config.debug = true
 Config.lang = "fr"
 
+Config.Time = {
+    speed = 1, --seconds
+    hourFormat = 24, --number of hours in a day
+    startAt = { --time when the server starts
+        hours = 12, 
+        minutes = 0, 
+        seconds = 0 
+    }
+}
+
 Config.player = {
     accounts = {
         {name = "bank", label = "Banque", money = 1000},

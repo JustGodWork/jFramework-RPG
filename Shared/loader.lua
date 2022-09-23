@@ -13,6 +13,7 @@
 --]]
 
 ---LOAD SHARED FRAMEWORK MODULES HERE
+jShared:loadFrameworkModule("Log/Log.lua");
 jShared:loadFrameworkModule("Utils/String/String.lua");
 jShared:loadFrameworkModule("Utils/Thread/Thread.lua"); -- DO NOT USE FOR NOW
 

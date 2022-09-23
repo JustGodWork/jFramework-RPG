@@ -25,9 +25,7 @@ function AccountManager:new()
     ---@type Account[][]
     self.owned = {}
 
-    if (Config.debug) then
-        Package.Log("Server: [ AccountManager ] initialized.");
-    end
+    jShared.log:debug("[ AccountManager ] initialized.");
     
     return self;
 end
@@ -48,14 +46,14 @@ function AccountManager:register(id, name, label, owner, money, accountType)
             self.owned[owner][id] = Account:new(id, name, label, owner, money, accountType);
             return self.owned[owner][id];
         else
-            Package.Warn("AccountManager:register(): account [ ".. name .." ] already exists");
+            jShared.log:warn("AccountManager:register(): account [ ".. name .." ] already exists");
             return nil;
         end
     elseif (not self.accounts[id]) then
         self.accounts[id] = Account:new(id, name, label, owner, money, accountType);
         return self.accounts[id];
     else
-        Package.Warn("AccountManager:register(): account [ ".. name .." ] already exists");
+        jShared.log:warn("AccountManager:register(): account [ ".. name .." ] already exists");
     end
 end
 
@@ -75,11 +73,11 @@ function AccountManager:getByOwner(owner, accountName)
             end
         end
     else
-        Package.Warn('AccountManager:getByOwner(): owner [ '.. owner ..' ] not found');
+        jShared.log:warn('AccountManager:getByOwner(): owner [ '.. owner ..' ] not found');
         return nil;
     end
     if (not found) then
-        Package.Warn('AccountManager:getByOwner(): account [ Owner: "'.. owner.. '" name: "'.. accountName ..'" ] not found');
+        jShared.log:warn('AccountManager:getByOwner(): account [ Owner: "'.. owner.. '" name: "'.. accountName ..'" ] not found');
         return nil;
     end
 end

@@ -35,10 +35,6 @@ function Shared:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
-    if (Config.debug) then
-        Package.Log("Shared: [ jShared ] initialized.");
-    end
-
     return self;
 end
 
@@ -80,3 +76,5 @@ end
 jShared = Shared:new();
 
 Package.Require("./loader.lua");
+
+jShared.log:debug("[ jShared ] initialized.");

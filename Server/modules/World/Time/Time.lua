@@ -22,9 +22,12 @@ function Time:new()
 
     self.hour = 12;
     self.minute = 0;
+    self.second = 0;
     self.freeze = false;
 
     self:constructor();
+
+    self:start();
 
     return self;
 end
@@ -49,6 +52,38 @@ end
 ---@return number
 function Time:getMinute()
     return self.minute;
+end
+
+---Start time cycle
+function Time:start()
+    Timer.SetInterval(function()
+        self:execute();
+    end, (Config.Time.speed * 1000))
+end
+
+---Execute time cycle
+function Time:execute()
+    if (self.freeze) then return end
+    self.second = self.second + 1;
+    if (self.second >= 60) then
+        self.second = 0;
+        self.minute = self.minute + 1;
+        if (self.minute >= 60) then
+            self.minute = 0;
+            self.hour = self.hour + 1;
+            if (self.hour >= Config.Time.hourFormat) then
+                self.hour = 0;
+            end
+        end
+    end
+    if (self.second == 0) then
+        self:sync();
+    end
+end
+
+function Time:sync()
+    print(string.format("Time: %s:%s", self.hour, self.minute))
+    Events.BroadcastRemote("jServer:modules:world:time:sync", self.hour, self.minute)
 end
 
 jServer.modules.world.time = Time:new();

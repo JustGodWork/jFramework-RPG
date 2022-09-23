@@ -1,13 +1,13 @@
 # package configurations
 [package]
     # package name
-    name =                  "Framework"
+    name =                  "jFramework"
     # contributors
     author =                "JustGod"
     # version
-    version =               "0.0.1"
+    version =               "1.0.0-alpha"
     # image URL
-    image =                 ""
+    image =                 "https://cdn.discordapp.com/attachments/914519557471862814/1022654562936561804/jFramework.png"
     # package type: 'script' (normal package), 'game-mode' (unique package - can only load one at a time), 'library' (doesn't start a Lua VM) or 'loading-screen' (special package for loading screen)
     type =                  "game-mode"
     # whether to force the custom map script to do not load

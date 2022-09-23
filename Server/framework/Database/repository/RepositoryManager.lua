@@ -23,9 +23,7 @@ function RepositoryManager:new()
 
     self.repositories = {};
 
-    if (Config.debug) then
-        Package.Log("Server: [ RepositoryManager ] initialized.");
-    end
+    jShared.log:debug("[ RepositoryManager ] initialized.");
     
     return self;
 end

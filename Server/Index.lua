@@ -32,9 +32,7 @@ function _Server:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
-    if (Config.debug) then
-        Package.Log("Server: [ jServer ] initialized.");
-    end
+    jShared.log:debug("[ jServer ] initialized.");
 
     return self
 end

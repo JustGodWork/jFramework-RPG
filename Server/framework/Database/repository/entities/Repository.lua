@@ -22,9 +22,7 @@ function Repository:new(name)
 
     self.name = name;
 
-    if (Config.debug) then
-        Package.Log("Server: [Repository: ".. name .."] initialized.");
-    end
+    jShared.log:debug("[ Repository: ".. name .." ] initialized.");
 
     return self;
 end

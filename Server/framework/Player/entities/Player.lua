@@ -34,9 +34,7 @@ function Player:onCreate(data)
 
     self:onConnect()
 
-    if (Config.debug) then
-        Package.Log("Server: [Player: ".. self:getFullName() .."] initialized.");
-    end
+    jShared.log:debug("[ Player: ".. self:getFullName() .." ] initialized.");
 end
 
 function Player:onConnect()
@@ -46,7 +44,7 @@ function Player:onConnect()
 
     local character = self:GetControlledCharacter()
     character:Subscribe("Death", function(chara, last_damage_taken, last_bone_damaged, damage_reason, hit_from, instigator)
-        Package.Log("Player [%s] %s die.", self:GetSteamID(), self:getFullName())
+        jShared.log:info(string.format("Player [%s] %s die.", self:GetSteamID(), self:getFullName()))
         if (instigator) then
             if (instigator == self) then
                 Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> committed suicide")
@@ -59,7 +57,7 @@ function Player:onConnect()
     
         -- Respawns the Character after 5 seconds, we Bind the Timer to the Character, this way if the Character gets destroyed in the meanwhile, this Timer never gets destroyed
         Timer.Bind(Timer.SetTimeout(function(character)
-            Package.Log("Respawing Player [%s] %s...", self:GetSteamID(), self:getFullName())
+            jShared.log:info(string.format("Respawing Player [%s] %s...", self:GetSteamID(), self:getFullName()))
             self:SetValue("position", character:GetLocation())
             self:SetValue("heading", character:GetRotation())
             -- If he is not dead anymore after 5 seconds, ignores it

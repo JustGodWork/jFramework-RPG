@@ -24,9 +24,7 @@ function PlayerManager:new()
     ---@type Player[]
     self.players = {};
 
-    if (Config.debug) then
-        Package.Log("Server: [ PlayerManager ] initialized.");
-    end
+    jShared.log:debug("[ PlayerManager ] initialized.");
     
     return self;
 end
@@ -70,10 +68,10 @@ end
 function PlayerManager:removePlayer(playerId)
     local player = self.players[playerId];
     if (player) then
-        Package.Log("Player [%s] %s removed from playerManager", player:GetSteamID(), player:getFullName())
+        jShared.log:info(string.format("Player [%s] %s removed from playerManager", player:GetSteamID(), player:getFullName()))
         self.players[playerId] = nil;
     else
-        Package.Log("Player [%s] not found in playerManager", playerId)
+        jShared.log:info(string.format("Player [%s] not found in playerManager", playerId))
     end
 end
 

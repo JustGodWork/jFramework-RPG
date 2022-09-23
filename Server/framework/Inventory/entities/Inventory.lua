@@ -100,7 +100,7 @@ function Inventory:canCarryItem(itemName, count)
         end
         return false;
     else
-        Package.Warn("Inventory:canCarryItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName)
+        jShared.log:warn("Inventory:canCarryItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName)
         return false;
     end
     return false;
@@ -125,15 +125,15 @@ function Inventory:addItem(itemName, count)
                 self.items[itemName].count = count
                 return true;
             elseif (item:isUnique()) then
-                Package.Warn("Inventory:addItem(): Inventory: [ %s ] item [ %s ] is unique but count is not 1", self.id, itemName)
+                jShared.log:warn(string.format("Inventory:addItem(): Inventory: [ %s ] item [ %s ] is unique but count is not 1", self.id, itemName))
                 return false;
             end
         else
-            Package.Warn("Inventory:addItem(): Inventory: [ %s ] item [ %s ] can't be carried", self.id, itemName)
+            jShared.log:warn(string.format("Inventory:addItem(): Inventory: [ %s ] item [ %s ] can't be carried", self.id, itemName))
             return false;
         end
     else
-        Package.Warn("Inventory:addItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName)
+        jShared.log:warn(string.format("Inventory:addItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName))
         return false;
     end
 end
@@ -150,7 +150,7 @@ function Inventory:removeItem(itemName, count)
                 self.items[itemName] = nil;
                 return true;
             elseif invItem:getCount() - count < 0 then
-                Package.Warn("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] count is less than 0", self.id, itemName);
+                jShared.log:warn("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] count is less than 0", self.id, itemName);
                 return false;
             else
                 invItem:setCount(invItem:getCount() - count);
@@ -158,7 +158,7 @@ function Inventory:removeItem(itemName, count)
             end
         end
     else
-        Package.Warn("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName);
+        jShared.log:warn(string.format("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName));
     end
 end
 

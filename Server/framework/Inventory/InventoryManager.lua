@@ -26,9 +26,7 @@ function InventoryManager:new()
     ---@type Inventory[][]
     self.owned = {};
 
-    if (Config.debug) then
-        Package.Log("Server: [ InventoryManager ] initialized.");
-    end
+    jShared.log:debug("[ InventoryManager ] initialized.");
 
     return self;
 end
@@ -50,14 +48,14 @@ function InventoryManager:register(id, name, label, owner, items, maxWeight, inv
             self.owned[owner][id] = Inventory:new(id, name, label, owner, items, maxWeight, inventoryType);
             return self.owned[owner][id];
         else
-            Package.Warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+            jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
             return nil;
         end
     elseif (not self.inventories[id]) then
         self.inventories[id] = Inventory:new(id, name, label, owner, items, maxWeight, inventoryType);
         return self.inventories[id];
     else
-        Package.Warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+        jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
         return nil;
     end
 end
@@ -78,11 +76,11 @@ function InventoryManager:getByOwner(owner, inventoryName)
             end
         end
     else
-        Package.Warn('InventoryManager:getByOwner(): owner [ '.. owner ..' ] not found');
+        jShared.log:warn('InventoryManager:getByOwner(): owner [ '.. owner ..' ] not found');
         return nil;
     end
     if (not found) then
-        Package.Warn('InventoryManager:getByOwner(): inventory [ Owner: "'.. owner.. '" name: "'.. inventoryName ..'" ] not found');
+        jShared.log:warn('InventoryManager:getByOwner(): inventory [ Owner: "'.. owner.. '" name: "'.. inventoryName ..'" ] not found');
         return nil;
     end
 end
@@ -95,7 +93,7 @@ function InventoryManager:setOwner(inventory, owner)
         if (self.inventories[inventory:getId()]) then
             self.inventories[inventory:getId()].owner = owner;
         else
-            Package.Warn('InventoryManager:setOwner(): inventory [ '.. inventory ..' ] not found');
+            jShared.log:warn('InventoryManager:setOwner(): inventory [ '.. inventory ..' ] not found');
         end
     end
 end

@@ -45,7 +45,7 @@ end
 ---@param callback fun(player: Player, args: string[])
 function CommandManager:register(name, callback)
     self.commands[name] = Command:new(name, callback);
-    Package.Log("Command [%s] registered !", name);
+    jShared.log:info(string.format("[ CommandManager ] => Command [%s] registered !", name));
 end
 
 ---@param name string
@@ -55,12 +55,16 @@ function CommandManager:execute(name, player, args)
     if (self:exists(name)) then
         self.commands[name]:getCallback()(player, args);
         if (player) then
-            Package.Log("Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:getFullName());
+            jShared.log:info(string.format("[ CommandManager ] => Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:getFullName()));
         else
-            Package.Log("Command [%s] executed by console", name);
+            jShared.log:info(string.format("[ CommandManager ] => Command [%s] executed by console", name));
         end
     else
-        Server.SendChatMessage(player, "<red>Command not found !</>");
+        if (player) then
+            Server.SendChatMessage(player, "<red>[ CommandManager ] => Command not found !</>");
+        else
+            jShared.log:info(string.format("[ CommandManager ] => Command [%s] not found !", name));
+        end
     end
 end
 
