@@ -32,6 +32,23 @@ function _Server:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
+    function _Server:disclaimer()
+        if (Config.disclaimer) then
+            Package.Warn(string.format("\n%s",[[
+                --------------------------------------------------------------
+                -   Before you start, set up the config file                 -
+                -   in Shared\Config.lua                                     -   
+                -   after that execute jFramework.sql in your database       -
+                -   you can now stop showing this disclaimer by setting      -
+                -   Config.disclaimer to false in Shared\Config.lua          -
+                -   Enjoy jFramework !                                       -
+                --------------------------------------------------------------
+            ]]));
+        end
+    end
+
+    self:disclaimer();
+
     jShared.log:debug("[ jServer ] initialized.");
 
     return self

@@ -76,9 +76,9 @@ function Time:execute()
             end
         end
     end
-    if (self.second == 0) then
-        self:sync();
-    end
+    --if (self.second == 0) then -- todo sync time when more than one player connect to server
+        --self:sync();
+    --end
 end
 
 function Time:sync()

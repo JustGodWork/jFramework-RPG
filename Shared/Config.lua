@@ -15,7 +15,8 @@
 --jFramework Config
 Config = {}
 
-Config.debug = false --Enabling debug mode will print all logs in the console
+Config.disclaimer = false --Set to false if you don't want to show the disclaimer
+Config.debug = true --Enabling debug mode will print all logs in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
 Config.Time = { -- Time config (Not finished yet)
@@ -31,16 +32,16 @@ Config.Time = { -- Time config (Not finished yet)
 Config.player = { --Player config
     accounts = { --Add accounts here
         {name = "bank", label = "Bank", money = 1000, shared = 0},
-        {name = "cash", label = "Cash", money = 500, shared = 0},
+        {name = "cash", label = "Cash", money = 500, shared = 0}
     },
     inventories = { --Add inventories here
         {name = "main", label = "Main Inventory", maxWeight = 25, shared = 0},
-        {name = "bag", label = "Bag", maxWeight = 40, shared = 0}
+        {name = "bag", label = "Bag", maxWeight = 40, shared = 1}
     },
     defaultPosition = { --Default position when the player spawns
         x = 799.400, 
         y = 1755.599, 
-        z = 101.5,
+        z = 101.5
     },
     defaultHeading = { --Default heading when the player spawns
         Pitch = 0.0,

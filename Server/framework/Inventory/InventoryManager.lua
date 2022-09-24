@@ -26,37 +26,49 @@ function InventoryManager:new()
     ---@type Inventory[][]
     self.owned = {};
 
+    self.repository = jServer.repositoryManager:register("inventories", {
+        { name = "name", type = "VARCHAR(255) NOT NULL" },
+        { name = "label", type = "VARCHAR(50) NOT NULL" },
+        { name = "owner", type = "INT(11) NOT NULL" },
+        { name = "items", type = "LONGTEXT NOT NULL" },
+        { name = "shared", type = "INT(11) NOT NULL" },
+        { name = "maxWeight", type = "FLOAT NOT NULL" }
+    });
+
     jShared.log:debug("[ InventoryManager ] initialized.");
 
     return self;
 end
 
----@param id string
+
 ---@param name string
----@param label string
----@param owner number
----@param items Item[]
----@param maxWeight number
----@param inventoryType number
----@return Inventory | nil
-function InventoryManager:register(id, name, label, owner, items, maxWeight, inventoryType)
+---@param owner string
+function InventoryManager:register(name, owner)
     if (owner) then
-        if (not self.owned[owner]) then
-            self.owned[owner] = {};
-        end
-        if (not self.owned[owner][id]) then
-            self.owned[owner][id] = Inventory:new(id, name, label, owner, items, maxWeight, inventoryType);
-            return self.owned[owner][id];
-        else
-            jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
-            return nil;
-        end
-    elseif (not self.inventories[id]) then
-        self.inventories[id] = Inventory:new(id, name, label, owner, items, maxWeight, inventoryType);
-        return self.inventories[id];
+        self.repository:prepare({ "owner", "name" }, { owner = owner, name = name }, function(result)
+            if (#result > 0) then
+                if (not self.owned[result[1].owner]) then
+                    self.owned[owner] = {};
+                end
+                if (not self.owned[owner][result[1].id]) then
+                    self.owned[owner][result[1].id] = Inventory:new(result[1].id, result[1].name, result[1].label, result[1].owner, {}, result[1].maxWeight, result[1].shared);
+                    self:buildInventoryItems(self.inventories[result[1].id], result[1].items);
+                else
+                    jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+                end
+            end
+        end);
     else
-        jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
-        return nil;
+        self.repository:prepare("name", name, function(result)
+            if (#result > 0) then
+                if (not self.inventories[result[1].id]) then
+                    self.inventories[result[1].id] = Inventory:new(result[1].id, result[1].name, result[1].label, result[1].owner, {}, result[1].maxWeight, result[1].shared);
+                    self:buildInventoryItems(self.inventories[result[1].id], result[1].items);
+                else
+                    jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+                end
+            end
+        end);
     end
 end
 
@@ -113,101 +125,27 @@ end
 ---@param label string
 ---@param owner number
 ---@param maxWeight number
----@param inventoryType number
----@param callback fun(success: boolean)
-function InventoryManager:create(name, label, owner, maxWeight, inventoryType, callback)
-    jServer.mysql:query("INSERT INTO inventories (name, label, owner, maxWeight, items, shared) VALUES (?, ?, ?, ?, ?, ?)", {
-        name, 
-        label, 
-        owner, 
-        maxWeight,
-        JSON.stringify({}),
-        inventoryType
-    }, function(success)
-        if (success) then
-            jServer.mysql:select("SELECT * FROM inventories WHERE owner = ? AND name = ?", { owner, name }, function(result)
-                if (result) then
-                    local inv = self:register(
-                        result[1].id, 
-                        result[1].name, 
-                        result[1].label, 
-                        result[1].owner, 
-                        {}, 
-                        result[1].maxWeight,
-                        result[1].shared
-                    );
-                    self:buildInventoryItems(result[1].id, result[1].name, result[1].items and JSON.parse(result[1].items) or {});
-                    if (owner) then
-                        if (inv) then
-                            jShared.log:info("InventoryManager:create(): inventory [ Id: ".. inv:getId() .." Owner: ".. inv:getOwner() .." Name: ".. inv:getName() .." ] created");
-                        else
-                            jShared.log:warn("InventoryManager:create(): inventory [ Owner: ".. owner .." Name: ".. name .." ] not created");
-                        end
-                    else
-                        if (inv) then
-                            jShared.log:info("InventoryManager:create(): inventory [ Id: ".. inv:getId() .." Name: ".. inv:getName() .." ] created");
-                        else
-                            jShared.log:warn("InventoryManager:create(): inventory [ Name: ".. name .." ] not created");
-                        end
-                    end
-                    if (callback) then callback(inv ~= nil); end
-                else
-                    jShared.log:warn("InventoryManager:create(): inventory [ ".. name .." ] not created");
-                end
-            end, name);
-        else
-            if (owner) then
-                jShared.log:warn("InventoryManager:create(): inventory [ Owner: ".. owner .." Name: ".. name .." ] not created");
-            else
-                jShared.log:warn("InventoryManager:create(): inventory [ ".. name .." ] not created");
-            end
-            if (callback) then callback(false); end
-        end
-    end)
-end
-
----@param id Player.character_id
----@param callback fun(success: boolean)
-function InventoryManager:initPlayer(id, callback)
-    jServer.mysql:select("SELECT * FROM inventories WHERE owner = ?", { id }, function (result)
-        if (#result > 0) then
-            for i = 1, #result do
-                self:register(
-                    result[i].id,
-                    result[i].name,
-                    result[i].label, 
-                    id,
-                    {},
-                    result[i].maxWeight,
-                    result[i].shared
-                );
-                self:buildInventoryItems(id, result[i].name, JSON.parse(result[i].items));
-            end
-            jShared.log:success("[ InventoryManager ] => player [".. id .."] inventories initialized");
-            if (callback) then callback(true); end
-        else
-            for i = 1, #Config.player.inventories do 
-                local inv = Config.player.inventories[i];
-                self:create(
-                    inv.name,
-                    inv.label,
-                    id,
-                    inv.maxWeight,
-                    inv.shared,
-                    callback
-                );
-            end
-        end
+---@param shared number
+---@param callback? function
+function InventoryManager:create(name, label, owner, maxWeight, shared, callback)
+    self.repository:save({
+        name = name,
+        label = label,
+        owner = owner,
+        maxWeight = maxWeight,
+        items = {},
+        shared = shared
+    }, function()
+        self:register(name, owner);
+        if (callback) then callback(); end
     end);
 end
 
----@param owner number
----@param name string
+---@param playerInventory Inventory
 ---@param items table
-function InventoryManager:buildInventoryItems(owner, inventoryName, items)
-    local inventory = self:getByOwner(owner, inventoryName);
+function InventoryManager:buildInventoryItems(playerInventory, items)
     local playerItems = {};
-    if (inventory) then
+    if (playerInventory) then
         for _, itemData in pairs(items) do
             if (itemData) then
                 local item = ItemManager:get(itemData.name);
@@ -215,11 +153,11 @@ function InventoryManager:buildInventoryItems(owner, inventoryName, items)
                     playerItems[item.name] = item;
                     playerItems[item.name].count = itemData.count;
                 else
-                    jShared.log:warn("InventoryManager:buildInventoryItems(): [ Inventory: ".. inventory:getId() .. " Item: " .. itemData.name .." ] not found");
+                    jShared.log:warn("InventoryManager:buildInventoryItems(): [ Inventory: ".. playerInventory:getId() .. " Item: " .. itemData.name .." ] not found");
                 end
             end
         end
-        inventory:setItems(playerItems);
+        playerInventory:setItems(playerItems);
     end
 end
 
