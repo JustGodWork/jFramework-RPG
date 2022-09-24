@@ -20,6 +20,7 @@ jServer:loadFrameworkModule("Account/entities/Account.lua");
 jServer:loadFrameworkModule("Account/AccountManager.lua");
 jServer:loadFrameworkModule("Item/entities/Item.lua");
 jServer:loadFrameworkModule("Item/ItemManager.lua");
+jServer:loadFrameworkModule("Item/ItemRegister.lua");
 jServer:loadFrameworkModule("Inventory/entities/Inventory.lua");
 jServer:loadFrameworkModule("Inventory/InventoryManager.lua");
 jServer:loadFrameworkModule("Storage/entities/Storage.lua");
@@ -34,4 +35,5 @@ jServer:loadFrameworkModule("Command/Commands.lua");
 
 --MODULES
 jServer:loadModule("World/World.lua");
+jServer:loadModule("WEAPONS.lua");
 jServer:loadModule("test.lua");

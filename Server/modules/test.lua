@@ -3,7 +3,7 @@
 ---@param rotation Rotator
 ---@param model string
 ---@return Vehicle
-function SpawnVehicle(location, rotation, model, data)
+local function SpawnVehicle(location, rotation, model, data)
     -- Spawns a Pickup Vehicle
     local vehicle = Vehicle(location or Vector(), rotation or Rotator(), model or "nanos-world::SK_Pickup", CollisionType.Normal, true, false, true, "nanos-world::A_Vehicle_Engine_10")
     -- Configure it's Engine power and Aerodynamics
@@ -33,12 +33,43 @@ function SpawnVehicle(location, rotation, model, data)
     return vehicle
 end
 
---jServer.accountManager:register("testId", "testName", "testLabel", "testOwner", 1000, 0)
---jServer.accountManager:register("testId2", "testName2", "testLabel2", "testOwner2", 1200, 0)
+--Spawning WTF pickup
+jServer.commandManager:register("diable", function(player, args)
+    local location = player:GetControlledCharacter():GetLocation()
+    local vehicle = SpawnVehicle(location, player:GetControlledCharacter():GetRotation(), nil, {
+        torque = tonumber(args[1]),
+        rpm = tonumber(args[2])
+    })
+    player:GetControlledCharacter():EnterVehicle(vehicle)
+end)
 
---[[local acc = jServer.accountManager:getByOwner("testOwner", "testName")
-print(acc:getId(), acc:getName(), acc:getLabel(), acc:getOwner(), acc:getMoney(), acc:getType())
-local acc2 = jServer.accountManager:getByOwner("testOwner2", "testName2")
-print(acc2:getId(), acc2:getName(), acc2:getLabel(), acc2:getOwner(), acc2:getMoney(), acc2:getType())]]
+--Temporary add Items here for testing
+--jServer.itemManager:addItem("1", "bread", "Bread", {}, "food", 1, false);
 
---print(jServer.modules.world.time:getHour(), jServer.modules.world.time:getMinute())
+--Waiting for player connection before testing inventories, items and accounts :)
+--[[Events.Subscribe("onPlayerConnecting", function(player) 
+    --Testing accounts
+    local id = player:getCharacterId();
+    local account = jServer.accountManager:getByOwner(id, "bank")
+    jShared.log:info("Player bank: ", account:getMoney());
+
+    --Testing inventories
+    local inventory = jServer.inventoryManager:getByOwner(id, "main");
+    inventory:addItem("bread", 1);
+    jShared.log:info("Player inventory: ", inventory:getItems());
+    Timer.SetTimeout(function()
+        inventory:getItem("bread"):use(player);
+        jShared.log:info("Player inventory after: ", inventory:getItems());
+    end, 2000);
+end);]]
+
+--[[jServer.itemManager:setItemCallback("bread", function(player, item)
+    -- Remove the item from the player inventory
+    -- You can trigger this in an event with the inventory id to remove item in.
+    local inventory = jServer.inventoryManager:getByOwner(player:getCharacterId(), "main");
+    if (inventory:removeItem(item:getName(), 1)) then
+        Server.SendChatMessage(player, "You have eaten a bread!");
+    end
+
+    --Do stuff here like adding hunger
+end);]]

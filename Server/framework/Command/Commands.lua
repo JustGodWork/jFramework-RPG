@@ -14,16 +14,7 @@
 
 jServer.commandManager:register("setTime", function (player, args)
     --World.SetTime(9, 30)
-end)
-
-jServer.commandManager:register("diable", function(player, args)
-    local jPlayer = jServer.playerManager:getFromId(player:GetID())
-    local location = jPlayer:GetControlledCharacter():GetLocation()
-    local vehicle = SpawnVehicle(location, jPlayer:GetControlledCharacter():GetRotation(), nil, {
-        torque = tonumber(args[1]), 
-        rpm = tonumber(args[2])
-    })
-    jPlayer:GetControlledCharacter():EnterVehicle(vehicle)
+    Server.SendChatMessage(player, "This command is not available yet.")
 end)
 
 jServer.commandManager:register("coords", function (player, args)

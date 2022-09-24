@@ -69,13 +69,15 @@ function ConnexionHandler:connect(nanosPlayer, callback)
     local name = nanosPlayer:GetName();
     if (self.players[identifier]) then
         local data = self.players[identifier];
-        jShared.log:success(string.format("[ ConnexionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
         local player = jServer.playerManager:registerPlayer(data, nanosPlayer);
-        self.players[identifier] = nil;
-        Events.Call("onPlayerConnecting", player);
-        if (callback) then
-            callback(player);
-        end
+        self:initPlayerData(player, function()
+            self.players[identifier] = nil;
+            Events.Call("onPlayerConnecting", player);
+            jShared.log:success(string.format("[ ConnexionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
+            if (callback) then
+                callback(player);
+            end
+        end);
     else
         jShared.log:warn("ConnexionHandler:connect() Player ".. name .." not created correctly !");
     end
@@ -100,6 +102,20 @@ function ConnexionHandler:createPlayer(nanosPlayer, callback)
                 end
             end);
         end
+    end);
+end
+
+---This is not the final state, where are wating for RepositoryManager to be done
+---@param nanosPlayer Player
+---@param callback fun(accountSuccess: boolean, inventorySuccess: boolean)
+function ConnexionHandler:initPlayerData(nanosPlayer, callback)
+    local id = nanosPlayer:getCharacterId();
+    jServer.accountManager:initPlayer(id, function(accountSuccess)
+        jServer.inventoryManager:initPlayer(id, function(inventorySuccess)
+            if (callback) then
+                callback(accountSuccess, inventorySuccess);
+            end 
+        end);
     end);
 end
 

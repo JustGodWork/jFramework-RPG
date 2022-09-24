@@ -15,10 +15,10 @@
 ---@class Account
 Account = {}
 
----@param id string
+---@param id number
 ---@param name string
 ---@param label string
----@param owner string
+---@param owner number
 ---@param money number
 ---@param accountType number
 ---@return Account
@@ -37,7 +37,7 @@ function Account:new(id, name, label, owner, money, accountType)
 	return self;
 end
 
----@return string
+---@return number
 function Account:getId()
     return self.id;
 end
@@ -57,7 +57,7 @@ function Account:setLabel(label)
     self.label = label;
 end
 
----@return string
+---@return number
 function Account:getOwner()
     return self.owner;
 end

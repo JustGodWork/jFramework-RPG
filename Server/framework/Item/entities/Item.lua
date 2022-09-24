@@ -112,7 +112,7 @@ function Item:setCount(count)
     self.count = count;
 end
 
----@param player jPlayer
+---@param player Player
 function Item:use(player)
     if self.callback then
         self.callback(player);

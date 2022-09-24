@@ -15,10 +15,10 @@
 --jFramework Config
 Config = {}
 
-Config.debug = true
-Config.lang = "fr"
+Config.debug = false --Enabling debug mode will print all logs in the console
+Config.lang = "en" --Language of the framework (Not available yet)
 
-Config.Time = {
+Config.Time = { -- Time config (Not finished yet)
     speed = 1, --seconds
     hourFormat = 24, --number of hours in a day
     startAt = { --time when the server starts
@@ -28,23 +28,24 @@ Config.Time = {
     }
 }
 
-Config.player = {
-    accounts = {
-        {name = "bank", label = "Banque", money = 1000},
-        {name = "cash", label = "Cash", money = 500},
+Config.player = { --Player config
+    accounts = { --Add accounts here
+        {name = "bank", label = "Bank", money = 1000, shared = 0},
+        {name = "cash", label = "Cash", money = 500, shared = 0},
     },
-    inventory = {
-        {name = "main", label = "Inventaire", maxWeight = 50},
+    inventories = { --Add inventories here
+        {name = "main", label = "Main Inventory", maxWeight = 25, shared = 0},
+        {name = "bag", label = "Bag", maxWeight = 40, shared = 0}
     },
-    defaultPosition = {
+    defaultPosition = { --Default position when the player spawns
         x = 799.400, 
         y = 1755.599, 
         z = 101.5,
     },
-    defaultHeading = {
+    defaultHeading = { --Default heading when the player spawns
         Pitch = 0.0,
         Yaw = -92.521,
         Roll = 0.0
     },
-    defaultSkin = "nanos-world::SK_Male"
+    defaultSkin = "nanos-world::SK_Male" --Default skin when the player spawn
 }

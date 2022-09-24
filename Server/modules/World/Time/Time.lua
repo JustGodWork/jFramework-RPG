@@ -12,7 +12,7 @@
 -------
 --]]
 
----@class Time = {}
+---@class Time
 local Time = {}
 
 ---@return Time

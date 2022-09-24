@@ -18,7 +18,7 @@ Inventory = {}
 ---@param id string
 ---@param name string
 ---@param label string
----@param owner string
+---@param owner number
 ---@param items Item[]
 ---@param maxWeight number
 ---@param inventoryType number
@@ -40,7 +40,7 @@ function Inventory:new(id, name, label, owner, items, maxWeight, inventoryType)
     return self;
 end
 
----@return string
+---@return number
 function Inventory:getId()
     return self.id;
 end
@@ -60,7 +60,7 @@ function Inventory:setLabel(label)
     self.label = label;
 end
 
----@return string
+---@return number
 function Inventory:getOwner()
     return self.owner;
 end
@@ -100,7 +100,7 @@ function Inventory:canCarryItem(itemName, count)
         end
         return false;
     else
-        jShared.log:warn("Inventory:canCarryItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName)
+        jShared.log:warn("Inventory:canCarryItem(): Inventory: [%s] item [%s] item not found", self.id, itemName)
         return false;
     end
     return false;
@@ -125,15 +125,15 @@ function Inventory:addItem(itemName, count)
                 self.items[itemName].count = count
                 return true;
             elseif (item:isUnique()) then
-                jShared.log:warn(string.format("Inventory:addItem(): Inventory: [ %s ] item [ %s ] is unique but count is not 1", self.id, itemName))
+                jShared.log:warn(string.format("Inventory:addItem(): Inventory: [%s] item [%s] is unique but count is not 1", self.id, itemName))
                 return false;
             end
         else
-            jShared.log:warn(string.format("Inventory:addItem(): Inventory: [ %s ] item [ %s ] can't be carried", self.id, itemName))
+            jShared.log:warn(string.format("Inventory:addItem(): Inventory: [%s] item [%s] can't be carried", self.id, itemName))
             return false;
         end
     else
-        jShared.log:warn(string.format("Inventory:addItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName))
+        jShared.log:warn(string.format("Inventory:addItem(): Inventory: [%s] item [%s] item not found", self.id, itemName))
         return false;
     end
 end
@@ -150,7 +150,7 @@ function Inventory:removeItem(itemName, count)
                 self.items[itemName] = nil;
                 return true;
             elseif invItem:getCount() - count < 0 then
-                jShared.log:warn("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] count is less than 0", self.id, itemName);
+                jShared.log:warn("Inventory:removeItem(): Inventory: [%s] item [%s] count is less than 0", self.id, itemName);
                 return false;
             else
                 invItem:setCount(invItem:getCount() - count);
@@ -158,7 +158,7 @@ function Inventory:removeItem(itemName, count)
             end
         end
     else
-        jShared.log:warn(string.format("Inventory:removeItem(): Inventory: [ %s ] item [ %s ] item not found", self.id, itemName));
+        jShared.log:warn(string.format("Inventory:removeItem(): Inventory: [%s] item [%s] item not found", self.id, itemName));
     end
 end
 
@@ -166,4 +166,14 @@ end
 ---@return Item
 function Inventory:getItem(itemName)
     return self.items[itemName];
+end
+
+---@param items Items[]
+function Inventory:setItems(items)
+    self.items = items;
+end
+
+---Clear inventory Items
+function Inventory:clearItems()
+    self.items = {};
 end

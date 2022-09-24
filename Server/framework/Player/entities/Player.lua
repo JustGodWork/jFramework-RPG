@@ -29,42 +29,45 @@ function Player:onCreate(data)
         or Rotator(heading.Pitch, heading.Yaw, heading.Roll)
     );
     self:SetValue("skin", (data.skin ~= "" and data.skin or Config.player.defaultSkin));
-    self:SetValue("accounts", {});
-    self:SetValue("inventories", {});
-
-    self:onConnect()
+    self:initialize(); --Spawn the player when all data are loaded
 
     jShared.log:debug("[ Player: ".. self:getFullName() .." ] initialized.");
 end
 
-function Player:onConnect()
-    local playerCharacter = Character(self:getPosition(), self:getHeading(), self:getSkin())
-    playerCharacter:SetScale(Vector(1, 1, 1))
-    self:Possess(playerCharacter)
+function Player:initialize()
+    local playerCharacter = Character(self:getPosition(), self:getHeading(), self:getSkin());
+    self:Possess(playerCharacter);
+    local weapon = eWEAPONS.AK74U_CUSTOM();
+    weapon:SetAutoReload(false);
+    weapon:SetAmmoClip(0);
+    playerCharacter:PickUp(weapon);
+    self:onDeath(); --When player is created, and his character his loaded load Death handle.
+end
 
-    local character = self:GetControlledCharacter()
+function Player:onDeath()
+    local character = self:GetControlledCharacter();
     character:Subscribe("Death", function(chara, last_damage_taken, last_bone_damaged, damage_reason, hit_from, instigator)
-        jShared.log:info(string.format("Player [%s] %s die.", self:GetSteamID(), self:getFullName()))
+        jShared.log:info(string.format("Player [%s] %s die.", self:GetSteamID(), self:getFullName()));
         if (instigator) then
             if (instigator == self) then
-                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> committed suicide")
+                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> committed suicide");
             else
-                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> killed <cyan>" .. self:GetName() .. "</>")
+                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> killed <cyan>" .. self:GetName() .. "</>");
             end
         else
-            Server.BroadcastChatMessage("<cyan>" .. self:GetName() .. "</> died")
+            Server.BroadcastChatMessage("<cyan>" .. self:GetName() .. "</> died");
         end
     
         -- Respawns the Character after 5 seconds, we Bind the Timer to the Character, this way if the Character gets destroyed in the meanwhile, this Timer never gets destroyed
         Timer.Bind(Timer.SetTimeout(function(character)
-            jShared.log:info(string.format("Respawing Player [%s] %s...", self:GetSteamID(), self:getFullName()))
-            self:SetValue("position", character:GetLocation())
-            self:SetValue("heading", character:GetRotation())
+            jShared.log:info(string.format("Respawing Player [%s] %s...", self:GetSteamID(), self:getFullName()));
+            self:SetValue("position", character:GetLocation());
+            self:SetValue("heading", character:GetRotation());
             -- If he is not dead anymore after 5 seconds, ignores it
             if (character:GetHealth() ~= 0) then return end
             -- Respawns the Character at a random point
-            character:Respawn(self:getPosition(), self:getHeading())
-        end, 5000, chara), chara)
+            character:Respawn(self:getPosition(), self:getHeading());
+        end, 5000, chara), chara);
     end)
 end
 

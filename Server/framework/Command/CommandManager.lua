@@ -61,7 +61,7 @@ function CommandManager:execute(name, player, args)
         end
     else
         if (player) then
-            Server.SendChatMessage(player, "<red>[ CommandManager ] => Command not found !</>");
+            Server.SendChatMessage(player, "<red>Command not found !</>");
         else
             jShared.log:info(string.format("[ CommandManager ] => Command [%s] not found !", name));
         end

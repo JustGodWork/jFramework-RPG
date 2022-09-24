@@ -28,4 +28,7 @@ function RepositoryManager:new()
     return self;
 end
 
+---@param name string
+function RepositoryManager:register() end
+
 jServer.repositoryManager = RepositoryManager:new();

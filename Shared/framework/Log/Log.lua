@@ -15,6 +15,7 @@
 ---@class Log
 local Log = {};
 
+---@return Log
 function Log:new()
     local self = {};
     setmetatable(self, { __index = Log});
@@ -30,37 +31,41 @@ function Log:new()
     return self;
 end
 
+---Get wheter the script is running on the server or the client
 function Log:getSide()
-    if (Server and Client) then
-        return "SHARED";
-    elseif (Server) then
+    if (Server) then
         return "SERVER";
     elseif (Client) then
         return "CLIENT";
     end
 end
 
+---@param args table
 ---@return table | nil
-function Log:convertArgs(...)
-    local args = {...};
+function Log:convertArgs(args)
+    local argsConverted = {};
     if (#args > 0) then
         for i = 1, #args do
             if (type(args[i]) == "table") then
-                args[i] = NanosUtils.Dump(args[i]);
-            elseif (type(args[i]) == "boolean" or type(args[i]) == "number") then
-                args[i] = tostring(args[i]);
+                argsConverted[i] = NanosUtils.Dump(args[i]);
+            elseif (type(args[i]) == "boolean" or type(args[i]) == "number" or args[i] == nil) then
+                argsConverted[i] = tostring(args[i]);
             end
         end
     else
-        args = nil;
+        argsConverted = nil;
     end
-    return args
+    return argsConverted
 end
 
+---@param logType string
+---@param message any
+---@param messageType type
+---@param ... any
 function Log:convertMessage(logType, message, messageType, ...)
     local msg = string.format("[%s] => [%s] => %s", self:getSide(), self.types[logType], message)
-    local args = self:convertArgs(...)
-    if (messageType == "string" or messageType == "boolean" or messageType == "number") then
+    local args = self:convertArgs({...})
+    if (messageType == "string" or messageType == "boolean" or messageType == "number" or message == nil) then
         if (messageType == "number" or messageType == "boolean") then 
             msg = string.format("[%s] => [%s] => %s", self:getSide(), self.types[logType], tostring(message))
         end
@@ -80,6 +85,9 @@ function Log:convertMessage(logType, message, messageType, ...)
     return msg;
 end
 
+---@param logType string
+---@param message any
+---@param ... any
 function Log:send(logType, message, ...)
     local msg = self:convertMessage(logType, message, type(message), ...);
     if (logType == "error") then
@@ -91,24 +99,34 @@ function Log:send(logType, message, ...)
     end
 end
 
+---@param message any
+---@param ... any
 function Log:info(message, ...)
     self:send("info", message, ...);
 end
 
+---@param message any
+---@param ... any
 function Log:warn(message, ...)
     self:send("warn", message, ...);
 end
 
+---@param message any
+---@param ... any
 function Log:error(message, ...)
     self:send("error", message, ...);
 end
 
+---@param message any
+---@param ... any
 function Log:debug(message, ...)
     if (Config.debug) then
         self:send("debug", message, ...);
     end
 end
 
+---@param message any
+---@param ... any
 function Log:success(message, ...)
     self:send("success", message, ...);
 end

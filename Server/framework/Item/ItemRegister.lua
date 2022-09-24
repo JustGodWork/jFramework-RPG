@@ -1,9 +1,9 @@
 --[[
---Created Date: Friday September 23rd 2022
+--Created Date: Saturday September 24th 2022
 --Author: JustGod
 --Made with ❤
 -------
---Last Modified: Friday September 23rd 2022 2:25:46 pm
+--Last Modified: Saturday September 24th 2022 2:03:19 am
 -------
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -11,8 +11,3 @@
 --via any medium is strictly prohibited. This code is confidential.
 -------
 --]]
-
---FRAMEWORK
-
---MODULES
-jClient:loadModule("World/World.lua");

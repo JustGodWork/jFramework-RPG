@@ -14,25 +14,24 @@
 
 -- Destroys All players data and rebuild them
 Package.Subscribe("Load", function()
-    jServer.playerManager:removeAll()
-    local players = Player.GetAll()
+    local players = Player.GetAll();
     for i = 1 , #players do
-        jServer.connexionHandler:handle(players[i])
+        jServer.connexionHandler:handle(players[i]);
     end
-    Server.BroadcastChatMessage("The package <cyan>Framework</> has been reloaded!")
+    Server.BroadcastChatMessage("The package <cyan>Framework</> has been reloaded!");
 end)
 
 -- Spawns and possess a Character when a Player joins the server
 Player.Subscribe("Spawn", function(player)
-    jServer.connexionHandler:handle(player)
+    jServer.connexionHandler:handle(player);
 end)
 
 -- Destroys the Character when the Player leaves the server
 Player.Subscribe("Destroy", function(player)
-    local nanosPlayer = player
-    local character = nanosPlayer:GetControlledCharacter()
+    local nanosPlayer = player;
+    local character = nanosPlayer:GetControlledCharacter();
     if (character) then
-        character:Destroy()
+        character:Destroy();
     end
-    jServer.playerManager:removePlayer(nanosPlayer:GetID())
+    jServer.playerManager:removePlayer(nanosPlayer:GetID());
 end)

@@ -12,6 +12,29 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+-- Listage de la structure de la table jframework. accounts
+CREATE TABLE IF NOT EXISTS `accounts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `label` varchar(50) NOT NULL,
+  `owner` int(11) NOT NULL,
+  `money` int(11) NOT NULL,
+  `shared` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
+
+-- Listage de la structure de la table jframework. inventories
+CREATE TABLE IF NOT EXISTS `inventories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `label` varchar(50) NOT NULL,
+  `owner` int(11) NOT NULL,
+  `items` longtext NOT NULL,
+  `shared` int(11) NOT NULL DEFAULT 0,
+  `maxWeight` float NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
+
 -- Listage de la structure de la table jframework. players
 CREATE TABLE IF NOT EXISTS `players` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
