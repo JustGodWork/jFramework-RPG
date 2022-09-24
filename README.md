@@ -21,7 +21,7 @@ First method:
 
 Second method:
 
-- `cd "YOUR_NANOS_SERVER_LOCATION/Packages"
+- `cd "YOUR_NANOS_SERVER_LOCATION/Packages"`
 
 -  `git clone https://github.com/JustGodWork/Nanos-Role-Play-Framework.git`
 
