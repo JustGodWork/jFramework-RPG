@@ -29,6 +29,26 @@ function MySQL:new(connectionParameters)
     return self;
 end
 
+---Connect to database
+function MySQL:createConnection()
+    local connexionString;
+    if (self.params.password) then
+        connexionString = "db=%s user=%s host=%s port=%s password=%s";
+    else
+        connexionString = "db=%s user=%s host=%s port=%s";
+    end
+    self.connected, self.database = pcall(Database, DatabaseEngine.MySQL, (connexionString):format(
+        self.params.db, 
+        self.params.user, 
+        self.params.host, 
+        self.params.port, 
+        self.params.password
+    ));
+    self:onClose()
+    self:handlerConnectError()
+    return self;
+end
+
 function MySQL:onClose()
     Server.Subscribe("Stop", function()
         self.database:Close()
@@ -36,48 +56,21 @@ function MySQL:onClose()
     end)
 end
 
----Connect to database
-function MySQL:createConnection()
-    local default = {
-        db = "",
-        user = "",
-        host = "",
-        port = 3306,
-    }
-    for param, _ in pairs(default) do
-        if ((not self.params[param] or self.params[param] == nil) and self.params[param] ~= "password") then
-            return jShared.log:error(string.format("MySQL: %s is not defined", param))
-        end
-    end
-    if (self.params.password) then
-        self.connected, self.database = pcall(Database, DatabaseEngine.MySQL, ("db=%s user=%s host=%s port=%s password=%s"):format(
-                self.params.db,
-                self.params.user, 
-                self.params.host, 
-                self.params.port,
-                self.params.password
-            )
-        )
-    else
-        self.connected, self.database = pcall(Database, DatabaseEngine.MySQL, ("db=%s user=%s host=%s port=%s"):format(
-            self.params.db, 
-            self.params.user, 
-            self.params.host, 
-            self.params.port
-        ))
-    end
-    self:handlerConnectError()
-    self:onClose()
-    return self;
-end
-
 function MySQL:handlerConnectError()
     if (not self.connected) then
         jShared.log:error(string.format("[ MySQL ] => Connection failed. %s", self.database));
-        Timer.SetTimeout(os.exit, 0);
+        Timer.SetTimeout(function()
+            os.exit(true, true);
+        end, 0)
     else
         jShared.log:success("[ MySQL ] => Connection established.");
     end
+end
+
+---Check if connection is open
+---@return boolean
+function MySQL:isOpen()
+    return self.connected;
 end
 
 ---@param query string
@@ -139,9 +132,4 @@ function MySQL:close()
     self.database:Close();
 end
 
-jServer.mysql = MySQL:new({
-    db = "jframework",
-    user = "root",
-    host = "localhost",
-    port = 3307
-}):createConnection();
+jServer.mysql = MySQL:new(jServer.database):createConnection();

@@ -29,6 +29,34 @@ function RepositoryManager:new()
 end
 
 ---@param name string
-function RepositoryManager:register() end
+---@param Object table
+---@return Repository | nil
+function RepositoryManager:register(name, Object)
+    if (not self.repositories[name]) then
+        self.repositories[name] = Repository:new(name, Object);
+        return self.repositories[name];
+    else
+        jShared.log:warn("RepositoryManager:register(): repository [ ".. name .." ] already exists");
+        return nil;
+    end
+end
+
+---@param name string
+---@param id number
+function RepositoryManager:find(name, id)
+    if (self.repositories[name]) then
+        return self.repositories[name]:find(id);
+    else
+        jShared.log:warn("RepositoryManager:find(): repository [ ".. name .." ] not found");
+        return nil;
+    end
+end
+
+---Save all repositories
+function RepositoryManager:saveAll()
+    for _, repository in pairs(self.repositories) do
+        repository:save();
+    end
+end
 
 jServer.repositoryManager = RepositoryManager:new();

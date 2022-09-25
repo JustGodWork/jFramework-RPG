@@ -15,20 +15,19 @@
 function Player:onCreate(data)
     local position = Config.player.defaultPosition;
     local heading = Config.player.defaultHeading;
-
-    self:SetValue("character_id", data.id);
-    self:SetValue("identifier", self:GetSteamID());
-    self:SetValue("firstname", data.firstname);
-    self:SetValue("lastname", data.lastname);
+    self:SetValue("character_id", data.id, true);
+    self:SetValue("identifier", self:GetSteamID(), true);
+    self:SetValue("firstname", data.firstname, true);
+    self:SetValue("lastname", data.lastname, true);
     self:SetValue("position", 
-        (data.position ~= "" and JSON.parse(data.position))
-        or Vector(position.x, position.y, position.z)
-    );
+        (data.position and JSON.parse(data.position))
+        or Vector(position.x, position.y, position.z),
+    true);
     self:SetValue("heading", 
-        (data.heading ~= "" and JSON.parse(data.heading))
-        or Rotator(heading.Pitch, heading.Yaw, heading.Roll)
-    );
-    self:SetValue("skin", (data.skin ~= "" and data.skin or Config.player.defaultSkin));
+        (data.heading and JSON.parse(data.heading))
+        or Rotator(heading.Pitch, heading.Yaw, heading.Roll),
+    true);
+    self:SetValue("skin", (data.skin and data.skin or Config.player.defaultSkin), true);
     self:initialize(); --Spawn the player when all data are loaded
 
     jShared.log:debug("[ Player: ".. self:getFullName() .." ] initialized.");

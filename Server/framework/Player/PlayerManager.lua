@@ -24,9 +24,23 @@ function PlayerManager:new()
     ---@type Player[]
     self.players = {};
 
+    self._repository = jServer.repositoryManager:register("players", {
+        { name = "identifier", type = "VARCHAR(255) NOT NULL" },
+        { name = "firstname", type = "VARCHAR(255) NOT NULL" },
+        { name = "lastname", type = "VARCHAR(255) NOT NULL" },
+        { name = "skin", type = "VARCHAR(255)" },
+        { name = "position", type = "LONGTEXT" },
+        { name = "heading", type = "LONGTEXT" }
+    })
+
     jShared.log:debug("[ PlayerManager ] initialized.");
     
     return self;
+end
+
+---@return Repository
+function PlayerManager:repository()
+    return self._repository;
 end
 
 ---@param id number

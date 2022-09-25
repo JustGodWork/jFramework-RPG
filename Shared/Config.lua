@@ -15,13 +15,22 @@
 --jFramework Config
 Config = {}
 
+Config.disclaimer = false --Set to false after setup complete
 Config.debug = false --Enabling debug mode will print all logs in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
+Config.discord = {
+    APPLICATION_ID = 1023712604989964309, -- Your discord client ID
+    CURRENT_ACTIVITY = "Role Play Framework", -- The current activity of the client
+    CURRENT_ACTIVITY_DETAILS = "Working on...", -- The current activity details of the client
+    LOGO = "logo", -- logo
+    LOGO_TEXT = "https://discord.gg/fWRyssQh6M", -- logo text
+}
+
 Config.Time = { -- Time config (Not finished yet)
-    speed = 1, --seconds
-    hourFormat = 24, --number of hours in a day
-    startAt = { --time when the server starts
+    speed = 1, -- seconds
+    hourFormat = 24, -- number of hours in a day
+    startAt = { -- ime when the server starts
         hours = 12, 
         minutes = 0, 
         seconds = 0 
@@ -31,16 +40,16 @@ Config.Time = { -- Time config (Not finished yet)
 Config.player = { --Player config
     accounts = { --Add accounts here
         {name = "bank", label = "Bank", money = 1000, shared = 0},
-        {name = "cash", label = "Cash", money = 500, shared = 0},
+        {name = "cash", label = "Cash", money = 500, shared = 0}
     },
     inventories = { --Add inventories here
         {name = "main", label = "Main Inventory", maxWeight = 25, shared = 0},
-        {name = "bag", label = "Bag", maxWeight = 40, shared = 0}
+        {name = "bag", label = "Bag", maxWeight = 40, shared = 1}
     },
     defaultPosition = { --Default position when the player spawns
         x = 799.400, 
         y = 1755.599, 
-        z = 101.5,
+        z = 101.5
     },
     defaultHeading = { --Default heading when the player spawns
         Pitch = 0.0,

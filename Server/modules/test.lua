@@ -35,7 +35,7 @@ end
 
 --Spawning WTF pickup
 jServer.commandManager:register("diable", function(player, args)
-    local location = player:GetControlledCharacter():GetLocation()
+    local location = player:GetControlledCharacter():GetLocation();
     local vehicle = SpawnVehicle(location, player:GetControlledCharacter():GetRotation(), nil, {
         torque = tonumber(args[1]),
         rpm = tonumber(args[2])
@@ -43,27 +43,28 @@ jServer.commandManager:register("diable", function(player, args)
     player:GetControlledCharacter():EnterVehicle(vehicle)
 end)
 
+
+--[[
+
 --Temporary add Items here for testing
---jServer.itemManager:addItem("1", "bread", "Bread", {}, "food", 1, false);
+jServer.itemManager:addItem("1", "bread", "Bread", {}, "food", 1, false);
 
 --Waiting for player connection before testing inventories, items and accounts :)
---[[Events.Subscribe("onPlayerConnecting", function(player) 
+Events.Subscribe("onPlayerConnecting", function(player)
+
     --Testing accounts
-    local id = player:getCharacterId();
-    local account = jServer.accountManager:getByOwner(id, "bank")
-    jShared.log:info("Player bank: ", account:getMoney());
+    local account = jServer.accountManager:getByOwner(player:getCharacterId(), "bank");
+    jShared.log:info("Bank: ", account:getMoney());
 
     --Testing inventories
-    local inventory = jServer.inventoryManager:getByOwner(id, "main");
+    local inventory = jServer.inventoryManager:getByOwner(player:getCharacterId(), "main");
     inventory:addItem("bread", 1);
     jShared.log:info("Player inventory: ", inventory:getItems());
-    Timer.SetTimeout(function()
-        inventory:getItem("bread"):use(player);
-        jShared.log:info("Player inventory after: ", inventory:getItems());
-    end, 2000);
-end);]]
+    inventory:getItem("bread"):use(player);
+    jShared.log:info("Player inventory after: ", inventory:getItems());
+end);
 
---[[jServer.itemManager:setItemCallback("bread", function(player, item)
+jServer.itemManager:setItemCallback("bread", function(player, item)
     -- Remove the item from the player inventory
     -- You can trigger this in an event with the inventory id to remove item in.
     local inventory = jServer.inventoryManager:getByOwner(player:getCharacterId(), "main");
@@ -72,4 +73,6 @@ end);]]
     end
 
     --Do stuff here like adding hunger
-end);]]
+end);
+
+]]

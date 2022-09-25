@@ -25,41 +25,56 @@ function AccountManager:new()
     ---@type Account[][]
     self.owned = {};
 
+    self._repository = jServer.repositoryManager:register("accounts", {
+        { name = "name", type = "VARCHAR(255) NOT NULL" },
+        { name = "label", type = "VARCHAR(255) NOT NULL" },
+        { name = "owner", type = "INT(11) NOT NULL" },
+        { name = "money", type = "INT(11) NOT NULL" },
+        { name = "shared", type = "INT(11) NOT NULL DEFAULT 0" }
+    });
+
     jShared.log:debug("[ AccountManager ] initialized.");
     
     return self;
 end
 
----@param id number
+---@return Repository
+function AccountManager:repository()
+    return self._repository;
+end
+
 ---@param name string
----@param label string
 ---@param owner string
----@param money number
----@param accountType number
----@return Account
-function AccountManager:register(id, name, label, owner, money, accountType)
+function AccountManager:register(name, owner)
     if (owner) then
-        if (not self.owned[owner]) then
-            self.owned[owner] = {};
-        end
-        if (not self.owned[owner][id]) then
-            self.owned[owner][id] = Account:new(id, name, label, owner, money, accountType);
-            return self.owned[owner][id];
-        else
-            jShared.log:warn("AccountManager:register(): account [ ".. name .." ] already exists");
-            return nil;
-        end
-    elseif (not self.accounts[id]) then
-        self.accounts[id] = Account:new(id, name, label, owner, money, accountType);
-        return self.accounts[id];
+        self:repository():prepare({ "owner", "name" }, { owner = owner, name = name }, function(result, success)
+            if (success) then
+                if (not self.owned[result[1].owner]) then
+                    self.owned[owner] = {};
+                end
+                if (not self.owned[owner][result[1].id]) then
+                    self.owned[owner][result[1].id] = Account:new(result[1].id, result[1].name, result[1].label, result[1].owner, result[1].money, result[1].shared);
+                else
+                    jShared.log:warn("AccountManager:register(): account [ ".. name .." ] already exists");
+                end
+            end
+        end);
     else
-        jShared.log:warn("AccountManager:register(): account [ ".. name .." ] already exists");
+        self:repository():prepare("name", name, function(result, success)
+            if (success) then
+                if (not self.accounts[result[1].id]) then
+                    self.accounts[result[1].id] = Account:new(result[1].id, result[1].name, result[1].label, result[1].owner, result[1].money, result[1].shared);
+                else
+                    jShared.log:warn("AccountManager:register(): account [ ".. name .." ] already exists");
+                end
+            end
+        end);
     end
 end
 
 ---@param owner number
 ---@param accountName string
----@return Account
+---@return Account | nil
 function AccountManager:getByOwner(owner, accountName)
     local found = false;
     if (self.owned[owner]) then
@@ -82,13 +97,27 @@ function AccountManager:getByOwner(owner, accountName)
     end
 end
 
----@param id number id or name of account
+---@param account Account
+---@param owner number
+---@return void
+function AccountManager:setOwner(account, owner)
+    if (account) then
+        if (self.inventories[account:getId()]) then
+            self.inventories[account:getId()].owner = owner;
+            self:repository():save(self.accounts[account:getId()]);
+        else
+            jShared.log:warn('AccountManager:setOwner(): account [ '.. account:getId() ..' ] not found');
+        end
+    end
+end
+
+---@param id string id or name of Account
 ---@return Account
 function AccountManager:get(id)
     for account, _ in pairs(self.accounts) do
-        local acc = self.accounts[account];
+        local acc = self.accounts[account]
         if (acc:getId() == id or acc:getName() == tostring(id)) then
-            return self.accounts[account];
+            return acc;
         end
     end
 end
@@ -97,79 +126,18 @@ end
 ---@param label string
 ---@param owner number
 ---@param money number
----@param accountType number
----@param callback fun(success: boolean)
-function AccountManager:create(name, label, owner, money, accountType, callback)
-    jServer.mysql:query("INSERT INTO accounts (name, label, owner, money, shared) VALUES (?, ?, ?, ?, ?)", {
-        name, 
-        label, 
-        owner, 
-        money, 
-        accountType
-    }, function(success)
-        if (success) then
-            jServer.mysql:select("SELECT * FROM accounts WHERE owner = ? AND name = ?", { owner, name }, function(result)
-                if (result) then
-                    local acc = self:register(result[1].id, result[1].name, result[1].label, result[1].owner, result[1].money, result[1].shared);
-                    if (owner) then
-                        if (acc) then
-                            jShared.log:info("AccountManager:create(): account [ Id: ".. acc:getId() .." Owner: ".. acc:getOwner() .." Name: ".. acc:getName() .." ] created");
-                        else
-                            jShared.log:warn("AccountManager:create(): account [ Owner: ".. owner .." Name: ".. name .." ] not created");
-                        end
-                    else
-                        if (acc) then
-                            jShared.log:info("AccountManager:create(): account [ Id: ".. acc:getId() .." Name: ".. acc:getName() .." ] created");
-                        else
-                            jShared.log:warn("AccountManager:create(): account [ Name: ".. name .." ] not created");
-                        end
-                    end
-                    if (callback) then callback(acc ~= nil); end
-                else
-                    jShared.log:warn("AccountManager:create(): account [ ".. name .." ] not created");
-                end
-            end, name);
-        else
-            if (owner) then
-                jShared.log:warn("AccountManager:create(): account [ Owner: ".. owner .." Name: ".. name .." ] not created");
-            else
-                jShared.log:warn("AccountManager:create(): account [ ".. name .." ] not created");
-            end
-            if (callback) then callback(false); end
-        end
-    end)
-end
-
----@param id Player.character_id
----@param callback fun(success: boolean)
-function AccountManager:initPlayer(id, callback)
-    jServer.mysql:select("SELECT * FROM accounts WHERE owner = ?", { id }, function (result)
-        if (#result > 0) then
-            for i = 1, #result do
-                self:register(
-                    result[i].id,
-                    result[i].name,
-                    result[i].label, 
-                    id,
-                    result[i].money,
-                    result[i].shared
-                );
-            end
-            jShared.log:success("[ AccountManager ] => player [".. id .."] accounts initialized");
-            if (callback) then callback(true); end
-        else
-            for i = 1, #Config.player.accounts do 
-                local account = Config.player.accounts[i];
-                self:create(
-                    account.name,
-                    account.label,
-                    id,
-                    account.money,
-                    account.shared,
-                    callback
-                );
-            end
-        end
+---@param shared number
+---@param callback? function
+function AccountManager:create(name, label, owner, money, shared, callback)
+    self:repository():save({
+        name = name,
+        label = label,
+        owner = owner,
+        money = money,
+        shared = shared
+    }, function()
+        self:register(name, owner);
+        if (callback) then callback(); end
     end);
 end
 

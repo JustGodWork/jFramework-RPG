@@ -15,4 +15,5 @@
 --FRAMEWORK
 
 --MODULES
+jClient:loadModule("Discord/discord.lua");
 jClient:loadModule("World/World.lua");
