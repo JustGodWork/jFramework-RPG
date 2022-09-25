@@ -20,6 +20,13 @@ function _Server:new()
     local self = {}
     setmetatable(self, { __index = _Server});
 
+    self.database = {
+        db = "jframework",
+        user = "root",
+        host = "localhost",
+        port = 3307
+    }
+
     self.modules = {};
 
     ---@param module string
@@ -39,5 +46,8 @@ end
 
 jServer = _Server:new();
 
-Package.Require("./loader.lua");
+jServer:loadFrameworkModule("Database/MySQL.lua");
 
+if (jServer.mysql:isOpen()) then
+    Package.Require("./loader.lua");
+end

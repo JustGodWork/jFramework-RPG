@@ -26,7 +26,7 @@ function InventoryManager:new()
     ---@type Inventory[][]
     self.owned = {};
 
-    self.repository = jServer.repositoryManager:register("inventories", {
+    self._repository = jServer.repositoryManager:register("inventories", {
         { name = "name", type = "VARCHAR(255) NOT NULL" },
         { name = "label", type = "VARCHAR(50) NOT NULL" },
         { name = "owner", type = "INT(11) NOT NULL" },
@@ -40,13 +40,17 @@ function InventoryManager:new()
     return self;
 end
 
+---@return Repository
+function InventoryManager:repository()
+    return self._repository;
+end
 
 ---@param name string
 ---@param owner string
 function InventoryManager:register(name, owner)
     if (owner) then
-        self.repository:prepare({ "owner", "name" }, { owner = owner, name = name }, function(result)
-            if (#result > 0) then
+        self:repository():prepare({ "owner", "name" }, { owner = owner, name = name }, function(result, success)
+            if (success) then
                 if (not self.owned[result[1].owner]) then
                     self.owned[owner] = {};
                 end
@@ -59,8 +63,8 @@ function InventoryManager:register(name, owner)
             end
         end);
     else
-        self.repository:prepare("name", name, function(result)
-            if (#result > 0) then
+        self:repository():prepare("name", name, function(result, success)
+            if (success) then
                 if (not self.inventories[result[1].id]) then
                     self.inventories[result[1].id] = Inventory:new(result[1].id, result[1].name, result[1].label, result[1].owner, {}, result[1].maxWeight, result[1].shared);
                     self:buildInventoryItems(self.inventories[result[1].id], result[1].items);
@@ -104,6 +108,7 @@ function InventoryManager:setOwner(inventory, owner)
     if (inventory) then
         if (self.inventories[inventory:getId()]) then
             self.inventories[inventory:getId()].owner = owner;
+            self:repository():save(self.inventories[inventory:getId()]);
         else
             jShared.log:warn('InventoryManager:setOwner(): inventory [ '.. inventory ..' ] not found');
         end
@@ -128,7 +133,7 @@ end
 ---@param shared number
 ---@param callback? function
 function InventoryManager:create(name, label, owner, maxWeight, shared, callback)
-    self.repository:save({
+    self:repository():save({
         name = name,
         label = label,
         owner = owner,

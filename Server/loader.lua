@@ -15,7 +15,6 @@
 --FRAMEWORK
 
 --Database
-jServer:loadFrameworkModule("Database/MySQL.lua");
 jServer:loadFrameworkModule("Database/repository/entities/Repository.lua");
 jServer:loadFrameworkModule("Database/repository/RepositoryManager.lua");
 

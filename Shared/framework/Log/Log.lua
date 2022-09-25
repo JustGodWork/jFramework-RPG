@@ -48,7 +48,7 @@ function Log:convertArgs(args)
         for i = 1, #args do
             if (type(args[i]) == "table") then
                 argsConverted[i] = NanosUtils.Dump(args[i]);
-            elseif (type(args[i]) == "boolean" or type(args[i]) == "number" or args[i] == nil) then
+            elseif (type(args[i]) == "boolean" or type(args[i]) == "number" or args[i] == nil or type(args[i]) == "string") then
                 argsConverted[i] = tostring(args[i]);
             end
         end
@@ -66,9 +66,7 @@ function Log:convertMessage(logType, message, messageType, ...)
     local msg = string.format("[%s] => [%s] => %s", self:getSide(), self.types[logType], message)
     local args = self:convertArgs({...})
     if (messageType == "string" or messageType == "boolean" or messageType == "number" or message == nil) then
-        if (messageType == "number" or messageType == "boolean") then 
-            msg = string.format("[%s] => [%s] => %s", self:getSide(), self.types[logType], tostring(message))
-        end
+        msg = string.format("[%s] => [%s] => %s", self:getSide(), self.types[logType], tostring(message))
         if (args) then
             for i = 1, #args do
                 msg = string.format("%s %s", msg, args[i]);

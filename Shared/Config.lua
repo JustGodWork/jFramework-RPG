@@ -16,7 +16,7 @@
 Config = {}
 
 Config.disclaimer = false --Set to false after setup complete
-Config.debug = true --Enabling debug mode will print all logs in the console
+Config.debug = false --Enabling debug mode will print all logs in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
 Config.Time = { -- Time config (Not finished yet)

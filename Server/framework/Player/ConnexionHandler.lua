@@ -71,12 +71,14 @@ function ConnexionHandler:connect(nanosPlayer, callback)
         local data = self.players[identifier];
         local player = jServer.playerManager:registerPlayer(data, nanosPlayer);
         self:initPlayerData(player);
-        self.players[identifier] = nil;
-        Events.Call("onPlayerConnecting", player);
-        jShared.log:success(string.format("[ ConnexionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
-        if (callback) then
-            callback(player);
-        end
+        Timer.SetTimeout(function()
+            self.players[identifier] = nil;
+            Events.Call("onPlayerConnecting", player);
+            jShared.log:success(string.format("[ ConnexionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
+            if (callback) then
+                callback(player);
+            end
+        end, 1000);
     else
         jShared.log:warn("ConnexionHandler:connect() Player ".. name .." not created correctly !");
     end
@@ -108,7 +110,20 @@ end
 ---@param nanosPlayer Player
 function ConnexionHandler:initPlayerData(nanosPlayer)
     local id = nanosPlayer:getCharacterId();
-    jServer.accountManager:initPlayer(id);
+    jServer.mysql:select("SELECT * FROM accounts WHERE owner = ?", { id }, function(result)
+        if (#result > 0) then
+            for i = 1, #result do
+                jServer.accountManager:register(result[i].name, id);
+            end
+        else
+            for i = 1, #Config.player.accounts do
+                local account = Config.player.accounts[i];
+                if (account) then
+                    jServer.accountManager:create(account.name, account.label, id, account.money, account.shared);
+                end
+            end
+        end
+    end);
     jServer.mysql:select("SELECT * FROM inventories WHERE owner = ?", { id }, function(result)
         if (#result > 0) then
             for i = 1, #result do
@@ -117,7 +132,9 @@ function ConnexionHandler:initPlayerData(nanosPlayer)
         else
             for i = 1, #Config.player.inventories do
                 local inventory = Config.player.inventories[i];
-                jServer.inventoryManager:create(inventory.name, inventory.label, id, inventory.maxWeight, inventory.shared);
+                if (inventory) then
+                    jServer.inventoryManager:create(inventory.name, inventory.label, id, inventory.maxWeight, inventory.shared);
+                end
             end
         end
     end)
