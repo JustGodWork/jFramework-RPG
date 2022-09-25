@@ -25,6 +25,14 @@ function AccountManager:new()
     ---@type Account[][]
     self.owned = {};
 
+    self.repository = jServer.repositoryManager:register("accounts", {
+        { name = "name", type = "VARCHAR(255) NOT NULL" },
+        { name = "label", type = "VARCHAR(255) NOT NULL" },
+        { name = "owner", type = "INT(11) NOT NULL" },
+        { name = "money", type = "INT(11) NOT NULL" },
+        { name = "shared", type = "INT(11) NOT NULL DEFAULT 0" }
+    });
+
     jShared.log:debug("[ AccountManager ] initialized.");
     
     return self;

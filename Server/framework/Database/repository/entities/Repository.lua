@@ -139,7 +139,7 @@ function Repository:create(callback)
             end
         end
     end
-    jServer.mysql:query("CREATE TABLE IF NOT EXISTS " .. self.name .. " (id INT(11)  NOT NULL AUTO_INCREMENT, " .. request .. ");", {}, function (result)
+    jServer.mysql:query("CREATE TABLE IF NOT EXISTS " .. self.name .. " (id INT(11)  NOT NULL AUTO_INCREMENT, " .. request .. ");", {}, function()
         if (callback) then callback(); end
     end)
 end
@@ -192,7 +192,7 @@ function Repository:save(Object, callback)
         }, function()
             if (callback) then callback(); end
             jShared.log:debug(("[ Repository: ".. self.name .." ] saved object [ Id: %s ]."):format(Object.id));
-        end)
+        end);
     end
 end
 
@@ -204,5 +204,5 @@ function Repository:saveData(name, Object)
         Object.id 
     }, function()
         jShared.log:debug(("[ Repository: ".. self.name .." ] saved object [ Id: %s, Data: %s ]."):format(Object.id, name));
-    end)
+    end);
 end

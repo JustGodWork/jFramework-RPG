@@ -42,7 +42,7 @@ function ConnexionHandler:requestData(nanosPlayer, callback)
 end
 
 ---@param nanosPlayer Player
----@param callback fun(player: Player)
+---@param callback? fun(player: Player)
 function ConnexionHandler:handle(nanosPlayer, callback)
     local name = nanosPlayer:GetName();
 

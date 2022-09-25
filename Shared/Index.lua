@@ -35,6 +35,8 @@ function Shared:new()
         Package.Require(string.format("./modules/%s", module));
     end
 
+    self:disclaimer();
+
     return self;
 end
 
@@ -71,6 +73,24 @@ end
 ---@param module string
 function Shared:loadModule(module)
     Package.Require(string.format("./modules/%s", module));
+end
+
+function Shared:disclaimer()
+    if (Config.disclaimer) then
+        Package.Warn(string.format("\n%s",[[
+            --------------------------------------------------------------
+            -   Before you start, set up the config file                 -
+            -   in Shared\Config.lua,                                    -   
+            -   after that create a blank database for jFramework.       -
+            -   you can now stop showing this disclaimer by setting      -
+            -   Config.disclaimer to false in Shared\Config.lua          -
+            -   Enjoy jFramework !                                       -
+            --------------------------------------------------------------
+        ]]));
+        Timer.SetTimeout(function()
+            if (Server) then os.exit() end
+        end, 0)
+    end
 end
 
 jShared = Shared:new();

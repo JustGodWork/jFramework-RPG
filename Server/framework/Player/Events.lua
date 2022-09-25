@@ -18,7 +18,7 @@ Package.Subscribe("Load", function()
     for i = 1 , #players do
         jServer.connexionHandler:handle(players[i]);
     end
-    Server.BroadcastChatMessage("The package <cyan>Framework</> has been reloaded!");
+    Server.BroadcastChatMessage("<cyan>GameMode</> has been reloaded!");
 end)
 
 -- Spawns and possess a Character when a Player joins the server
