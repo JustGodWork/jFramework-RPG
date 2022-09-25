@@ -12,18 +12,18 @@
 -------
 --]]
 
----@class ConnexionHandler
-local ConnexionHandler = {}
+---@class ConnectionHandler
+local ConnectionHandler = {}
 
----@return ConnexionHandler
-function ConnexionHandler:new()
-    ---@type ConnexionHandler
+---@return ConnectionHandler
+function ConnectionHandler:new()
+    ---@type ConnectionHandler
     local self = {}
-    setmetatable(self, { __index = ConnexionHandler});
+    setmetatable(self, { __index = ConnectionHandler});
 
     self.players = {};
 
-    jShared.log:debug("[ ConnexionHandler ] initialized.");
+    jShared.log:debug("[ ConnectionHandler ] initialized.");
 
     return self;
 end
@@ -31,7 +31,7 @@ end
 ---@param nanosPlayer Player
 ---@param callback fun(playerData: table | nil)
 ---@return table
-function ConnexionHandler:requestData(nanosPlayer, callback)
+function ConnectionHandler:requestData(nanosPlayer, callback)
     local identifier = nanosPlayer:GetSteamID();
     jServer.mysql:select("SELECT * FROM players WHERE identifier = ?", { identifier }, function(result)
         self.players[identifier] = result[1];
@@ -43,10 +43,10 @@ end
 
 ---@param nanosPlayer Player
 ---@param callback? fun(player: Player)
-function ConnexionHandler:handle(nanosPlayer, callback)
+function ConnectionHandler:handle(nanosPlayer, callback)
     local name = nanosPlayer:GetName();
 
-    jShared.log:info("[ ConnexionHandler ] => Player ".. name .." connecting...");
+    jShared.log:info("[ ConnectionHandler ] => Player ".. name .." connecting...");
     self:requestData(nanosPlayer, function(playerData)
         if (playerData) then
             self:connect(nanosPlayer, callback);
@@ -55,7 +55,7 @@ function ConnexionHandler:handle(nanosPlayer, callback)
                 if (playerCreated) then
                     self:connect(nanosPlayer, callback);
                 else
-                    jShared.log:warn("[ConnexionHandler] => Player ".. name .." not created correctly !");
+                    jShared.log:warn("[ConnectionHandler] => Player ".. name .." not created correctly !");
                 end
             end)
         end
@@ -64,7 +64,7 @@ end
 
 ---@param nanosPlayer Player
 ---@param callback fun(player: Player)
-function ConnexionHandler:connect(nanosPlayer, callback)
+function ConnectionHandler:connect(nanosPlayer, callback)
     local identifier = nanosPlayer:GetSteamID();
     local name = nanosPlayer:GetName();
     if (self.players[identifier]) then
@@ -74,20 +74,21 @@ function ConnexionHandler:connect(nanosPlayer, callback)
         Timer.SetTimeout(function()
             self.players[identifier] = nil;
             Events.Call("onPlayerConnecting", player);
-            jShared.log:success(string.format("[ ConnexionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
+            Events.CallRemote("playerLoaded", player);
+            jShared.log:success(string.format("[ ConnectionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
             if (callback) then
                 callback(player);
             end
         end, 1000);
     else
-        jShared.log:warn("ConnexionHandler:connect() Player ".. name .." not created correctly !");
+        jShared.log:warn("ConnectionHandler:connect() Player ".. name .." not created correctly !");
     end
 end
 
 ---Create Player in database
 ---@param nanosPlayer Player
 ---@param callback fun(playerCreated: boolean)
-function ConnexionHandler:createPlayer(nanosPlayer, callback)
+function ConnectionHandler:createPlayer(nanosPlayer, callback)
     local identifier = nanosPlayer:GetSteamID();
 
     jServer.mysql:query("INSERT INTO players (identifier, firstname, lastname) VALUES (?, ?, ?)", { 
@@ -97,7 +98,7 @@ function ConnexionHandler:createPlayer(nanosPlayer, callback)
     }, function(result)
         if (result ~= 0) then
             self:requestData(nanosPlayer, function (playerData)
-                jShared.log:info(string.format("[ ConnexionHandler ] => Player [%s] %s %s created !", identifier, playerData.firstname, playerData.lastname));
+                jShared.log:info(string.format("[ ConnectionHandler ] => Player [%s] %s %s created !", identifier, playerData.firstname, playerData.lastname));
                 if (callback) then
                     callback(result);
                 end
@@ -108,7 +109,7 @@ end
 
 ---This is not the final state, where are wating for RepositoryManager to be done
 ---@param nanosPlayer Player
-function ConnexionHandler:initPlayerData(nanosPlayer)
+function ConnectionHandler:initPlayerData(nanosPlayer)
     local id = nanosPlayer:getCharacterId();
     jServer.mysql:select("SELECT * FROM accounts WHERE owner = ?", { id }, function(result)
         if (#result > 0) then
@@ -140,4 +141,4 @@ function ConnexionHandler:initPlayerData(nanosPlayer)
     end)
 end
 
-jServer.connexionHandler = ConnexionHandler:new();
+jServer.ConnectionHandler = ConnectionHandler:new();

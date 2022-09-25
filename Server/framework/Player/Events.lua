@@ -16,14 +16,14 @@
 Package.Subscribe("Load", function()
     local players = Player.GetAll();
     for i = 1 , #players do
-        jServer.connexionHandler:handle(players[i]);
+        jServer.ConnectionHandler:handle(players[i]);
     end
     Server.BroadcastChatMessage("<cyan>GameMode</> has been reloaded!");
 end)
 
 -- Spawns and possess a Character when a Player joins the server
 Player.Subscribe("Spawn", function(player)
-    jServer.connexionHandler:handle(player);
+    jServer.ConnectionHandler:handle(player);
 end)
 
 -- Destroys the Character when the Player leaves the server

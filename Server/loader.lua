@@ -43,7 +43,7 @@ jServer:loadFrameworkModule("Storage/StorageManager.lua");
 --Players
 jServer:loadFrameworkModule("Player/entities/Player.lua");
 jServer:loadFrameworkModule("Player/PlayerManager.lua");
-jServer:loadFrameworkModule("Player/ConnexionHandler.lua");
+jServer:loadFrameworkModule("Player/ConnectionHandler.lua");
 jServer:loadFrameworkModule("Player/Events.lua");
 
 --MODULES

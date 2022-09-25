@@ -50,6 +50,16 @@ function Shared:setDebugMode(bool)
     Config.debug = bool
 end
 
+---@return boolean
+function Shared:isServer()
+    return Server ~= nil
+end
+
+---@return boolean
+function Shared:isClient()
+    return Client ~= nil
+end
+
 ---@param pattern string
 ---@return string
 function Shared:uuid(pattern)

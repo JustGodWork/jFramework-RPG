@@ -39,4 +39,10 @@ end
 
 jClient = _jClient:new()
 
+Events.Subscribe("playerLoaded", function()
+    -- This event is called when the player is loaded
+    -- You can use it to load modules only when player is loaded
+    Client.SendChatMessage("All your data have been loaded !")
+end)
+
 Package.Require("./loader.lua");
