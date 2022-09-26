@@ -77,19 +77,23 @@ function InventoryManager:register(name, owner)
 end
 
 ---@param owner number
----@param inventoryName string
+---@param inventoryName? string
 ---@return Inventory | nil
 function InventoryManager:getByOwner(owner, inventoryName)
     local found = false;
     if (self.owned[owner]) then
-        for inventory, _ in pairs(self.owned[owner]) do
-            local inv = self.owned[owner][inventory];
-            if (inv) then
-                if (inv.owner == owner and inv.name == inventoryName) then
-                    found = true;
-                    return inv;
+        if (inventoryName) then
+            for inventory, _ in pairs(self.owned[owner]) do
+                local inv = self.owned[owner][inventory];
+                if (inv) then
+                    if (inv.owner == owner and inv.name == inventoryName) then
+                        found = true;
+                        return inv;
+                    end
                 end
             end
+        else
+            return self.owned[owner];
         end
     else
         jShared.log:warn('InventoryManager:getByOwner(): owner [ '.. owner ..' ] not found');

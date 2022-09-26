@@ -15,7 +15,7 @@
 ---THIS CODE IS JUST FOR TESTING PURPOSES
 ---THIS WILL BE REMOVED IN THE FUTURE (WeaponManager will be added)
 ---Big thanks to https://github.com/nanos-world/nanos-world-weapons/blob/master/Server/Index.lua
-eWEAPONS = {
+Enums.Weapons = {
 	---@return Weapon
     AK74U_CUSTOM = function (location, rotation)
         -- Spawning a Weapon with an AK74U model

@@ -14,6 +14,9 @@
 
 --FRAMEWORK
 
+--Enums
+jServer:loadFrameworkModule("Enums/EnumsLoader.lua");
+
 --Database
 jServer:loadFrameworkModule("Database/repository/entities/Repository.lua");
 jServer:loadFrameworkModule("Database/repository/RepositoryManager.lua");
@@ -47,10 +50,10 @@ jServer:loadFrameworkModule("Player/ConnectionHandler.lua");
 jServer:loadFrameworkModule("Player/Events.lua");
 
 --Vehicles
+jServer:loadFrameworkModule("Vehicle/entities/Vehicle.lua");
 jServer:loadFrameworkModule("Vehicle/VehicleManager.lua");
+jServer:loadFrameworkModule("Vehicle/Commands.lua");
 
 --MODULES
 jServer:loadModule("World/World.lua");
-jServer:loadModule("WEAPONS.lua");
-jServer:loadModule("VEHICLES.lua");
 jServer:loadModule("test.lua");

@@ -73,8 +73,7 @@ function ConnectionHandler:connect(nanosPlayer, callback)
         self:initPlayerData(player);
         Timer.SetTimeout(function()
             self.players[identifier] = nil;
-            Events.Call("onPlayerConnecting", player);
-            Events.CallRemote("playerLoaded", player);
+            Events.CallRemote("onPlayerConnecting", player);
             jShared.log:success(string.format("[ ConnectionHandler ] => Player [%s] %s %s connected !", identifier, data.firstname, data.lastname));
             if (callback) then
                 callback(player);

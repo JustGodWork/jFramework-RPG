@@ -12,37 +12,101 @@
 -------
 --]]
 
+---@private
+---@param data table
 function Player:onCreate(data)
-    local position = Config.player.defaultPosition;
-    local heading = Config.player.defaultHeading;
-    self:SetValue("character_id", data.id, true);
-    self:SetValue("identifier", self:GetSteamID(), true);
-    self:SetValue("firstname", data.firstname, true);
-    self:SetValue("lastname", data.lastname, true);
-    self:SetValue("position", 
-        (data.position and JSON.parse(data.position))
-        or Vector(position.x, position.y, position.z),
-    true);
-    self:SetValue("heading", 
-        (data.heading and JSON.parse(data.heading))
-        or Rotator(heading.Pitch, heading.Yaw, heading.Roll),
-    true);
-    self:SetValue("skin", (data.skin and data.skin or Config.player.defaultSkin), true);
+
+    self:SetValue("character_id",
+            data.id,
+            true
+    );
+    self:SetValue("identifier",
+            self:GetSteamID(),
+            true
+    );
+    self:SetValue("firstname",
+            data.firstname,
+            true
+    );
+    self:SetValue("lastname",
+            data.lastname,
+            true
+    );
+
+    self:initPosition(data.position);
+
+    self:initHeading(data.heading);
+
+    self:initSkin(data.skin);
+
     self:initialize(); --Spawn the player when all data are loaded
 
     jShared.log:debug("[ Player: ".. self:getFullName() .." ] initialized.");
 end
 
+---@private
 function Player:initialize()
     local playerCharacter = Character(self:getPosition(), self:getHeading(), self:getSkin());
     self:Possess(playerCharacter);
-    local weapon = eWEAPONS.AK74U_CUSTOM();
+    local weapon = Enums.Weapons.AK74U_CUSTOM();
     weapon:SetAutoReload(false);
     weapon:SetAmmoClip(0);
     playerCharacter:PickUp(weapon);
     self:onDeath(); --When player is created, and his character is loaded load Death handle.
+    if (Config.player.firstPersonOnly) then
+        playerCharacter:SetCameraMode(CameraMode.FPSOnly);
+    end
 end
 
+---@private
+---@param playerPosition table
+function Player:initPosition(playerPosition)
+    local position = Config.player.defaultPosition;
+    if (playerPosition) then
+        position = JSON.parse(playerPosition);
+    end
+    self:SetValue("position",
+            Vector(
+                    position.x,
+                    position.y,
+                    position.z
+            ),
+            true
+    );
+end
+
+---@private
+---@param playerHeading table
+function Player:initHeading(playerHeading)
+    local heading = Config.player.defaultHeading;
+
+    if (playerHeading) then
+        heading = JSON.parse(playerHeading);
+    end
+    self:SetValue("heading",
+            Rotator(
+                    heading.Pitch,
+                    heading.Yaw,
+                    heading.Roll
+            ),
+            true
+    );
+end
+
+---@private
+---@param playerSkin string
+function Player:initSkin(playerSkin)
+    local skin = Config.player.defaultSkin;
+    if (playerSkin) then
+        skin = playerSkin;
+    end
+    self:SetValue("skin",
+            skin,
+            true
+    );
+end
+
+---@private
 function Player:onDeath()
     local character = self:GetControlledCharacter();
     character:Subscribe("Death", function(chara, last_damage_taken, last_bone_damaged, damage_reason, hit_from, instigator)

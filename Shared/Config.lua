@@ -15,8 +15,8 @@
 --jFramework Config
 Config = {}
 
-Config.disclaimer = false --Set to false after setup complete
-Config.debug = false --Enabling debug mode will print all logs in the console
+Config.disclaimer = true --Set to false after setup complete
+Config.debug = false --Enabling debug mode will print all debug infos in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
 Config.discord = {
@@ -38,6 +38,7 @@ Config.Time = { -- Time config (Not finished yet)
 }
 
 Config.player = { --Player config
+    firstPersonOnly = false, -- Set to true if you want First person only
     accounts = { --Add accounts here
         {name = "bank", label = "Bank", money = 1000, shared = 0},
         {name = "cash", label = "Cash", money = 500, shared = 0}

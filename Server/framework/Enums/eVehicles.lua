@@ -15,7 +15,7 @@
 ---THIS CODE IS JUST FOR TESTING PURPOSES
 ---THIS WILL BE REMOVED IN THE FUTURE (VehicleManager will be added)
 ---Big thanks to https://github.com/nanos-world/nanos-world-vehicles/blob/main/Server/Index.lua
-eVEHICLES = {
+Enums.Vehicles = {
 	SUV = function(location, rotation)
 		local vehicle = Vehicle(location or Vector(), rotation or Rotator(), "nanos-world::SK_SUV", CollisionType.Normal, true, false, true, "nanos-world::A_Vehicle_Engine_14")
 

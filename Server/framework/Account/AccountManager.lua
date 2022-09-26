@@ -73,19 +73,23 @@ function AccountManager:register(name, owner)
 end
 
 ---@param owner number
----@param accountName string
+---@param accountName? string
 ---@return Account | nil
 function AccountManager:getByOwner(owner, accountName)
     local found = false;
     if (self.owned[owner]) then
-        for account, _ in pairs(self.owned[owner]) do
-            local acc = self.owned[owner][account];
-            if (acc) then
-                if (acc.owner == owner and acc.name == accountName) then
-                    found = true;
-                    return acc;
+        if (accountName) then
+            for account, _ in pairs(self.owned[owner]) do
+                local acc = self.owned[owner][account];
+                if (acc) then
+                    if (acc.owner == owner and acc.name == accountName) then
+                        found = true;
+                        return acc;
+                    end
                 end
             end
+        else
+            return self.owned[owner];
         end
     else
         jShared.log:warn('AccountManager:getByOwner(): owner [ '.. owner ..' ] not found');

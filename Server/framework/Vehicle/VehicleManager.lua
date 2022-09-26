@@ -1,10 +1,16 @@
 ---
---- @author Azagal
---- Create at [25/09/2022] 22:41:35
---- Current project [jframework]
---- File name [VehicleManager]
+---Created Date: 22:41 25/09/2022
+---Author: Azagal
+---Made with ❤
+
+---File: [VehicleManager]
+
+---Copyright (c) 2022 JustGodWork, All Rights Reserved.
+---This file is part of JustGodWork project.
+---Unauthorized using, copying, modifying and/or distributing of this file
+---via any medium is strictly prohibited. This code is confidential.
 ---
----
+
 ---@class VehicleManager
 local VehicleManager = {}
 
@@ -22,7 +28,7 @@ end
 
 ---@return boolean
 function VehicleManager:modelExist(modelName)
-    return eVEHICLES[modelName] ~= nil
+    return Enums.Vehicles[modelName] ~= nil
 end
 
 ---@return Vehicle[]
@@ -36,7 +42,7 @@ function VehicleManager:getVehicleFromId(vehicleId)
     return self.vehicles[vehicleId]
 end
 
----@param modelName string eVEHICLES[]
+---@param modelName string Enums.Vehicles[modelName]
 ---@param location Vector
 ---@param rotation Rotator
 ---@return Vehicle
@@ -47,7 +53,7 @@ function VehicleManager:create(modelName, location, rotation)
     end
 
     local vehicleId = (#self.vehicles + 1)
-    self.vehicles[vehicleId] = eVEHICLES[modelName](location, rotation)
+    self.vehicles[vehicleId] = Enums.Vehicles[modelName](location, rotation)
     self.vehicles[vehicleId]:SetValue("vehicleId", vehicleId)
     return self.vehicles[vehicleId]
 end
@@ -65,27 +71,3 @@ function VehicleManager:deleteById(id)
 end
 
 jServer.vehicleManager = VehicleManager:new()
-
----@param self Vehicle
-Vehicle.Subscribe("Destroy", function(self)
-    local vehicleId = self:GetValue("vehicleId")
-    if (not vehicleId) then
-        return
-    end
-    jServer.vehicleManager:deleteById(vehicleId);
-end)
-
----Testing commands
-jServer.commandManager:register("VehicleManager:spawnVehicle", function(player, args)
-    local createdVehicle = jServer.vehicleManager:create(args[1] or "SUV", player:GetControlledCharacter():GetLocation(), player:GetControlledCharacter():GetRotation())
-    player:GetControlledCharacter():EnterVehicle(createdVehicle)
-end)
-
----@param player Player
-jServer.commandManager:register("VehicleManager:deleteVehicle", function(player)
-    local PLAYER_IN_VEHICLE = player:GetControlledCharacter():GetVehicle()
-    if (PLAYER_IN_VEHICLE == nil or PLAYER_IN_VEHICLE:GetValue("vehicleId") == nil) then
-        return
-    end
-    PLAYER_IN_VEHICLE:Destroy()
-end)
