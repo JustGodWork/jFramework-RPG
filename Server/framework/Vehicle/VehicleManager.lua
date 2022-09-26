@@ -52,17 +52,32 @@ function VehicleManager:create(modelName, location, rotation)
     return self.vehicles[vehicleId]
 end
 
+---@param id number
+---@return boolean
+function VehicleManager:deleteById(id)
+    if (self.vehicles[id]) then
+        self.vehicles[id] = nil
+        return true
+    else
+        jShared.log:warn("VehicleManager:deleteById(): Vehicle [".. id .."] not found")
+        return false
+    end
+end
+
+jServer.vehicleManager = VehicleManager:new()
+
 ---@param self Vehicle
 Vehicle.Subscribe("Destroy", function(self)
     local vehicleId = self:GetValue("vehicleId")
     if (not vehicleId) then
         return
     end
-    VehicleManager.vehicles[vehicleId] = nil
+    jServer.vehicleManager:deleteById(vehicleId);
 end)
 
+---Testing commands
 jServer.commandManager:register("VehicleManager:spawnVehicle", function(player, args)
-    local createdVehicle = VehicleManager:create(args[1] or "SUV", player:GetControlledCharacter():GetLocation(), player:GetControlledCharacter():GetRotation())
+    local createdVehicle = jServer.vehicleManager:create(args[1] or "SUV", player:GetControlledCharacter():GetLocation(), player:GetControlledCharacter():GetRotation())
     player:GetControlledCharacter():EnterVehicle(createdVehicle)
 end)
 
@@ -74,5 +89,3 @@ jServer.commandManager:register("VehicleManager:deleteVehicle", function(player)
     end
     PLAYER_IN_VEHICLE:Destroy()
 end)
-
-jServer.vehicleManager = VehicleManager:new()
