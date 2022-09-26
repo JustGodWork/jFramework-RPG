@@ -29,6 +29,72 @@ function Repository:new(name, Object)
 
     jShared.log:debug("[ Repository: ".. name .." ] initialized.");
 
+    ---@param Object table
+    ---@return string
+    function self:convertArgs(Object)
+        local args = {};
+        local request = "";
+        for key, data in pairs(Object) do
+            if (type(data) ~= "function" and key ~= "id" and key ~= "characterId") then
+                if (next(Object, key)) then
+                    request = string.format("%s %s %s", request, key,"= ?, ");
+                else
+                    request = string.format("%s %s %s", request, key,"= ? ");
+                end
+                if (type(data) == "table") then
+                    args[#args + 1] = JSON.stringify(data);
+                else
+                    args[#args + 1] = data;
+                end
+            end
+        end
+        return request, args;
+    end
+
+    ---@param condition string | table
+    ---@param value string | table
+    function self:prepareTable(condition, value)
+        local request;
+        local args = value;
+        if (type(condition) == "table") then
+            request = ""; 
+            for key, cond in pairs(condition) do
+                if (next(condition, key)) then
+                    request = string.format("%s %s %s", request, cond,"= ? AND ");
+                else
+                    request = string.format("%s %s %s", request, cond,"= ? ");
+                end
+                args[#args + 1] = value[cond];
+            end 
+        else 
+            request = condition .. " = ?";
+        end
+        return request, args;
+    end
+
+    ---@param Object table
+    ---@return string, string, table
+    function self:convertInsertArgs(Object)
+        local part1 = "";
+        local part2 = "";
+        local args = {};
+        for i = 1, #self.constructor do
+            if (next(self.constructor, i)) then
+                part1 = string.format("%s %s %s", part1, self.constructor[i].name,",");
+                part2 = string.format("%s %s", part2, "?, ");
+            else
+                part1 = string.format("%s %s", part1, self.constructor[i].name);
+                part2 = string.format("%s %s", part2, "?");
+            end
+            if (type(Object[self.constructor[i].name]) == "table") then
+                args[#args + 1] = JSON.stringify(Object[self.constructor[i].name]);
+            else
+                args[#args + 1] = Object[self.constructor[i].name];
+            end
+        end
+        return part1, part2, args;
+    end
+
     self:initialize();
 
     return self;
@@ -49,49 +115,6 @@ end
 ---@param id number
 function Repository:exist(id)
     return self.data[id] ~= nil;
-end
-
----@param Object table
----@return string
-function Repository:convertArgs(Object)
-    local args = {};
-    local request = "";
-    for key, data in pairs(Object) do
-        if (type(data) ~= "function" and key ~= "id" and key ~= "characterId") then
-            if (next(Object, key)) then
-                request = string.format("%s %s %s", request, key,"= ?, ");
-            else
-                request = string.format("%s %s %s", request, key,"= ? ");
-            end
-            if (type(data) == "table") then
-                args[#args + 1] = JSON.stringify(data);
-            else
-                args[#args + 1] = data;
-            end
-        end
-    end
-    return request, args;
-end
-
----@param condition string | table
----@param value string | table
-function Repository:prepareTable(condition, value)
-    local request;
-    local args = value;
-    if (type(condition) == "table") then
-        request = ""; 
-        for key, cond in pairs(condition) do
-            if (next(condition, key)) then
-                request = string.format("%s %s %s", request, cond,"= ? AND ");
-            else
-                request = string.format("%s %s %s", request, cond,"= ? ");
-            end
-            args[#args + 1] = value[cond];
-        end 
-    else 
-        request = condition .. " = ?";
-    end
-    return request, args;
 end
 
 ---@param condition string | table
@@ -142,29 +165,6 @@ function Repository:create(callback)
     jServer.mysql:query("CREATE TABLE IF NOT EXISTS " .. self.name .. " (id INT(11)  NOT NULL AUTO_INCREMENT, " .. request .. ");", {}, function()
         if (callback) then callback(); end
     end)
-end
-
----@param Object table
----@return string, string, table
-function Repository:convertInsertArgs(Object)
-    local part1 = "";
-    local part2 = "";
-    local args = {};
-    for i = 1, #self.constructor do
-        if (next(self.constructor, i)) then
-            part1 = string.format("%s %s %s", part1, self.constructor[i].name,",");
-            part2 = string.format("%s %s", part2, "?, ");
-        else
-            part1 = string.format("%s %s", part1, self.constructor[i].name);
-            part2 = string.format("%s %s", part2, "?");
-        end
-        if (type(Object[self.constructor[i].name]) == "table") then
-            args[#args + 1] = JSON.stringify(Object[self.constructor[i].name]);
-        else
-            args[#args + 1] = Object[self.constructor[i].name];
-        end
-    end
-    return part1, part2, args;
 end
 
 ---@param Object table

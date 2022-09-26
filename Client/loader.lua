@@ -16,4 +16,5 @@
 
 --MODULES
 jClient:loadModule("Discord/discord.lua");
+jClient:loadModule("hud/toggle.lua");
 jClient:loadModule("World/World.lua");

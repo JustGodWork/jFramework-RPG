@@ -40,7 +40,7 @@ function Player:initialize()
     weapon:SetAutoReload(false);
     weapon:SetAmmoClip(0);
     playerCharacter:PickUp(weapon);
-    self:onDeath(); --When player is created, and his character his loaded load Death handle.
+    self:onDeath(); --When player is created, and his character is loaded load Death handle.
 end
 
 function Player:onDeath()

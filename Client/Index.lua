@@ -21,6 +21,7 @@ function _jClient:new()
     setmetatable(self, { __index = _jClient});
 
     self.modules = {};
+    --self._hud = WebUI("hud", "file://framework/ui/hud/index.html", true);
 
     ---@param module string
     function self:loadFrameworkModule(module)
@@ -37,9 +38,15 @@ function _jClient:new()
     return self;
 end
 
+---@return WebUI
+function _jClient:hud()
+    return self._hud;
+end
+
 jClient = _jClient:new()
 
 Events.Subscribe("playerLoaded", function()
+    jShared.log:success("Client data initialized.");
     -- This event is called when the player is loaded
     -- You can use it to load modules only when player is loaded
     Client.SendChatMessage("All your data have been loaded !")

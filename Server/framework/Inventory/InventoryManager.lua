@@ -153,7 +153,7 @@ function InventoryManager:buildInventoryItems(playerInventory, items)
     if (playerInventory) then
         for _, itemData in pairs(items) do
             if (itemData) then
-                local item = ItemManager:get(itemData.name);
+                local item = jServer.itemManager:getItem(itemData.name);
                 if (item) then
                     playerItems[item.name] = item;
                     playerItems[item.name].count = itemData.count;

@@ -43,7 +43,6 @@ jServer.commandManager:register("diable", function(player, args)
     player:GetControlledCharacter():EnterVehicle(vehicle)
 end)
 
-
 --[[
 
 --Temporary add Items here for testing
