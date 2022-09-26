@@ -48,17 +48,31 @@ function VehicleManager:create(modelName, location, rotation)
 
     local vehicleId = (#self.vehicles + 1)
     self.vehicles[vehicleId] = eVEHICLES[modelName](location, rotation)
+    self.vehicles[vehicleId]:SetValue("vehicleId", vehicleId)
     return self.vehicles[vehicleId]
 end
 
----@param self Actor
-Actor.Subscribe("Destroy", function(self)
-    jShared.log:debug("Actor:Destroy: The actor ["..self:GetID().."] are destroyed.")
+---@param self Vehicle
+Vehicle.Subscribe("Destroy", function(self)
+    local vehicleId = self:GetValue("vehicleId")
+    if (not vehicleId) then
+        return
+    end
+    VehicleManager.vehicles[vehicleId] = nil
+end)
+
+jServer.commandManager:register("VehicleManager:spawnVehicle", function(player, args)
+    local createdVehicle = VehicleManager:create(args[1] or "SUV", player:GetControlledCharacter():GetLocation(), player:GetControlledCharacter():GetRotation())
+    player:GetControlledCharacter():EnterVehicle(createdVehicle)
+end)
+
+---@param player Player
+jServer.commandManager:register("VehicleManager:deleteVehicle", function(player)
+    local PLAYER_IN_VEHICLE = player:GetControlledCharacter():GetVehicle()
+    if (PLAYER_IN_VEHICLE == nil or PLAYER_IN_VEHICLE:GetValue("vehicleId") == nil) then
+        return
+    end
+    PLAYER_IN_VEHICLE:Destroy()
 end)
 
 jServer.vehicleManager = VehicleManager:new()
-
-jServer.commandManager:register("VehicleManager:spawnVehicle", function(player, args)
-    local createdVehicle = jServer.vehicleManager:create(args[1] or "SUV", player:GetControlledCharacter():GetLocation(), player:GetControlledCharacter():GetRotation())
-    player:GetControlledCharacter():EnterVehicle(createdVehicle)
-end)
