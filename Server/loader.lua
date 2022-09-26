@@ -45,8 +45,10 @@ jServer:loadFrameworkModule("Player/entities/Player.lua");
 jServer:loadFrameworkModule("Player/PlayerManager.lua");
 jServer:loadFrameworkModule("Player/ConnectionHandler.lua");
 jServer:loadFrameworkModule("Player/Events.lua");
+jServer:loadFrameworkModule("Vehicle/VehicleManager.lua");
 
 --MODULES
 jServer:loadModule("World/World.lua");
 jServer:loadModule("WEAPONS.lua");
+jServer:loadModule("VEHICLES.lua");
 jServer:loadModule("test.lua");
