@@ -42,7 +42,7 @@ function RepositoryManager:register(name, Object)
 end
 
 ---@param name string
----@param id number
+---@param id string
 function RepositoryManager:find(name, id)
     if (self.repositories[name]) then
         return self.repositories[name]:find(id);

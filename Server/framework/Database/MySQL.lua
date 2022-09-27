@@ -23,6 +23,8 @@ function MySQL:new(connectionParameters)
 
     self.params = connectionParameters;
     self.connected = false;
+    ---@type Database
+    self.database = nil;
 
     jShared.log:debug("[ MySQL ] initialized.");
 
@@ -80,7 +82,7 @@ function MySQL:convert(query, parameters)
         local execute = string.gsub(query, "?", "%%s")
         local params_converted = {}
         for i = 0, #parameters - 1 do
-            params_converted[#params_converted + 1] = string.format(':%s', tostring(i))
+            params_converted[#params_converted + 1] = string.format(":%s", tostring(i))
         end
         return string.format(execute, table.unpack(params_converted))
     end
@@ -92,18 +94,28 @@ end
 ---@param callback fun(result: table)
 function MySQL:query(query, params, callback)
     local converted_query = self:convert(query, params);
-    self.database:Execute(converted_query, function(result)
+    local function callbackQuery(result)
         if (callback) then
             callback(result);
         end
-    end, table.unpack(params));
+    end
+    if (params) then
+        self.database:Execute(converted_query, callbackQuery, table.unpack(params));
+    else
+        self.database:Execute(converted_query, callbackQuery);
+    end
 end
 
 ---@param query string
 ---@param params table
 function MySQL:querySync(query, params)
     local converted_query = self:convert(query, params);
-    local result = self.database:ExecuteSync(converted_query, table.unpack(params));
+    local result;
+    if (params) then
+        result = self.database:ExecuteSync(converted_query, table.unpack(params));
+    else
+        result = self.database:ExecuteSync(converted_query);
+    end
     return result;
 end
 
@@ -112,18 +124,28 @@ end
 ---@param callback fun(result: table)
 function MySQL:select(query, params, callback)
     local converted_query = self:convert(query, params);
-    self.database:Select(converted_query, function(result)
+    local function callbackQuery(result)
         if (callback) then
             callback(result);
         end
-    end, table.unpack(params));
+    end
+    if (params) then
+        self.database:Select(converted_query, callbackQuery, table.unpack(params));
+    else
+        self.database:Select(converted_query, callbackQuery);
+    end
 end
 
 ---@param query string
 ---@param params table
 function MySQL:selectSync(query, params)
     local converted_query = self:convert(query, params);
-    local result = self.database:SelectSync(converted_query, table.unpack(params));
+    local result;
+    if (params) then
+        result = self.database:SelectSync(converted_query, table.unpack(params));
+    else
+        result = self.database:SelectSync(converted_query);
+    end
     return result;
 end
 

@@ -11,3 +11,12 @@
 --via any medium is strictly prohibited. This code is confidential.
 -------
 --]]
+
+jServer.itemManager:addItem("water", "Water", "drink", 0.5, 64, {
+    description = "A bottle of water",
+    durability = 100, -- todo remove this (just for testing)
+}, {});
+
+jServer.itemManager:addItem("bread", "Bread", "food", 0.5, 64, {
+    description = "A loaf of bread"
+}, {});

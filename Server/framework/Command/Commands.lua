@@ -14,18 +14,20 @@
 
 jServer.commandManager:register("setTime", function (player, args)
     --World.SetTime(9, 30)
-    Server.SendChatMessage(player, "This command is not available yet.")
+    if (player) then
+        Server.SendChatMessage(player, "This command is not available yet.");
+    else
+        jShared.log:warn("This command is not available yet.");
+    end
 end)
 
 jServer.commandManager:register("coords", function (player, args)
     local location = player:GetControlledCharacter():GetLocation()
     local rotation = player:GetControlledCharacter():GetRotation()
-    Server.SendChatMessage(player, ("Your coords are: \nlocation:\n [ x: %s, y: %s, z: %s]\n\n heading:\n [ Pitch: %s, Yaw: %s, Roll: %s]"):format(
-        location.X, 
-        location.Y, 
-        location.Z, 
-        rotation.Pitch, 
-        rotation.Yaw, 
-        rotation.Roll
-    ))
-end)
+    Server.SendChatMessage(player, ("Your coords are: \n [ x: %s, y: %s, z: %s, heading: %s]"):format(
+            location.X,
+            location.Y,
+            location.Z,
+            rotation.Yaw
+    ));
+end, true)

@@ -29,19 +29,19 @@ function _Server:new()
 
     self.modules = {};
 
-    ---@param module string
-    function self:loadFrameworkModule(module)
-        Package.Require(string.format("./framework/%s", module));
-    end
-
-    ---@param module string
-    function self:loadModule(module)
-        Package.Require(string.format("./modules/%s", module));
-    end
-
     jShared.log:debug("[ jServer ] initialized.");
 
     return self
+end
+
+---@param module string
+function _Server:loadFrameworkModule(module)
+    Package.Require(string.format("./framework/%s", module));
+end
+
+---@param module string
+function _Server:loadModule(module)
+    Package.Require(string.format("./modules/%s", module));
 end
 
 jServer = _Server:new();

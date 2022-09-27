@@ -13,37 +13,37 @@
 --]]
 
 ---@class jClient
-local _jClient = {}
+local _Client = {}
 
 ---@return jClient
-function _jClient:new()
+function _Client:new()
     local self = {}
-    setmetatable(self, { __index = _jClient});
+    setmetatable(self, { __index = _Client});
 
     self.modules = {};
     self._hud = WebUI("hud", "file://framework/ui/hud/hud.html", true);
-
-    ---@param module string
-    function self:loadFrameworkModule(module)
-        Package.Require(string.format("./framework/%s", module));
-    end
-
-    ---@param module string
-    function self:loadModule(module)
-        Package.Require(string.format("./modules/%s", module));
-    end
 
     jShared.log:debug("[ jClient ] initialized.");
 
     return self;
 end
 
+---@param module string
+function _Client:loadFrameworkModule(module)
+    Package.Require(string.format("./framework/%s", module));
+end
+
+---@param module string
+function _Client:loadModule(module)
+    Package.Require(string.format("./modules/%s", module));
+end
+
 ---@return WebUI
-function _jClient:hud()
+function _Client:hud()
     return self._hud;
 end
 
-jClient = _jClient:new()
+jClient = _Client:new()
 
 Events.Subscribe("onPlayerConnecting", function()
     jShared.log:success("Client data initialized.");

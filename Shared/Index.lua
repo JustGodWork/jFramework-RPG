@@ -25,19 +25,19 @@ function Shared:new()
 
     self.utils = {}
 
-    ---@param module string
-    function self:loadFrameworkModule(module)
-        Package.Require(string.format("./framework/%s", module));
-    end
-
-    ---@param module string
-    function self:loadModule(module)
-        Package.Require(string.format("./modules/%s", module));
-    end
-
     self:disclaimer();
 
     return self;
+end
+
+---@param module string
+function Shared:loadFrameworkModule(module)
+    Package.Require(string.format("./framework/%s", module));
+end
+
+---@param module string
+function Shared:loadModule(module)
+    Package.Require(string.format("./modules/%s", module));
 end
 
 ---@return boolean

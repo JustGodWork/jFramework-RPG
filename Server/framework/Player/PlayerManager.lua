@@ -24,15 +24,22 @@ function PlayerManager:new()
     ---@type Player[]
     self.players = {};
 
-    self._repository = jServer.repositoryManager:register("players", {
-        { name = "identifier", type = "VARCHAR(255) NOT NULL" },
-        { name = "firstname", type = "VARCHAR(255) NOT NULL" },
-        { name = "lastname", type = "VARCHAR(255) NOT NULL" },
-        { name = "skin", type = "VARCHAR(255)" },
-        { name = "position", type = "LONGTEXT" },
-        { name = "heading", type = "LONGTEXT" }
-    })
+    jServer.mysql:query([[
+        CREATE TABLE IF NOT EXISTS `players` (
+            `id` INT NOT NULL AUTO_INCREMENT,
+            `identifier` VARCHAR(255) NOT NULL,
+            `firstname` VARCHAR(255) NOT NULL DEFAULT 'new',
+            `lastname` VARCHAR(255) NOT NULL DEFAULT 'Player',
+            `skin` VARCHAR(255) NULL,
+            `posX` VARCHAR(255) NULL,
+            `posY` VARCHAR(255) NULL,
+            `posZ` VARCHAR(255) NULL,
+            `Yaw` VARCHAR(255) NULL,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    ]])
 
+    self:saveInterval();
     jShared.log:debug("[ PlayerManager ] initialized.");
     
     return self;
@@ -69,24 +76,102 @@ function PlayerManager:getFromIdentifier(idenfitier)
     end
 end
 
----@param data table
----@param nanosPlayer Player
----@return Player
-function PlayerManager:registerPlayer(data, nanosPlayer)
-    nanosPlayer:onCreate(data);
-    self.players[nanosPlayer:GetID()] = nanosPlayer;
-    return self.players[nanosPlayer:GetID()];
+---@private
+---@param player Player
+---@param callback function
+---@private
+function PlayerManager:createNew(player, callback)
+    jServer.mysql:query("INSERT INTO players (identifier) VALUES (?)", { player:GetSteamID() }, function(result)
+        if (result == 1) then
+            jServer.mysql:select("SELECT * FROM players WHERE identifier = ?", { player:GetSteamID() }, function(result)
+                if (result) then
+                    player:onConnect({
+                        id = result[1].id,
+                        identifier = player:GetSteamID(),
+                        firstname = "new",
+                        lastname = "Player"
+                    });
+                    self.players[player:GetID()] = player;
+                    Events.CallRemote("onPlayerConnecting", player);
+                    if (callback) then callback(); end
+                end
+            end)
+        end
+    end)
 end
 
----@param playerId number
-function PlayerManager:removePlayer(playerId)
-    local player = self.players[playerId];
+---@param player Player
+function PlayerManager:registerPlayer(player)
+    jServer.mysql:select("SELECT * FROM players WHERE identifier = ?", { player:GetSteamID() }, function(result)
+        if (result[1]) then
+            player:onConnect(result[1]);
+            self.players[player:GetID()] = player;
+            Timer.SetTimeout(function()
+                Events.CallRemote("onPlayerConnecting", player);
+                Events.Call("onPlayerConnecting", player);
+            end, 2000)
+        else
+            self:createNew(player);
+        end
+    end);
+end
+
+---@param playerToRemove Player
+function PlayerManager:removePlayer(playerToRemove)
+    local id = playerToRemove:GetID();
+    local player = self.players[id];
     if (player) then
+        local character = player:GetControlledCharacter();
+        self:save(player, function()
+            if (character) then
+                character:Destroy();
+            end
+            self.players[id] = nil;
+        end)
         jShared.log:info(string.format("Player [%s] %s removed from playerManager", player:GetSteamID(), player:getFullName()))
-        self.players[playerId] = nil;
     else
         jShared.log:info(string.format("Player [%s] not found in playerManager", playerId))
     end
+end
+
+---@param player Player
+---@param callback fun(result: boolean)
+function PlayerManager:save(player, callback)
+    if (player) then
+        local position = player:updatePosition();
+        jServer.mysql:query("UPDATE players SET posX = ?, posY = ?, posZ = ?, Yaw = ? WHERE id = ?", {
+            position.X,
+            position.Y,
+            position.Z,
+            position.Yaw,
+            player:getCharacterId()
+        }, callback);
+    end
+end
+
+---Save all Players
+function PlayerManager:saveAll()
+    for _, player in pairs(self.players) do
+        self:save(player);
+    end
+end
+
+---Save all players data
+---@private
+function PlayerManager:saveInterval()
+    Timer.SetTimeout(function()
+        local count = 0;
+        for _, player in pairs(self.players) do
+            if (player) then
+                count = count + 1;
+                self:save(player);
+            end
+        end
+        if (count > 0) then
+            jShared.log:info(("[ PlayerManager ] saved [%s] players."):format(count));
+        end
+        self:saveInterval();
+    end, Config.player.saveInterval * 1000 * 60);
 end
 
 ---Remove all player from PlayerManager

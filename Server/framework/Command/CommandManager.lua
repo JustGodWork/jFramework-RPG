@@ -39,13 +39,24 @@ function CommandManager:constructor()
         end
         return false;
     end)
+
+    Server.Subscribe("Console", function(text)
+        local index = text:sub(1, 1) == '/';
+        local cmd = text:sub(2, (text:find(" ") and text:find(" ") - 1) or #text + 1);
+        local args = text:sub(#cmd + 2, #text);
+        if (index) then
+            self:execute(cmd, nil, jShared.utils.string:split(args, " "));
+        end
+        return false;
+    end)
 end
 
 ---@param name string
 ---@param callback fun(player: Player, args: string[])
-function CommandManager:register(name, callback)
-    self.commands[name] = Command:new(name, callback);
-    jShared.log:info(string.format("[ CommandManager ] => Command [%s] registered !", name));
+---@param clientOnly boolean
+function CommandManager:register(name, callback, clientOnly)
+    self.commands[name] = Command:new(name, callback, clientOnly);
+    jShared.log:debug(string.format("[ CommandManager ] => Command [%s] registered !", name));
 end
 
 ---@param name string
@@ -53,11 +64,14 @@ end
 ---@param args string[]
 function CommandManager:execute(name, player, args)
     if (self:exists(name)) then
+        if (self.commands[name]:isClient() and not player) then
+            return jShared.log:warn(string.format("[ CommandManager ] => Command [%s] can only be executed by a player !", name));
+        end
         self.commands[name]:getCallback()(player, args);
         if (player) then
-            jShared.log:info(string.format("[ CommandManager ] => Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:getFullName()));
+            jShared.log:debug(string.format("[ CommandManager ] => Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:getFullName()));
         else
-            jShared.log:info(string.format("[ CommandManager ] => Command [%s] executed by console", name));
+            jShared.log:debug(string.format("[ CommandManager ] => Command [%s] executed by console", name));
         end
     else
         if (player) then

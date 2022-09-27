@@ -34,18 +34,21 @@ function Repository:new(name, Object)
     function self:convertArgs(Object)
         local args = {};
         local request = "";
-        for key, data in pairs(Object) do
-            if (type(data) ~= "function" and key ~= "id" and key ~= "characterId") then
-                if (next(Object, key)) then
-                    request = string.format("%s %s %s", request, key,"= ?, ");
-                else
-                    request = string.format("%s %s %s", request, key,"= ? ");
+        for i = 1, #self.constructor do
+            local arg = self.constructor[i];
+            if (next(self.constructor, i)) then
+                if (Object[arg.name] ~= nil and Object[self.constructor[i + 1].name] ~= nil) then
+                    request = string.format("%s %s %s", request, arg.name, "= ?, ");
                 end
-                if (type(data) == "table") then
-                    args[#args + 1] = JSON.stringify(data);
-                else
-                    args[#args + 1] = data;
+            else
+                if (Object[arg.name] ~= nil) then
+                    request = string.format("%s %s %s", request, arg.name, "= ? ");
                 end
+            end
+            if (type(Object[arg.name]) == "table") then
+                args[#args + 1] = JSON.stringify(Object[arg.name]);
+            elseif (Object[arg.name] ~= nil) then
+                args[#args + 1] = Object[arg.name];
             end
         end
         return request, args;
@@ -79,16 +82,20 @@ function Repository:new(name, Object)
         local part2 = "";
         local args = {};
         for i = 1, #self.constructor do
-            if (next(self.constructor, i)) then
-                part1 = string.format("%s %s %s", part1, self.constructor[i].name,",");
-                part2 = string.format("%s %s", part2, "?, ");
+            if (next(self.constructor, i) and Object[self.constructor[i + 1].name] ~= nil) then
+                if (Object[self.constructor[i].name] ~= nil) then
+                    part1 = string.format("%s %s %s", part1, self.constructor[i].name,",");
+                    part2 = string.format("%s %s", part2, "?, ");
+                end
             else
-                part1 = string.format("%s %s", part1, self.constructor[i].name);
-                part2 = string.format("%s %s", part2, "?");
+                if (Object[self.constructor[i].name] ~= nil) then
+                    part1 = string.format("%s %s", part1, self.constructor[i].name);
+                    part2 = string.format("%s %s", part2, "?");
+                end
             end
             if (type(Object[self.constructor[i].name]) == "table") then
                 args[#args + 1] = JSON.stringify(Object[self.constructor[i].name]);
-            else
+            elseif (Object[self.constructor[i].name] ~= nil) then
                 args[#args + 1] = Object[self.constructor[i].name];
             end
         end
@@ -105,21 +112,21 @@ function Repository:initialize()
     self:create();
 end
 
----@param id number
+---@param id string
 function Repository:find(id)
     if (self.data[id] and self.data[id]) then
         return self.data[id];
     end
 end
 
----@param id number
+---@param id string
 function Repository:exist(id)
     return self.data[id] ~= nil;
 end
 
 ---@param condition string | table
 ---@param value string | table
----@param callback? fun(result: table | nil, success: boolean)
+---@param callback fun(result: table | nil, success: boolean)
 function Repository:prepare(condition, value, callback)
     local request, params = self:prepareTable(condition, value);
     local paramsConverted = {};
@@ -162,7 +169,7 @@ function Repository:create(callback)
             end
         end
     end
-    jServer.mysql:query("CREATE TABLE IF NOT EXISTS " .. self.name .. " (id INT(11)  NOT NULL AUTO_INCREMENT, " .. request .. ");", {}, function()
+    jServer.mysql:query("CREATE TABLE IF NOT EXISTS " .. self.name .. " (id VARCHAR(255) NOT NULL DEFAULT ".. jShared:uuid("x2xxxxxx") ..", " .. request .. ");", {}, function()
         if (callback) then callback(); end
     end)
 end
@@ -180,18 +187,18 @@ end
 
 ---Save database
 ---@param Object table
----@param callback? function
+---@param callback function
 function Repository:save(Object, callback)
-    local request , args = self:convertArgs(Object);
-    if (not Object.id or not self.data[Object.id]) then
+    local request, args = self:convertArgs(Object);
+    if (Object._id == nil and self.data[Object._id] == nil) then
         self:insert(Object, callback);
     else
         jServer.mysql:query("UPDATE " .. self.name .. " SET ".. request .." WHERE id = ?", { 
             table.unpack(args),
-            Object.id 
+            Object._id
         }, function()
             if (callback) then callback(); end
-            jShared.log:debug(("[ Repository: ".. self.name .." ] saved object [ Id: %s ]."):format(Object.id));
+            jShared.log:debug(("[ Repository: ".. self.name .." ] saved object [ Id: %s ]."):format(Object._id));
         end);
     end
 end
@@ -200,9 +207,9 @@ end
 ---@param Object table
 function Repository:saveData(name, Object)
     jServer.mysql:query("UPDATE " .. self.name .. " SET ".. name .." = ? WHERE id = ?", {
-        Object[name], 
-        Object.id 
+        Object[name],
+        Object._id
     }, function()
-        jShared.log:debug(("[ Repository: ".. self.name .." ] saved object [ Id: %s, Data: %s ]."):format(Object.id, name));
+        jShared.log:debug(("[ Repository: ".. self.name .." ] saved object [ Id: %s, Data: %s ]."):format(Object._id, name));
     end);
 end

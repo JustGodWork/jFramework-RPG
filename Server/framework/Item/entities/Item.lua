@@ -15,34 +15,36 @@
 ---@class Item
 Item = {}
 
----@param id string
+-- todo Make items work with the new inventory and ItemStack system
 ---@param name string
 ---@param label string
----@param data table
 ---@param type string
 ---@param weight number
----@param unique boolean
+---@param metadata table
+---@param maxStack boolean
+---@param extras table
+---@param stackId number
 ---@return Item
-function Item:new(id, name, label, data, type, weight, unique)
+function Item:new(name, label, type, weight, metadata, maxStack, extras, stackId)
     ---@type Item
     local self = {}
     setmetatable(self, { __index = Item});
 
-    self.id = id;
     self.name = name;
     self.label = label;
-    self.data = data or {};
+    self.data = ItemMeta:new(metadata, extras);
     self.type = type;
-    self.unique = unique or false;
     self.weight = weight or 0;
-    self.count = 0;
+    self.stackId = stackId;
+
+    if (self.data:isUnique()) then
+        print("Item is unique");
+        self.maxStack = 1;
+    else
+        self.maxStack = maxStack or 1;
+    end
 
     return self;
-end
-
----@return string
-function Item:getId()
-    return self.id;
 end
 
 ---@return string
@@ -60,16 +62,9 @@ function Item:setLabel(label)
     self.label = label;
 end
 
----@return table
-function Item:getData()
+---@return ItemMeta
+function Item:getMeta()
     return self.data;
-end
-
----@param key string
----@param value any
----@return void
-function Item:setData(key, value)
-    self.data[key] = value;
 end
 
 ---@return string
@@ -93,23 +88,31 @@ function Item:getWeight()
 end
 
 ---@return boolean
-function Item:isUnique()
-    return self.unique;
+function Item:getMaxStack()
+    return self.maxStack;
 end
 
----@param bool boolean
-function Item:setUnique(bool)
-    self.unique = bool;
+---@param maxStack number
+function Item:setMaxStack(maxStack)
+    self.maxStack = maxStack;
 end
 
----@return number
-function Item:getCount()
-    return self.count;
+---@param key string
+---@return any
+function Item:getExtra(key)
+    return self.extras[key];
 end
 
----@param count number
-function Item:setCount(count)
-    self.count = count;
+---@param key string
+---@param value any
+---@return void
+function Item:setExtra(key, value)
+    self.extras[key] = value;
+end
+
+---@return table
+function Item:getExtras()
+    return self.extras;
 end
 
 ---@param player Player
@@ -117,4 +120,9 @@ function Item:use(player)
     if self.callback then
         self.callback(player);
     end
+end
+
+---@return number
+function Item:getStackId()
+    return self.stackId;
 end

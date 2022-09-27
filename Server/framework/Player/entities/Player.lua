@@ -14,30 +14,18 @@
 
 ---@private
 ---@param data table
-function Player:onCreate(data)
+function Player:onConnect(data)
 
-    self:SetValue("character_id",
-            data.id,
-            true
-    );
-    self:SetValue("identifier",
-            self:GetSteamID(),
-            true
-    );
-    self:SetValue("firstname",
-            data.firstname,
-            true
-    );
-    self:SetValue("lastname",
-            data.lastname,
-            true
-    );
+    local player = {
+        _id = data.id,
+        identifier = self:GetSteamID(),
+        firstname = data.firstname,
+        lastname = data.lastname,
+        position = self:initPosition(data),
+        skin = self:initSkin(data.skin),
+    }
 
-    self:initPosition(data.position);
-
-    self:initHeading(data.heading);
-
-    self:initSkin(data.skin);
+    self:SetValue("data", player, true);
 
     self:initialize(); --Spawn the player when all data are loaded
 
@@ -46,13 +34,14 @@ end
 
 ---@private
 function Player:initialize()
-    local playerCharacter = Character(self:getPosition(), self:getHeading(), self:getSkin());
+    local position = self:getPosition()
+    local playerCharacter = Character(Vector(position.X, position.Y, position.Z), Rotator(0.0, 0.0, self:getHeading()), self:getSkin());
     self:Possess(playerCharacter);
     local weapon = Enums.Weapons.AK74U_CUSTOM();
     weapon:SetAutoReload(false);
     weapon:SetAmmoClip(0);
     playerCharacter:PickUp(weapon);
-    self:onDeath(); --When player is created, and his character is loaded load Death handle.
+    self:handleDeath(); --When player is created, and his character is loaded load Death handle.
     if (Config.player.firstPersonOnly) then
         playerCharacter:SetCameraMode(CameraMode.FPSOnly);
     end
@@ -60,111 +49,115 @@ end
 
 ---@private
 ---@param playerPosition table
+---@return Vector
 function Player:initPosition(playerPosition)
     local position = Config.player.defaultPosition;
-    if (playerPosition) then
-        position = JSON.parse(playerPosition);
+    if (
+            playerPosition.posX
+            and playerPosition.posY
+            and playerPosition.posZ
+            and playerPosition.Yaw
+    )
+    then
+        position = {
+            X = playerPosition.posX,
+            Y = playerPosition.posY,
+            Z = playerPosition.posZ,
+            Yaw = playerPosition.Yaw
+        };
     end
-    self:SetValue("position",
-            Vector(
-                    position.x,
-                    position.y,
-                    position.z
-            ),
-            true
-    );
-end
-
----@private
----@param playerHeading table
-function Player:initHeading(playerHeading)
-    local heading = Config.player.defaultHeading;
-
-    if (playerHeading) then
-        heading = JSON.parse(playerHeading);
-    end
-    self:SetValue("heading",
-            Rotator(
-                    heading.Pitch,
-                    heading.Yaw,
-                    heading.Roll
-            ),
-            true
-    );
+    return { X = position.X, Y = position.Y, Z = position.Z, Yaw = position.Yaw };
 end
 
 ---@private
 ---@param playerSkin string
+---@return string
 function Player:initSkin(playerSkin)
     local skin = Config.player.defaultSkin;
     if (playerSkin) then
         skin = playerSkin;
     end
-    self:SetValue("skin",
-            skin,
-            true
-    );
+    return skin
 end
 
 ---@private
-function Player:onDeath()
+function Player:handleDeath()
     local character = self:GetControlledCharacter();
-    character:Subscribe("Death", function(chara, last_damage_taken, last_bone_damaged, damage_reason, hit_from, instigator)
+    character:Subscribe("Death", function(chara, _, _, _, _, instigator)
         jShared.log:info(string.format("Player [%s] %s die.", self:GetSteamID(), self:getFullName()));
+        local message;
         if (instigator) then
             if (instigator == self) then
-                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> committed suicide");
+                message = ("<cyan>%s</> committed suicide"):format(
+                        instigator:GetName()
+                );
             else
-                Server.BroadcastChatMessage("<cyan>" .. instigator:GetName() .. "</> killed <cyan>" .. self:GetName() .. "</>");
+                message = ("<cyan>%s</> killed <cyan>%s</>"):format(
+                        instigator:GetName(),
+                        self:GetName()
+                );
             end
         else
-            Server.BroadcastChatMessage("<cyan>" .. self:GetName() .. "</> died");
+            message = ("<cyan>%s</> died"):format(
+                    self:GetName()
+            )
         end
-    
-        -- Respawns the Character after 5 seconds, we Bind the Timer to the Character, this way if the Character gets destroyed in the meanwhile, this Timer never gets destroyed
-        Timer.Bind(Timer.SetTimeout(function(character)
-            jShared.log:info(string.format("Respawing Player [%s] %s...", self:GetSteamID(), self:getFullName()));
-            self:SetValue("position", character:GetLocation());
-            self:SetValue("heading", character:GetRotation());
-            -- If he is not dead anymore after 5 seconds, ignores it
-            if (character:GetHealth() ~= 0) then return end
-            -- Respawns the Character at a random point
-            character:Respawn(self:getPosition(), self:getHeading());
-        end, 5000, chara), chara);
+        Server.BroadcastChatMessage(message);
+        self:handleRespawn(chara);
     end)
+end
+
+---Handle Respawning player
+---@param playerCharacter Character
+---@private
+function Player:handleRespawn(playerCharacter)
+    Timer.Bind(Timer.SetTimeout(function(character)
+        jShared.log:info(string.format("Respawning Player [%s] %s...", self:GetSteamID(), self:getFullName()));
+        local data = self:GetValue("data")
+        local position = character:GetLocation()
+        data.position = {
+            X = position.X,
+            Y = position.Y,
+            Z = position.Z,
+            Yaw = character:GetRotation().Yaw
+        }
+        self:SetValue("data", data, true);
+        if (character:GetHealth() ~= 0) then return end
+        character:Respawn(self:getPosition(), Rotator(0.0, 0.0, self:getHeading()));
+    end, Config.player.respawnTimer * 1000, playerCharacter), playerCharacter);
 end
 
 ---@return number
 function Player:getCharacterId()
-    return self:GetValue("character_id");
+    return self:GetValue("data")._id;
 end
 
 ---@return string
 function Player:getFirstName()
-    return self:GetValue("firstname");
+    return self:GetValue("data").firstname;
 end
 
 ---@param name string
 ---@return void
 function Player:setFirstName(name)
-    self:SetValue("firstname", name);
+    self:GetValue("data").firstname = name;
 end
 
 ---@return string
 function Player:getLastName()
-    return self:GetValue("lastname");
+    return self:GetValue("data").lastname;
 end
 
 ---@param name string
 ---@return void
 function Player:setLastName(name)
-    self:SetValue("lastname", name);
+    self:GetValue("data").lastname = name;
 end
 
 ---@return string
 function Player:getFullName()
-    local firstname = self:GetValue("firstname");
-    local lastname = self:GetValue("lastname");
+    local firstname = self:GetValue("data").firstname;
+    local lastname = self:GetValue("data").lastname;
     if  (firstname == nil or lastname == nil) then
         return self:GetName();
     end
@@ -173,42 +166,42 @@ end
 
 ---@return Vector
 function Player:getPosition()
-    return self:GetValue("position");
+    local position = self:GetValue("data").position
+    return Vector(position.X, position.Y, position.Z);
+end
+
+---update Player position
+---@return table
+function Player:updatePosition()
+    local data = self:GetValue("data")
+    local character = self:GetControlledCharacter();
+    if (character) then
+        local position = character:GetLocation();
+        data.position = {
+            X = jShared.utils.math:round(position.X, 2),
+            Y = jShared.utils.math:round(position.Y, 2),
+            Z = jShared.utils.math:round(position.Z, 2),
+            Yaw = jShared.utils.math:round(character:GetRotation().Yaw, 2)
+        };
+        self:SetValue("data", data, true);
+        return self:GetValue("data").position;
+    end
+    return {};
 end
 
 ---@return Rotator
 function Player:getHeading()
-    return self:GetValue("heading");
-end
-
----@return Account[]
-function Player:getAccounts()
-    return self:GetValue("accounts");
-end
-
----@param name string
----@return Account
-function Player:getAccount(name)
-    return self:GetValue("accounts")[name];
-end
-
----@return Inventory[]
-function Player:getInventories()
-    return self:GetValue("inventories");
-end
-
----@param name string
----@return Inventory
-function Player:getInventory(name)
-    return self:GetValue("inventories")[name];
+    return Rotator(0.0, 0.0, self:GetValue("data").position.Yaw);
 end
 
 function Player:getSkin()
-    return self:GetValue("skin");
+    return self:GetValue("data").skin;
 end
 
 ---@param skin string
 ---@return void
 function Player:setSkin(skin)
-    self:SetValue("skin", skin);
+    local data = self:GetValue("data");
+    data.skin = skin;
+    self:SetValue("data", data, true);
 end
