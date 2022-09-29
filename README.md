@@ -1,31 +1,28 @@
 
 
-<h1 align='center'>Nanos RolePlay Framework (jFramework)</a></h1>
+<h1 align='center'>jFramework</a></h1>
 
 ### What is this ?
 
-- This project is a Rôle Play Framework for [Nanos](https://nanos.world) written in **Lua** Language
+- This project is an (**RPG** / **Role Play**) Framework for [Nanos](https://nanos.world) written in **Lua** Language
 
 - /!\ **NOT FINISHED YET** /!\
 
-  
 <hr>
 
 ### HOW TO USE
 
 First method:
 
-- You can download releases from [Releases page](https://github.com/JustGodWork/Nanos-Role-Play-Framework/releases) or from [Nanos Store](https://store.nanos.world/packages/j-framework/)
-
-  
+- You can download releases from [Releases page](https://github.com/JustGodWork/jFramework-RPG/releases) or from [Nanos Store](https://store.nanos.world/packages/j-framework/)
 
 Second method:
 
 - `cd "YOUR_NANOS_SERVER_LOCATION/Packages"`
 
--  `git clone https://github.com/JustGodWork/Nanos-Role-Play-Framework.git`
+- `git clone https://github.com/JustGodWork/jFramework-RPG.git`
 
-  
+
 
 ###  NOTE
 

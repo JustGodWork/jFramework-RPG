@@ -98,7 +98,7 @@ function Shared:disclaimer()
             -   JFramework is a project that is made                            -
             -   for fun and learning.                                           -
             -   Github:                                                         -
-            -   https://github.com/JustGodWork/Nanos-Role-Play-Framework        -
+            -   https://github.com/JustGodWork/jFramework-RPG                   -
             ---------------------------------------------------------------------
         ]]));
         Timer.SetTimeout(function()
