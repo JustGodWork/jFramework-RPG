@@ -14,26 +14,33 @@
 ---@class Inventory
 Inventory = {}
 
+---@param id number
 ---@param name string
+---@param label string
 ---@param owner string
----@param slots number
 ---@param maxWeight number
-function Inventory:new(name, owner, maxWeight, slots, items)
+---@param slots number
+---@param shared number
+function Inventory:new(id, name, label, owner, maxWeight, slots, shared)
     ---@type Inventory
     local self = {}
     setmetatable(self, { __index = Inventory});
 
+    self.id = id;
     self.name = name;
+    self.label = label;
     self.owner = owner;
     self.weight = 0;
     self.maxWeight = maxWeight;
     self.slots = slots;
     ---@type ItemStack[]
     self.items = {};
+    self.shared = shared
 
-    if (items) then
-        self:build(items);
-    end
+    self:buildProcess(items);
+
+    jShared.log:debug(("[ Inventory: %s ] initialized."):format(self.id));
+
     return self
 end
 
@@ -44,7 +51,7 @@ end
 
 ---@private
 ---Return first free slot
----@return number
+---@return number | nil
 function Inventory:getFreeSlot()
     for i = 1, self.slots do
         if (not self.items[i]) then
@@ -58,16 +65,38 @@ end
 ---@param itemName string
 ---@return number id of slot
 function Inventory:getFirstSlotWithFreeSpace(itemName)
-    for i = 1, self.slots do
+    for i = 1, #self.items do
         if (self.items[i]) then
             if (self.items[i]:getName() == itemName) then
-                if (self.items[i]:getAmount() < self.items[i]:getMaxSize()) then
+                ---@type ItemStack
+                local stack = self.items[i];
+                if (not stack:isFull()) then
                     return i;
                 end
             end
         end
     end
     return nil;
+end
+
+---@private
+---@param itemName string
+---@param description string
+---@param durability number
+---@param level number
+---@return number
+function Inventory:getSlotWithItem(itemName, description, durability, level)
+    for i = 1, #self.items do
+        if (self.items[i].name == item.name) then
+            if (self.items[i].description == description) then
+                if (self.items[i].durability == durability) then
+                    if (self.items[i].level == level) then
+                        return i;
+                    end
+                end
+            end
+        end
+    end
 end
 
 ---@return number
@@ -95,7 +124,7 @@ end
 
 ---@private
 ---@param item table
----@return ItemStack | nil
+---@return ItemStack | nil, number
 function Inventory:createStack(item, amount)
     local itemExist = jServer.itemManager:exist(item.name);
     local freeSlot = self:getFreeSlot();
@@ -113,7 +142,7 @@ function Inventory:createStack(item, amount)
                     item.level,
                     item.maxLevel
             );
-            return self.items[freeSlot];
+            return self.items[freeSlot], freeSlot;
         end
     end
     return nil;
@@ -174,7 +203,9 @@ function Inventory:changeStackSlot(from, to)
         local itemFrom = self.items[from];
         local itemTo = self.items[to];
         if not (itemTo and itemTo <= self.slots) then
-            self:createStack(itemFrom);
+            if (not self:createStack(itemFrom)) then
+                return false;
+            end
         else
             return false;
         end
@@ -201,90 +232,177 @@ function Inventory:changeStackSlot(from, to)
     return false;
 end
 
----@private
----@param item table
+---@param itemWeight number
 ---@param amount number
-function Inventory:processStack(item, amount)
-    local freeSpace = self:getFirstSlotWithFreeSpace(item.name);
-    ---@type ItemStack
-    local firstStack;
-    if (freeSpace) then
-        firstStack = self.items[freeSpace];
-    else
-        firstStack = self:createStack(item, item.amount);
+---@return boolean
+function Inventory:canCarryItem(itemWeight, amount)
+    if (self:getMaxWeight() >= self:getWeight() + (itemWeight * amount)) then
+        return true;
     end
-    if (firstStack) then
-        if (firstStack:hasMeta() and amount == 1) then
-            firstStack:add(1);
-        elseif (firstStack:canCarryItem(amount)) then
-            firstStack:add(amount);
+    return false;
+end
+
+---@param stack ItemStack
+---@param slot number
+---@param amount number
+---@param callback fun(success: boolean)
+function Inventory:requestUpdate(stack, slot, amount, callback)
+    jServer.mysql:query("UPDATE `inventories_items` SET `amount` = ? WHERE `inventoryId` = ? AND `slot` = ?", {
+        amount, 
+        self.id, 
+        slot
+    }, function(result)
+        if (callback) then
+            callback(result == 1);
+        end
+    end);
+end
+
+---@param stack ItemStack
+---@param slot number
+---@param amount number
+---@param callback fun(success: boolean)
+function Inventory:requestInsert(stack, slot, amount, callback)
+    print("INSERT")
+    jServer.mysql:query("INSERT INTO `inventories_items` (`inventoryId`, `slot`, `name`, `amount`, `description`, `durability`, `level`) VALUES (?, ?, ?, ?, ?, ?, ?)", {
+        self.id, 
+        slot, 
+        stack:getName(), 
+        amount, 
+        stack:getDescription(), 
+        stack:getDurability(), 
+        stack:getLevel()
+    }, function(result)
+        if (callback) then
+            callback(result == 1);
+        end
+    end);
+end
+
+---@private
+---@param item ItemStack | table
+---@param amount number
+---@return ItemStack | nil, number | nil
+function Inventory:addItemToStack(item, amount)
+    local freeSpace = self:getFirstSlotWithFreeSpace(item.name);
+    local slot;
+    local stack;
+    if (freeSpace) then
+        print("FREE SPACE ", freeSpace)
+        if (self:canCarryItem(item.weight, amount)) then
+            stack, slot = self.items[freeSpace], freeSpace;
+            return stack, slot;
+        end
+        return nil, nil;
+    else
+        print("CAN CARRY ", self:canCarryItem(item.weight, amount))
+        if (self:canCarryItem(item.weight, amount)) then
+            stack, slot = self:createStack(item);
+            return stack, slot;
+        end
+        return nil, nil;
+    end
+    return nil, nil;
+end
+
+---@param item ItemStack | table
+---@param amount number
+---@return boolean | nil, number | nil
+function Inventory:processStack(item, amount)
+    local stack, slot = self:addItemToStack(item, amount);
+    if (stack) then
+        print("STACK VALID ! SLOT: ", slot);
+        if (stack:hasMeta() and amount == 1) then
+            print("STACK HAS META ! SLOT: ", slot);
+            stack:add(1);
+            return true, slot;
+        elseif (stack:canCarryItem(amount)) then
+            print("STACK CAN CARRY ITEM ! SLOT: ", slot);
+            stack:add(amount);
+            return true, slot;
         else
+            print("STACK CANNOT CARRY ITEM ! SLOT: ", slot);
             if (self:getFreeSlot()) then
-                local space  = firstStack:getFreeSpace();
+                print("FREE SLOT FOUND ! SLOT: ", slot);
+                local space  = stack:getFreeSpace();
                 local rest = amount - space;
-                firstStack:add(space);
+                stack:add(space);
                 self:processStack(item, rest);
             end
         end
     end
+    print("STACK INVALID SNIFF ! SLOT: ", slot);
+    return false, nil;
 end
 
----@private
----@param items table
-function Inventory:build(items)
-    for i = 1, #items do
-        if (items[i]) then
-            if (items[i].maxSize == 1) then
-                self:processStack(items[i], 1);
-            else
-                self:processStack(items[i], items[i].amount);
+---@param item table
+---@param amount number
+---@param callback fun(success: boolean)
+function Inventory:addItem(item, amount, callback)
+    local managedItem = jServer.itemManager:getItem(item.name);
+    local freeStack = self:getFirstSlotWithFreeSpace(managedItem.name);
+    if (managedItem) then
+        if (self.weight + item.weight <= self.maxWeight) then
+            if (amount) then
+                local stack, slot = self:processStack(item, amount);
+                if (freeStack) then stack, slot = self.items[freeStack], freeStack; end
+                if (stack) then
+                    if (slot == freeStack) then
+                        self:requestUpdate(self.items[slot], slot, amount, callback);
+                    else
+                        self:requestInsert(self.items[slot], slot, amount, callback);
+                    end
+                    return true;
+                end
             end
         end
     end
+    return false;
 end
 
---[[
-local inv = Inventory:new("test", "test", 100, 10);
-
-local water = jServer.itemManager:getItem("water");
-local bread = jServer.itemManager:getItem("bread");
-
-local invItems = {}
-
-for i = 1, 6 do
-    print(i)
-    if (i <= 2) then
-        local item = {
-            name = water.name,
-            label = water.label,
-            description = "Water is good" .. i,
-            amount = 1,
-            weight = water.weight,
-            maxSize = water.maxSize,
-            durability = water.durability,
-            maxDurability = water.maxDurability,
-            level = water.level,
-            maxLevel = water.maxLevel
-        }
-        invItems[i] = item;
-    else
-        local item = {
-            name = bread.name,
-            label = bread.label,
-            description = bread.description,
-            amount = 1,
-            weight = bread.weight,
-            maxSize = bread.maxSize,
-            durability = bread.durability,
-            maxDurability = bread.maxDurability,
-            level = bread.level,
-            maxLevel = bread.maxLevel
-        }
-        invItems[i] = item;
+---@param slot number
+---@param amount number
+---@return boolean
+function Inventory:removeItem(slot, amount)
+    if (self.items[slot]) then
+        if (self.items[slot]:remove(amount)) then
+            self:updateWeight();
+            return true;
+        end
     end
+    return false;
 end
 
-inv:build(invItems);
+---Build inventory from database
+function Inventory:buildProcess()
+    jServer.mysql:select("SELECT * FROM `inventories_items` WHERE `inventoryId` = ?", { self.id }, function (items)
+        if (#items > 0) then
+            for _, item in pairs(items) do
+                local managedItem = jServer.itemManager:getItem(item.name);
+                if (managedItem) then
+                    self.items[item.slot] = ItemStack:new(
+                            item.name,
+                            managedItem.label,
+                            item.description,
+                            item.amount,
+                            managedItem.weight,
+                            managedItem.maxSize,
+                            item.durability,
+                            item.maxDurability,
+                            item.level,
+                            item.maxLevel
+                    );
+                else
+                    jServer.mysql:query("DELETE FROM `inventories_items` WHERE `inventoryId` = ? AND `slot` = ?", { self.id, item.slot });
+                    jShared.log:warn("Invalid Item [" .. item.name .. "] has been deleted from inventory " .. self.id .. ".");
+                end
+            end
+            self:updateWeight();
+        end
+    end);
+end
 
-jShared.log:info(inv.items);
-]]
+---@return table
+function Inventory:getItems()
+    return self.items
+end

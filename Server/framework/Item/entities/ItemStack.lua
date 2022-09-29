@@ -43,17 +43,22 @@ function ItemStack:new(
 
     self.name = itemName;
     self.label = label;
-    self.description = description; --metadata
+    self.description = description or -1; --metadata
     self.durability = durability or -1; --metadata
     self.maxDurability = ( (durability and maxDurability) and maxDurability ) or -1; --metadata
-    self.maxSize = (self.durability > -1 and 1) or (maxSize and maxSize) or 1;
     self.level = level or -1; --metadata
     self.maxLevel = (self.level > -1 and maxLevel) or -1; --metadata
-    self.amount = (description or durability or level and 1) or (amount and amount) or 1;
-    self.meta = (description ~= nil or durability ~= nil or level ~= nil and true) or false;
-    self.amount = amount or 1;
+    self.amount = (amount and amount) or 0;
     self.defaultWeight = weight or 0;
     self.weight = weight * self.amount;
+    self.meta = false;
+
+    if (description and jShared.utils:isString(description) and description ~= "-1") then self.meta = false; end
+    if (durability and jShared.utils:isNumber(durability) and durability > -1) then self.meta = false; end
+    if (maxDurability and jShared.utils:isNumber(maxDurability) and maxDurability > -1) then self.meta = false;; end
+    if (level and jShared.utils:isNumber(level) and level > -1) then self.meta = false; end
+
+    self.maxSize = (not self.meta and maxSize and maxSize) or 1;
 
     return self
 end
@@ -106,6 +111,11 @@ end
 ---@param maxSize number
 function ItemStack:setMaxSize(maxSize)
     self.maxSize = maxSize;
+end
+
+---@return boolean
+function ItemStack:isFull()
+    return self.amount >= self.maxSize;
 end
 
 ---@return boolean

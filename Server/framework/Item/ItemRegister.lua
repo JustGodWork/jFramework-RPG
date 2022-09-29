@@ -16,11 +16,7 @@ jServer.itemManager:addItem(
         "Water",
         nil,
         0.5,
-        1,
-        100,
-        100,
-        1,
-        5
+        10
 );
 
 jServer.itemManager:addItem(

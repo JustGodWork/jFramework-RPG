@@ -40,13 +40,14 @@ Config.Time = { -- Time config (Not finished yet)
 Config.player = { --Player config
     saveInterval = 2, -- Interval in minute to save all players
     firstPersonOnly = false, -- Set to true if you want First person only
+    respawnTimer = 5, -- Time to respawn in seconds
     accounts = { --Add accounts here
         {name = "bank", label = "Bank", money = 1000, shared = 0},
         {name = "cash", label = "Cash", money = 500, shared = 0}
     },
     inventories = { --Add inventories here
-        {name = "main", label = "Main Inventory", maxWeight = 25, shared = 0},
-        {name = "bag", label = "Bag", maxWeight = 40, shared = 1}
+        {name = "main", label = "Main Inventory", maxWeight = 25, slots = 20, shared = 0},
+        {name = "bag", label = "Bag", maxWeight = 40, slots = 35, shared = 1}
     },
     defaultPosition = { --Default position when the player spawns
         X = 799.400,
