@@ -28,8 +28,8 @@ jServer:loadFrameworkModule("Command/Commands.lua");
 
 --Items
 jServer:loadFrameworkModule("Item/entities/ItemStack.lua");
-jServer:loadFrameworkModule("Item/entities/ItemMeta.lua");
-jServer:loadFrameworkModule("Item/entities/Item.lua");
+--jServer:loadFrameworkModule("Item/entities/ItemMeta.lua");
+--jServer:loadFrameworkModule("Item/entities/Item.lua");
 jServer:loadFrameworkModule("Item/ItemManager.lua");
 jServer:loadFrameworkModule("Item/ItemRegister.lua");
 
@@ -39,7 +39,7 @@ jServer:loadFrameworkModule("Item/ItemRegister.lua");
 
 --Inventories
 jServer:loadFrameworkModule("Inventory/entities/Inventory.lua");
-jServer:loadFrameworkModule("Inventory/InventoryManager.lua");
+--jServer:loadFrameworkModule("Inventory/InventoryManager.lua");
 
 --Storages
 --jServer:loadFrameworkModule("Storage/entities/Storage.lua");

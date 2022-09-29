@@ -15,16 +15,16 @@
 --jFramework Config
 Config = {}
 
-Config.disclaimer = false --Set to false after setup complete
+Config.disclaimer = true --Set to false after setup complete
 Config.debug = false --Enabling debug mode will print all debug infos in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
 Config.discord = {
     APPLICATION_ID = 1023712604989964309, -- Your discord client ID
-    CURRENT_ACTIVITY = "Role Play Framework", -- The current activity of the client
+    CURRENT_ACTIVITY = "RPG / Role Play Framework", -- The current activity of the client
     CURRENT_ACTIVITY_DETAILS = "Working on...", -- The current activity details of the client
     LOGO = "logo", -- logo
-    LOGO_TEXT = "https://discord.gg/fWRyssQh6M", -- logo text
+    LOGO_TEXT = "https://discord.gg/NMMmgKejpD", -- logo text
 }
 
 Config.Time = { -- Time config (Not finished yet)

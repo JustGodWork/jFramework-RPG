@@ -39,6 +39,7 @@ function MySQL:createConnection()
     else
         connexionString = "db=%s user=%s host=%s port=%s";
     end
+
     self.connected, self.database = pcall(Database, DatabaseEngine.MySQL, (connexionString):format(
         self.params.db, 
         self.params.user, 
@@ -46,6 +47,7 @@ function MySQL:createConnection()
         self.params.port, 
         self.params.password
     ));
+
     self:onClose()
     self:handlerConnectError()
     return self;

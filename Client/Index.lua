@@ -21,7 +21,7 @@ function _Client:new()
     setmetatable(self, { __index = _Client});
 
     self.modules = {};
-    self._hud = WebUI("hud", "file://framework/ui/hud/hud.html", true);
+    Client.SetMouseEnabled(false);
 
     jShared.log:debug("[ jClient ] initialized.");
 
@@ -36,11 +36,6 @@ end
 ---@param module string
 function _Client:loadModule(module)
     Package.Require(string.format("./modules/%s", module));
-end
-
----@return WebUI
-function _Client:hud()
-    return self._hud;
 end
 
 jClient = _Client:new()

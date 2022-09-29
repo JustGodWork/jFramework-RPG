@@ -32,7 +32,7 @@ Player.Subscribe("Destroy", function(player)
     jServer.playerManager:removePlayer(playerToRemove);
 end)
 
-Events.Subscribe("onPlayerConnecting", function(player)
+--[[Events.Subscribe("onPlayerConnecting", function(player)
     jServer.mysql:select("SELECT * FROM players AS p JOIN inventories AS i ON p.identifier = i.owner WHERE identifier = ?", { player:GetSteamID() }, function(inventories)
         if (#inventories > 0) then
             for i = 1, #inventories do
@@ -50,12 +50,16 @@ Events.Subscribe("onPlayerConnecting", function(player)
             end
         end
     end)
-end)
+end)]]
 
 Events.Subscribe("onPlayerConnecting", function(player)
     Timer.SetTimeout(function()
         -- todo : remove this when inventory system is done
-        --local jPlayer = jServer.playerManager:getFromId(player:GetID());
+        local jPlayer = jServer.playerManager:getFromId(player:GetID());
         --local inv = jServer.inventoryManager:getByOwner(jPlayer:GetSteamID(), "main");
+        --[[if (inv:addItem("water", 15)) then
+            jShared.log:info(inv:getItems());
+            jShared.log:info("You have been given 15 water bottles");
+        end]]
     end, 2000)
 end)

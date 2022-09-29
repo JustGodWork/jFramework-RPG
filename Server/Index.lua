@@ -44,10 +44,12 @@ function _Server:loadModule(module)
     Package.Require(string.format("./modules/%s", module));
 end
 
-jServer = _Server:new();
+if (not Config.disclaimer) then
+    jServer = _Server:new();
 
-jServer:loadFrameworkModule("Database/MySQL.lua");
+    jServer:loadFrameworkModule("Database/MySQL.lua");
 
-if (jServer.mysql:isOpen()) then
-    Package.Require("./loader.lua");
+    if (jServer.mysql:isOpen()) then
+        Package.Require("./loader.lua");
+    end
 end
