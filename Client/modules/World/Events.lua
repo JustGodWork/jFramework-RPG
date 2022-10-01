@@ -12,10 +12,10 @@
 -------
 --]]
 
-Events.Subscribe("jServer:modules:world:time:sync", function(hour, minute)
+Events.Subscribe(SharedEnums.Events.Time.sync, function(hour, minute)
     World.SetTime(hour, minute)
 end)
 
-Events.Subscribe("jServer:modules:world:weather:sync", function(weather)
+Events.Subscribe(SharedEnums.Events.Weather.sync, function(weather)
     World.SetWeather(weather)
 end)

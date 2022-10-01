@@ -182,6 +182,7 @@ function InventoryManager:buildInventory(id, name, label, owner, maxWeight, slot
     else
         self.inventories[name] = inventory
     end
+    Events.Call(SharedEnums.Player.inventoryLoaded, owner, id, name);
 end
 
 jServer.inventoryManager = InventoryManager:new();

@@ -406,3 +406,14 @@ end
 function Inventory:getItems()
     return self.items
 end
+
+---@param owner string
+Events.Subscribe(SharedEnums.Player.inventoryLoaded, function(owner, _, inventoryName)
+    if (inventoryName == "main") then
+        Timer.SetTimeout(function()
+            -- todo : remove this when inventory system is done
+            local inv = jServer.inventoryManager:getByOwner(owner, "main");
+            jShared.log:info(inv:getItems());
+        end, 1000);
+    end
+end);

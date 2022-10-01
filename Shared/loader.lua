@@ -15,8 +15,6 @@
 ---LOAD SHARED FRAMEWORK MODULES HERE
 jShared:loadFrameworkModule("Log/Log.lua");
 jShared:loadFrameworkModule("Utils/Utils.lua");
-jShared:loadFrameworkModule("Utils/String/String.lua");
-jShared:loadFrameworkModule("Utils/Math/Math.lua");
 jShared:loadFrameworkModule("Enums/SharedEnums.lua");
 
 ---LOAD SHARED MODULES HERE

@@ -13,6 +13,9 @@
 --]]
 
 --FRAMEWORK
+jClient:loadFrameworkModule("Utils/Utils.lua");
+jClient:loadFrameworkModule("input/Bind.lua");
+jClient:loadFrameworkModule("input/Events.lua");
 
 --MODULES
 jClient:loadModule("Discord/discord.lua");

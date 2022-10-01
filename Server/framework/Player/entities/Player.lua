@@ -41,7 +41,6 @@ function Player:initialize()
     weapon:SetAutoReload(false);
     weapon:SetAmmoClip(0);
     playerCharacter:PickUp(weapon);
-    self:handleDeath(); --When player is created, and his character is loaded load Death handle.
     if (Config.player.firstPersonOnly) then
         playerCharacter:SetCameraMode(CameraMode.FPSOnly);
     end
@@ -81,50 +80,18 @@ function Player:initSkin(playerSkin)
 end
 
 ---@private
-function Player:handleDeath()
-    local character = self:GetControlledCharacter();
-    character:Subscribe("Death", function(chara, _, _, _, _, instigator)
-        jShared.log:info(string.format("Player [%s] %s die.", self:GetSteamID(), self:getFullName()));
-        local message;
-        if (instigator) then
-            if (instigator == self) then
-                message = ("<cyan>%s</> committed suicide"):format(
-                        instigator:GetName()
-                );
-            else
-                message = ("<cyan>%s</> killed <cyan>%s</>"):format(
-                        instigator:GetName(),
-                        self:GetName()
-                );
-            end
-        else
-            message = ("<cyan>%s</> died"):format(
-                    self:GetName()
-            )
-        end
-        Server.BroadcastChatMessage(message);
-        self:handleRespawn(chara);
-    end)
-end
-
 ---Handle Respawning player
----@param playerCharacter Character
----@private
-function Player:handleRespawn(playerCharacter)
-    Timer.Bind(Timer.SetTimeout(function(character)
-        jShared.log:info(string.format("Respawning Player [%s] %s...", self:GetSteamID(), self:getFullName()));
-        local data = self:GetValue("data")
-        local position = character:GetLocation()
-        data.position = {
-            X = position.X,
-            Y = position.Y,
-            Z = position.Z,
-            Yaw = character:GetRotation().Yaw
-        }
-        self:SetValue("data", data, true);
-        if (character:GetHealth() ~= 0) then return end
-        character:Respawn(self:getPosition(), Rotator(0.0, 0.0, self:getHeading()));
-    end, Config.player.respawnTimer * 1000, playerCharacter), playerCharacter);
+function Player:handleRespawn()
+    local playerCharacter = self:GetControlledCharacter();
+    Timer.SetTimeout(function()
+        if (playerCharacter and playerCharacter:IsValid()) then
+            jShared.log:info(string.format("Respawning Player [%s] %s...", self:GetSteamID(), self:getFullName()));
+            if (playerCharacter:GetHealth() ~= 0) then return end
+            playerCharacter:Respawn(self:getPosition(), Rotator());
+        else
+            jShared.log:warn(string.format("Player [%s] %s character is not valid, cannot respawn.", self:GetSteamID(), self:getFullName()));
+        end
+    end, Config.player.respawnTimer * 1000);
 end
 
 ---@return number
@@ -170,12 +137,28 @@ function Player:getPosition()
     return Vector(position.X, position.Y, position.Z);
 end
 
+---@param position Vector
+---@param rotation Rotator
+function Player:setPosition(position, rotation)
+    local character = self:GetControlledCharacter();
+    local data = self:GetValue("data");
+    local pos = position or character:GetLocation();
+    local rot = rotation or character:GetRotation();
+    data.position = {
+        X = pos.X,
+        Y = pos.Y,
+        Z = pos.Z,
+        Yaw = rot.Yaw
+    }
+    self:SetValue("data", data, true);
+end
+
 ---update Player position
 ---@return table
 function Player:updatePosition()
     local data = self:GetValue("data")
     local character = self:GetControlledCharacter();
-    if (character) then
+    if (character and character:IsValid()) then
         local position = character:GetLocation();
         data.position = {
             X = jShared.utils.math:round(position.X, 2),
@@ -191,7 +174,8 @@ end
 
 ---@return Rotator
 function Player:getHeading()
-    return Rotator(0.0, 0.0, self:GetValue("data").position.Yaw);
+    local pos = self:GetValue("data").position;
+    return Rotator(0.0, 0.0, pos.Yaw);
 end
 
 function Player:getSkin()
@@ -204,4 +188,82 @@ function Player:setSkin(skin)
     local data = self:GetValue("data");
     data.skin = skin;
     self:SetValue("data", data, true);
+end
+
+---@param inventoryName string
+---@return number | nil
+function Player:getInventoryId(inventoryName)
+    local inventories = self:GetValue("inventories");
+    if (inventories) then
+        return inventories[inventoryName];
+    end
+    return nil;
+end
+
+---@return boolean | nil
+function Player:isInNoClip()
+    return self:GetValue("NoClip");
+end
+
+---@private
+---@param state boolean | nil
+function Player:setInNoClip(state)
+    self:SetValue("NoClip", state);
+end
+
+---Enable player no clip
+function Player:enableNoClip()
+    local character = self:GetControlledCharacter();
+    if (not self:isInNoClip()) then
+        self:SetValue("LastViewMode", character:GetViewMode());
+        character:SetViewMode(ViewMode.FPS);
+        self:setInNoClip(true);
+        character:SetCollision(CollisionType.NoCollision);
+        character:SetFlyingMode(true);
+        character:SetInvulnerable(true);
+        character:SetVisibility(false);
+        character:SetRagdollMode(false);
+    end
+end
+
+---Disable player no clip
+function Player:disableNoClip()
+    local character = self:GetControlledCharacter();
+    if (self:isInNoClip()) then
+        character:SetCollision(CollisionType.Auto);
+        character:SetFlyingMode(false);
+        character:SetHighFallingTime(-1);
+        character:SetFallDamageTaken(0);
+        self:onDisablingNoClip();
+    end
+end
+
+---Toggle player no clip
+function Player:toggleNoClip()
+    if (self:isInNoClip()) then
+        self:disableNoClip();
+    else
+        self:enableNoClip();
+    end
+end
+
+function Player:onDisablingNoClip()
+    local player = self;
+    ---@param character Character
+    local function run(character, old_state, new_state)
+        if (new_state == FallingMode.None) then
+            if (NanosUtils.IsA(character:GetPlayer(), Player)) then
+                if (character:GetPlayer():isInNoClip()) then
+                    character:SetInvulnerable(false);
+                    character:SetVisibility(true);
+                    character:SetHighFallingTime(1);
+                    character:SetFallDamageTaken(10);
+                    character:SetViewMode(player:GetValue("LastViewMode"));
+                    character:Unsubscribe("FallingModeChanged", run);
+                    player:setInNoClip(false);
+                end
+            end
+        end
+    end
+    player:GetControlledCharacter():Subscribe("FallingModeChanged", run);
 end

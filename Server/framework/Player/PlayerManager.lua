@@ -76,6 +76,16 @@ function PlayerManager:getFromIdentifier(idenfitier)
     end
 end
 
+---@param characterId number
+---@return Player
+function PlayerManager:getByCharacterId(characterId)
+    for playerId, player in pairs(self.players) do
+        if (player:getCharacterId() == characterId) then
+            return self.players[playerId];
+        end
+    end
+end
+
 ---@private
 ---@param player Player
 ---@param callback function
@@ -92,12 +102,41 @@ function PlayerManager:createNew(player, callback)
                         lastname = "Player"
                     });
                     self.players[player:GetID()] = player;
-                    Events.CallRemote("onPlayerConnecting", player);
+                    Events.Call(SharedEnums.Player.connecting, player);
                     if (callback) then callback(); end
                 end
             end)
         end
     end)
+end
+
+---@private
+---@param player Player
+function PlayerManager:loadPlayerInventories(player)
+    jServer.mysql:select("SELECT * FROM players AS p JOIN inventories AS i ON p.identifier = i.owner WHERE identifier = ?", { player:GetSteamID() }, function(inventories)
+        if (#inventories > 0) then
+            player:SetValue("inventoryCount", #inventories)
+            for i = 1, #inventories do
+                jServer.inventoryManager:register(inventories[i].name, inventories[i].owner);
+            end
+        else
+            for i = 1, #Config.player.inventories do
+                jServer.inventoryManager:create(
+                        Config.player.inventories[i].name,
+                        Config.player.inventories[i].label,
+                        player:GetSteamID(),
+                        Config.player.inventories[i].maxWeight,
+                        Config.player.inventories[i].slots,
+                        Config.player.inventories[i].shared
+                );
+            end
+        end
+    end)
+end
+
+---@param player Player
+function PlayerManager:initPlayer(player)
+    self:loadPlayerInventories(player);
 end
 
 ---@param player Player
@@ -106,10 +145,9 @@ function PlayerManager:registerPlayer(player)
         if (result[1]) then
             player:onConnect(result[1]);
             self.players[player:GetID()] = player;
-            Timer.SetTimeout(function()
-                Events.CallRemote("onPlayerConnecting", player);
-                Events.Call("onPlayerConnecting", player);
-            end, 2000)
+            jShared.log:info(("[ PlayerManager ] Player [%s] %s connected."):format(player:GetSteamID(), player:GetName()));
+            self:loadPlayerInventories(player);
+            Events.Call(SharedEnums.Player.connecting, player);
         else
             self:createNew(player);
         end

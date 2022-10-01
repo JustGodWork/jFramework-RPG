@@ -38,9 +38,9 @@ function _Client:loadModule(module)
     Package.Require(string.format("./modules/%s", module));
 end
 
-jClient = _Client:new()
+jClient = _Client:new();
 
-Events.Subscribe("onPlayerConnecting", function()
+Events.Subscribe("playerLoaded", function()
     jShared.log:success("Client data initialized.");
     -- This event is called when the player is loaded
     -- You can use it to load modules only when player is loaded

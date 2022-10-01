@@ -15,7 +15,7 @@
 --jFramework Config
 Config = {}
 
-Config.disclaimer = true --Set to false after setup complete
+Config.disclaimer = false --Set to false after setup complete
 Config.debug = false --Enabling debug mode will print all debug infos in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 

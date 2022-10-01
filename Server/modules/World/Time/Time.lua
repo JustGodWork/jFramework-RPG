@@ -34,8 +34,8 @@ end
 
 -- todo sync time when more than one player connect to server
 function Time:constructor()
-    Events.Subscribe("onPlayerConnecting", function(player)
-        Events.CallRemote("jServer:modules:world:time:sync", player, self.hour, self.minute)
+    Events.Subscribe(SharedEnums.Player.connecting, function(player)
+        Events.CallRemote(SharedEnums.Events.Time.sync, player, self.hour, self.minute)
     end)
 end
 
@@ -83,7 +83,7 @@ end
 
 function Time:sync()
     print(string.format("Time: %s:%s", self.hour, self.minute))
-    Events.BroadcastRemote("jServer:modules:world:time:sync", self.hour, self.minute)
+    Events.BroadcastRemote(SharedEnums.Events.Time.sync, self.hour, self.minute)
 end
 
 jServer.modules.world.time = Time:new();

@@ -11,4 +11,9 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
+jShared:loadFrameworkModule("Enums/Events/Player.lua");
+jShared:loadFrameworkModule("Enums/Events/Commands.lua");
 jShared:loadFrameworkModule("Enums/Events/inventory.lua");
+jShared:loadFrameworkModule("Enums/Events/Time.lua");
+jShared:loadFrameworkModule("Enums/Events/Weather.lua");
+jShared:loadFrameworkModule("Enums/Events/Input.lua");

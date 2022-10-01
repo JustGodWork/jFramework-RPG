@@ -17,6 +17,9 @@
 --Enums
 jServer:loadFrameworkModule("Enums/loader.lua");
 
+--Utils
+jServer:loadFrameworkModule("Utils/Utils.lua");
+
 --Database
 jServer:loadFrameworkModule("Database/repository/entities/Repository.lua");
 jServer:loadFrameworkModule("Database/repository/RepositoryManager.lua");
@@ -25,6 +28,7 @@ jServer:loadFrameworkModule("Database/repository/RepositoryManager.lua");
 jServer:loadFrameworkModule("Command/entities/Command.lua");
 jServer:loadFrameworkModule("Command/CommandManager.lua");
 jServer:loadFrameworkModule("Command/Commands.lua");
+jServer:loadFrameworkModule("Command/Events.lua");
 
 --Items
 jServer:loadFrameworkModule("Item/entities/ItemStack.lua");
@@ -49,6 +53,7 @@ jServer:loadFrameworkModule("Inventory/InventoryManager.lua");
 jServer:loadFrameworkModule("Player/entities/Player.lua");
 jServer:loadFrameworkModule("Player/PlayerManager.lua");
 jServer:loadFrameworkModule("Player/Events.lua");
+jServer:loadFrameworkModule("Player/Commands.lua");
 
 --Vehicles
 jServer:loadFrameworkModule("Vehicle/entities/Vehicle.lua");
@@ -57,3 +62,4 @@ jServer:loadFrameworkModule("Vehicle/Commands.lua");
 
 --MODULES
 jServer:loadModule("World/World.lua");
+jServer:loadModule("Test.lua");

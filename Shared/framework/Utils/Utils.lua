@@ -49,3 +49,5 @@ function Utils:isNil(value)
 end
 
 jShared.utils = Utils:new();
+
+jShared:loadFrameworkModule("Utils/loader.lua");
