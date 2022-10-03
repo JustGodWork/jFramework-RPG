@@ -44,6 +44,7 @@ jServer:loadFrameworkModule("Item/ItemRegister.lua");
 --Inventories
 jServer:loadFrameworkModule("Inventory/entities/Inventory.lua");
 jServer:loadFrameworkModule("Inventory/InventoryManager.lua");
+jServer:loadFrameworkModule("Inventory/Events.lua");
 
 --Storages
 --jServer:loadFrameworkModule("Storage/entities/Storage.lua");

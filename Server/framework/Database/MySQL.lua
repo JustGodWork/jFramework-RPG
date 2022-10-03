@@ -48,8 +48,8 @@ function MySQL:createConnection()
         self.params.password
     ));
 
-    self:onClose()
-    self:handlerConnectError()
+    self:onClose();
+    self:handlerConnectError();
     return self;
 end
 
@@ -65,7 +65,7 @@ function MySQL:handlerConnectError()
         jShared.log:error(string.format("[ MySQL ] => Connection failed. %s", self.database));
         Timer.SetTimeout(function()
             os.exit(true, true);
-        end, 0)
+        end, 0);
     else
         jShared.log:success("[ MySQL ] => Connection established.");
     end

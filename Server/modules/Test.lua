@@ -28,3 +28,26 @@ trigger:Subscribe("EndOverlap", function (self, entity)
         player:toggleNoClip();
     end
 end)
+
+
+--[[
+local function sabre()
+    local crowbar = Melee(
+        Vector(-900, 185, 215),
+        Rotator(0, 90, 90),
+        "stwr-sabre::SM_sabrelasergreen",
+        CollisionType.Normal,
+        true,
+        HandlingMode.SingleHandedMelee,
+        "", 
+        true
+    );
+
+    crowbar:SetScale(Vector(1.5, 1.5, 1.5))
+    crowbar:AddAnimationCharacterUse("nanos-world::AM_Mannequin_Melee_Slash_Attack", AnimationSlotType.UpperBody)
+    crowbar:SetDamageSettings(0.3, 0.5)
+    crowbar:SetCooldown(1.0)
+    crowbar:SetBaseDamage(40)
+    return crowbar;
+end
+]]

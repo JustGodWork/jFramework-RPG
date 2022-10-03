@@ -15,4 +15,6 @@ SharedEnums.Events.inventory = {
     addItem = "inventory:addItem",
     removeItem = "inventory:removeItem",
     updateItem = "inventory:updateItem",
+    get = "inventory:get",
+    receive = "inventory:receive"
 };

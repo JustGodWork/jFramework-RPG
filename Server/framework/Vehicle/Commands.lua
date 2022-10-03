@@ -17,6 +17,7 @@ jServer.commandManager:register("car", function(player, args)
     if (vehicle) then
         character:EnterVehicle(vehicle)
     end
+    return true;
 end)
 
 jServer.commandManager:register("dv", function(player)
@@ -24,4 +25,5 @@ jServer.commandManager:register("dv", function(player)
     if (vehicle and vehicle:GetValue("vehicleId")) then
         vehicle:Destroy()
     end
+    return true;
 end)

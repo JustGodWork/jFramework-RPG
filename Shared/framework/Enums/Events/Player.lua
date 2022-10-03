@@ -16,4 +16,5 @@
 SharedEnums.Player = {
     connecting = "onPlayerConnecting",
     inventoryLoaded = "player:inventoryLoaded",
+    loaded = "player:loaded"
 };

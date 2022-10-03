@@ -31,6 +31,11 @@ function Command:new(name, callback, isClient)
     return self
 end
 
+---@return string
+function Command:getName()
+    return self.name
+end
+
 ---@return boolean
 function Command:isClient()
     return self.client_only

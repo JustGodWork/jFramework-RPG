@@ -55,24 +55,38 @@ end
 ---@param callback fun(player: Player, args: string[])
 ---@param clientOnly boolean
 function CommandManager:register(name, callback, clientOnly)
-    self.commands[name] = Command:new(name, callback, clientOnly);
+    self.commands[string.upper(name)] = Command:new(name, callback, clientOnly);
     jShared.log:debug(string.format("[ CommandManager ] => Command [%s] registered !", name));
 end
 
 ---@param name string
 ---@param player Player
 ---@param args string[]
-function CommandManager:execute(name, player, args)
-    if (self:exists(name)) then
-        if (self.commands[name]:isClient() and not player) then
-            return jShared.log:warn(string.format("[ CommandManager ] => Command [%s] can only be executed by a player !", name));
-        end
-        self.commands[name]:getCallback()(player, args);
+function CommandManager:onExecute(name, player, args)
+    if (self.commands[string.upper(name)]:getCallback()(player, args)) then
         if (player) then
             jShared.log:debug(string.format("[ CommandManager ] => Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:getFullName()));
         else
             jShared.log:debug(string.format("[ CommandManager ] => Command [%s] executed by console", name));
         end
+    else
+        if (player) then
+            jShared.log:warn(string.format("[ CommandManager ] => Command [%s] failed to execute by [%s] %s", name, player:GetSteamID(), player:getFullName()));
+        else
+            jShared.log:warn(string.format("[ CommandManager ] => Command [%s] failed to execute by console", name));
+        end
+    end
+end
+
+---@param name string
+---@param player Player
+---@param args string[]
+function CommandManager:execute(name, player, args)
+    if (self:exists(string.upper(name))) then
+        if (self.commands[string.upper(name)]:isClient() and not player) then
+            return jShared.log:warn(string.format("[ CommandManager ] => Command [%s] can only be executed by a player !", name));
+        end
+        self:onExecute(name, player, args);
     else
         if (player) then
             Server.SendChatMessage(player, "<red>Command not found !</>");
@@ -85,19 +99,19 @@ end
 ---@param name string
 ---@return Command
 function CommandManager:get(name)
-    return self.commands[name];
+    return self.commands[string.upper(name)];
 end
 
 ---@param name string
 ---@return boolean
 function CommandManager:exists(name)
-    return self.commands[name] ~= nil;
+    return self.commands[string.upper(name)] ~= nil;
 end
 
 ---@param name string
 ---@return void
 function CommandManager:remove(name)
-    self.commands[name] = nil;
+    self.commands[string.upper(name)] = nil;
 end
 
 jServer.commandManager = CommandManager:new();

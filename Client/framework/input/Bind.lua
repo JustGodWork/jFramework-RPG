@@ -11,8 +11,8 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
-Input.Register("No Clip", "B");
+Input.Register("[jFramework]: No Clip", "B");
 
-Input.Bind("No Clip", InputEvent.Pressed, function()
+Input.Bind("[jFramework]: No Clip", InputEvent.Pressed, function()
     jClient.utils:executeCommand("noclip");
 end);

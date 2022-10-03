@@ -15,7 +15,7 @@
 --jFramework Config
 Config = {}
 
-Config.disclaimer = false --Set to false after setup complete
+Config.disclaimer = true --Set to false after setup complete
 Config.debug = false --Enabling debug mode will print all debug infos in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
@@ -46,8 +46,10 @@ Config.player = { --Player config
         {name = "cash", label = "Cash", money = 500, shared = 0}
     },
     inventories = { --Add inventories here
-        {name = "main", label = "Main Inventory", maxWeight = 25, slots = 20, shared = 0},
-        {name = "bag", label = "Bag", maxWeight = 40, slots = 35, shared = 1}
+        main = { label = "Main Inventory", maxWeight = 25, slots = 20 },
+        others = {
+            {name = "bag", label = "Bag", maxWeight = 40, slots = 35, shared = 1}
+        }
     },
     defaultPosition = { --Default position when the player spawns
         X = 799.400,

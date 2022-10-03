@@ -35,9 +35,9 @@ function Inventory:new(id, name, label, owner, maxWeight, slots, shared)
     self.slots = slots;
     ---@type ItemStack[]
     self.items = {};
-    self.shared = shared
+    self.shared = shared;
 
-    self:buildProcess(items);
+    self:buildProcess();
 
     jShared.log:debug(("[ Inventory: %s ] initialized."):format(self.id));
 
@@ -398,6 +398,7 @@ function Inventory:buildProcess()
                 end
             end
             self:updateWeight();
+            jShared.log:debug("Inventory " .. self.id .. " has been built.");
         end
     end);
 end
@@ -406,14 +407,3 @@ end
 function Inventory:getItems()
     return self.items
 end
-
----@param owner string
-Events.Subscribe(SharedEnums.Player.inventoryLoaded, function(owner, _, inventoryName)
-    if (inventoryName == "main") then
-        Timer.SetTimeout(function()
-            -- todo : remove this when inventory system is done
-            local inv = jServer.inventoryManager:getByOwner(owner, "main");
-            jShared.log:info(inv:getItems());
-        end, 1000);
-    end
-end);

@@ -40,11 +40,4 @@ end
 
 jClient = _Client:new();
 
-Events.Subscribe("playerLoaded", function()
-    jShared.log:success("Client data initialized.");
-    -- This event is called when the player is loaded
-    -- You can use it to load modules only when player is loaded
-    Client.SendChatMessage("All your data have been loaded !")
-end)
-
 Package.Require("./loader.lua");

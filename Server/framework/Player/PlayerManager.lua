@@ -90,68 +90,52 @@ end
 ---@param player Player
 ---@param callback function
 ---@private
-function PlayerManager:createNew(player, callback)
+function PlayerManager:createNewPlayer(player, callback)
     jServer.mysql:query("INSERT INTO players (identifier) VALUES (?)", { player:GetSteamID() }, function(result)
         if (result == 1) then
             jServer.mysql:select("SELECT * FROM players WHERE identifier = ?", { player:GetSteamID() }, function(result)
                 if (result) then
-                    player:onConnect({
-                        id = result[1].id,
-                        identifier = player:GetSteamID(),
-                        firstname = "new",
-                        lastname = "Player"
-                    });
-                    self.players[player:GetID()] = player;
-                    Events.Call(SharedEnums.Player.connecting, player);
-                    if (callback) then callback(); end
+                    self:handleConnection(player, result[1], true, callback);
                 end
             end)
         end
     end)
 end
 
----@private
----@param player Player
-function PlayerManager:loadPlayerInventories(player)
-    jServer.mysql:select("SELECT * FROM players AS p JOIN inventories AS i ON p.identifier = i.owner WHERE identifier = ?", { player:GetSteamID() }, function(inventories)
-        if (#inventories > 0) then
-            player:SetValue("inventoryCount", #inventories)
-            for i = 1, #inventories do
-                jServer.inventoryManager:register(inventories[i].name, inventories[i].owner);
-            end
-        else
-            for i = 1, #Config.player.inventories do
-                jServer.inventoryManager:create(
-                        Config.player.inventories[i].name,
-                        Config.player.inventories[i].label,
-                        player:GetSteamID(),
-                        Config.player.inventories[i].maxWeight,
-                        Config.player.inventories[i].slots,
-                        Config.player.inventories[i].shared
-                );
-            end
-        end
-    end)
-end
-
----@param player Player
-function PlayerManager:initPlayer(player)
-    self:loadPlayerInventories(player);
-end
-
 ---@param player Player
 function PlayerManager:registerPlayer(player)
     jServer.mysql:select("SELECT * FROM players WHERE identifier = ?", { player:GetSteamID() }, function(result)
         if (result[1]) then
-            player:onConnect(result[1]);
-            self.players[player:GetID()] = player;
-            jShared.log:info(("[ PlayerManager ] Player [%s] %s connected."):format(player:GetSteamID(), player:GetName()));
-            self:loadPlayerInventories(player);
-            Events.Call(SharedEnums.Player.connecting, player);
+            self:handleConnection(player, result[1], false);
         else
-            self:createNew(player);
+            self:createNewPlayer(player);
         end
     end);
+end
+
+---@private
+---@param player Player
+---@param isNew boolean
+function PlayerManager:initializePlayer(player, isNew)
+    if (isNew) then
+        jServer.inventoryManager:createPlayerInventories(player:GetSteamID());
+    else
+        jServer.inventoryManager:loadOwned(player:GetSteamID(), "main");
+    end
+end
+
+---@private
+---@param player Player
+---@param data table
+---@param isNew boolean
+---@param callback function
+function PlayerManager:handleConnection(player, data, isNew, callback)
+    self:initializePlayer(player, isNew);
+    player:onConnect(data);
+    self.players[player:GetID()] = player;
+    jShared.log:info(("[ PlayerManager ] Player [%s] %s connected."):format(player:GetSteamID(), player:GetName()));
+    Events.Call(SharedEnums.Player.connecting, player);
+    if (callback) then callback(); end
 end
 
 ---@param playerToRemove Player
@@ -176,7 +160,7 @@ end
 ---@param callback fun(result: boolean)
 function PlayerManager:save(player, callback)
     if (player) then
-        local position = player:updatePosition();
+        local position = player:getPosition();
         jServer.mysql:query("UPDATE players SET posX = ?, posY = ?, posZ = ?, Yaw = ? WHERE id = ?", {
             position.X,
             position.Y,

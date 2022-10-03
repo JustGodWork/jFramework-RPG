@@ -35,5 +35,5 @@ end);
 ---@param bindingName string
 ---@param inputEvent InputEvent[]
 Events.Subscribe(SharedEnums.Events.input.unbind, function(bindingName, inputEvent, callback)
-    Input.Unbind(bindingName, inputEvent);
+    Input.Unbind(bindingName, inputEvent, callback);
 end);

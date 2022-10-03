@@ -13,6 +13,15 @@
 
 ---@param player Player
 ---@param inventoryName string
+Events.Subscribe(SharedEnums.Events.inventory.get, function(player, inventoryName)
+    local inventory = jServer.inventoryManager:getByOwner(player:GetSteamID(), inventoryName);
+    if (inventory) then
+        Events.CallRemote(SharedEnums.Events.inventory.receive, player, inventory:getItems(), inventory:getNumberOfSlots());
+    end
+end);
+
+---@param player Player
+---@param inventoryName string
 ---@param item table
 Events.Subscribe(SharedEnums.Events.inventory.addItem, function(player, inventoryName, item)
     local inventory = jServer.inventoryManager:getByOwner(player:getCharacterId(), inventoryName)

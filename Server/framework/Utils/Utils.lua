@@ -20,12 +20,6 @@ function SUtils:new()
     return self
 end
 
----@param entity Actor
----@return void
-function SUtils:isEntityValid(entity)
-    return entity ~= nil and entity:IsValid();
-end
-
 jServer.utils = SUtils:new();
 
 jServer:loadFrameworkModule("Utils/loader.lua");

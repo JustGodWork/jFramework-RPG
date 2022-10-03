@@ -26,6 +26,12 @@ function Entity:new()
 end
 
 ---@param entity Actor
+---@return void
+function Entity:isEntityValid(entity)
+    return entity ~= nil and entity:IsValid();
+end
+
+---@param entity Actor
 ---@param type Any
 ---@return string | nil
 function Entity:isOfType(entity, type)

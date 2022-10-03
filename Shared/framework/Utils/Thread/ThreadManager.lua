@@ -44,7 +44,7 @@ function ThreadManager:initialize()
     Timer.SetInterval(function()
         self:checkWaiting();
         self:clear();
-    end, 20);
+    end, 0);
 end
 
 ---Check if coroutine need to resume
@@ -81,7 +81,7 @@ function ThreadManager:wait(ms)
     assert(co ~= nil, "Cannot wait on main thread")
     local timeToWait = self:getTime() + ms
     self.waiting_coroutines[co] = timeToWait
-    return coroutine.yield(co)
+    return coroutine.yield(co);
 end
 
 jShared.utils.thread = ThreadManager:new();

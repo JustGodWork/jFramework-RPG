@@ -53,38 +53,103 @@ function InventoryManager:new()
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1
     ]])
 
+    self:initialize();
+
     jShared.log:debug("[ InventoryManager ] initialized.");
 
     return self;
 end
 
----@param name string
----@param owner string
-function InventoryManager:register(name, owner)
-    local query = "SELECT * FROM inventories WHERE name = ?";
-    if (owner) then
-        query = query .. " AND owner = ?"
-    end
-    jServer.mysql:select(query, { name, owner }, function(result)
-        if (result[1]) then
-            if (owner) then
-                if (not self.owned[result[1].owner]) then
-                    self.owned[result[1].owner] = {};
-                end
-                if (not self.owned[owner][result[1].id]) then
-                    self:buildInventory(result[1].id, result[1].name, result[1].label, result[1].owner, result[1].maxWeight, result[1].slots, result[1].shared, true);
-                else
-                    jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
-                end
-            else
-                if (not self.inventories[result[1].id]) then
-                    self:buildInventory(result[1].id, result[1].name, result[1].label, result[1].owner, result[1].maxWeight, result[1].slots, result[1].shared, false);
-                else
-                    jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+---@private 
+---Load all inventories from database
+function InventoryManager:initialize()
+    jServer.mysql:select("SELECT * FROM inventories", {}, function(result)
+        for _, row in pairs(result) do
+            if (row) then
+                if (row.shared == 1) then
+                    self:register(row.id, row.name, row.label, row.owner, row.maxWeight, row.slots, row.shared);
+                    jShared.log:debug("[ InventoryManager ] Loaded inventory " .. row.name .. " with id " .. row.id);
                 end
             end
         end
     end)
+end
+
+---@param owner string
+---@param name string
+---@param callback? fun(inventoryLoaded: boolean, inventory: Inventory)
+function InventoryManager:loadOwned(owner, name, callback)
+    jServer.mysql:select("SELECT * FROM inventories WHERE owner = ? AND name = ?", { owner, name }, function (result)
+        if (#result > 0) then
+            local inventoryLoaded = self:register(result[1].id, result[1].name, result[1].label, result[1].owner, result[1].maxWeight, result[1].slots, result[1].shared)
+            local inventory = self:getByOwner(owner, name);
+            if (callback) then callback(inventoryLoaded, inventory); end;
+        end
+    end)
+end
+
+---@param id number
+---@param name string
+---@param label string
+---@param owner string
+---@param maxWeight number
+---@param slots number
+---@param shared boolean
+function InventoryManager:register(id, name, label, owner, maxWeight, slots, shared)
+    if (owner) then
+        if (not self.owned[owner]) then
+            self.owned[owner] = {};
+        end
+        if (not self.owned[owner][id]) then
+            self:buildInventory(id, name, label, owner, maxWeight, slots, shared, true);
+            return true;
+        else
+            jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+            return false;
+        end
+    else
+        if (not self.inventories[id]) then
+            self:buildInventory(id, name, label, owner, maxWeight, slots, shared, false);
+            return true;
+        else
+            jShared.log:warn("InventoryManager:register(): inventory [ ".. name .." ] already exists");
+            return false;
+        end
+    end
+end
+
+---@param id number | string id or name of inventory
+---@return boolean
+function InventoryManager:remove(id)
+    for inventoryId, value in pairs(self.inventories) do
+        if (inventoryId == id or value.name == id) then
+            self.inventories[inventoryId] = nil;
+            return true;
+        end
+    end
+    return false;
+end
+
+---@param owner string
+---@param name string
+---@return boolean
+function InventoryManager:removeByOwner(owner, name)
+    if (self.owned[owner]) then
+        for k, v in pairs(self.owned[owner]) do
+            if (v.name == name) then
+                self.owned[owner][k] = nil;
+                return true;
+            end
+        end
+    end
+    return false;
+end
+
+---@param owner string
+function InventoryManager:removeAllByOwner(owner)
+    if (self.owned[owner]) then
+        self.owned[owner] = nil;
+    end
 end
 
 ---@param owner number
@@ -166,6 +231,52 @@ function InventoryManager:create(name, label, owner, maxWeight, slots, shared)
     end)
 end
 
+---@param name string
+---@param owner string
+---@param callback fun(success: boolean)
+function InventoryManager:delete(name, owner, callback)
+    local query = "DELETE FROM inventories WHERE name = ?";
+    if (self:exist(name, owner)) then
+        if (owner) then 
+            query = query .. " AND owner = ?"; 
+        end
+        jServer.mysql:query(query, {
+            name,
+            owner
+        }, function(affected)
+            if (affected == 1) then
+                if (owner) then
+                    callback(self:removeByOwner(owner, name));
+                else
+                    callback(self:remove(name));
+                end
+            else
+                local str = "InventoryManager:delete(): inventory [ ".. name .." ] not found"
+                if (owner) then str = str .. " for owner [ ".. owner .." ]"; end
+                jShared.log:warn(str);
+            end
+        end)
+    end
+end
+
+---@param name string
+---@param owner string
+---@return boolean
+function InventoryManager:exist(name, owner)
+    if (owner) then
+        if (self.owned[owner]) then
+            return self.owned[owner][name] ~= nil;
+        end
+        return false;
+    end
+    for _, value in pairs(self.inventories) do
+        if (value.name == name) then
+            return true;
+        end
+    end
+    return false;
+end
+
 ---@private
 ---@param id number
 ---@param name string
@@ -182,7 +293,19 @@ function InventoryManager:buildInventory(id, name, label, owner, maxWeight, slot
     else
         self.inventories[name] = inventory
     end
-    Events.Call(SharedEnums.Player.inventoryLoaded, owner, id, name);
+end
+
+---@private
+---@param steamId string
+function InventoryManager:createPlayerInventories(steamId)
+    local conf = Config.player.inventories
+    self:create("main", conf.main.label, steamId, conf.main.maxWeight, conf.main.slots, 0);
+    if (#conf.others > 0) then
+        for i = 1, #conf.others do
+            local inv = conf.others[i];
+            self:create(inv.name, inv.label, steamId, inv.maxWeight, inv.slots, inv.shared);
+        end
+    end
 end
 
 jServer.inventoryManager = InventoryManager:new();
