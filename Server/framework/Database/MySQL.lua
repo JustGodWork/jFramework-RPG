@@ -55,17 +55,17 @@ end
 
 function MySQL:onClose()
     Server.Subscribe("Stop", function()
-        self.database:Close()
-        jShared.log:info("[ MySQL ] => Connection closed.")
+        if (self.connected) then
+            self.database:Close();
+        end
+        jShared.log:info("[ MySQL ] => Connection closed.");
     end)
 end
 
 function MySQL:handlerConnectError()
     if (not self.connected) then
         jShared.log:error(string.format("[ MySQL ] => Connection failed. %s", self.database));
-        Timer.SetTimeout(function()
-            os.exit(true, true);
-        end, 0);
+        Server.Stop();
     else
         jShared.log:success("[ MySQL ] => Connection established.");
     end

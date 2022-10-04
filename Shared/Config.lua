@@ -16,7 +16,7 @@
 Config = {}
 
 Config.disclaimer = true --Set to false after setup complete
-Config.debug = false --Enabling debug mode will print all debug infos in the console
+Config.debug = true --Enabling debug mode will print all debug infos in the console
 Config.lang = "en" --Language of the framework (Not available yet)
 
 Config.discord = {
@@ -42,13 +42,13 @@ Config.player = { --Player config
     firstPersonOnly = false, -- Set to true if you want First person only
     respawnTimer = 5, -- Time to respawn in seconds
     accounts = { --Add accounts here
-        {name = "bank", label = "Bank", money = 1000, shared = 0},
-        {name = "cash", label = "Cash", money = 500, shared = 0}
+        { name = "bank", label = "Bank", money = 1000, shared = 0 },
+        { name = "cash", label = "Cash", money = 500, shared = 0 }
     },
     inventories = { --Add inventories here
         main = { label = "Main Inventory", maxWeight = 25, slots = 20 },
         others = {
-            {name = "bag", label = "Bag", maxWeight = 40, slots = 35, shared = 1}
+            { name = "bag", label = "Bag", maxWeight = 40, slots = 35, shared = 1 }
         }
     },
     defaultPosition = { --Default position when the player spawns

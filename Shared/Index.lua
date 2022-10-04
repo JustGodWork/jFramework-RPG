@@ -101,9 +101,7 @@ function Shared:disclaimer()
             -   https://github.com/JustGodWork/jFramework-RPG                   -
             ---------------------------------------------------------------------
         ]]));
-        Timer.SetTimeout(function()
-            if (Server) then os.exit() end
-        end, 0)
+        if (Server) then Server.Stop(); end
     end
 end
 

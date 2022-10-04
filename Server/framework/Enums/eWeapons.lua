@@ -30,7 +30,7 @@ Enums.Weapons = {
         new_weapon:SetDamage(30)
         new_weapon:SetSpread(40)
     	new_weapon:SetRecoil(1.00) --0.25
-        new_weapon:SetBulletSettings(1, 20000, 20000, Color(100, 58, 0))
+        new_weapon:SetBulletSettings(1, 20000, 20000, Color(100, 58, 0)) --Color(100, 58, 0)
         new_weapon:SetCadence(0.08)
         new_weapon:SetWallbangSettings(50, 0.75)
 
