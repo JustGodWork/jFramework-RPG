@@ -12,36 +12,36 @@
 -------
 --]]
 
----@class Command
-Command = {}
+---@type Command
+Command = Class.new(function(class)
 
----@param name string
----@param callback fun(player: Player | nil, args: string[])
----@param isClient boolean
----@return Command
-function Command:new(name, callback, isClient)
-    ---@type Command
-    local self = {}
-    setmetatable(self, {__index = Command})
+    ---@class Command: BaseObject
+    local self = class;
 
-    self.name = name
-    self.callback = callback
-    self.client_only = isClient
+    ---@param name string
+    ---@param callback fun(player: Player | nil, args: string[])
+    ---@param isClient boolean
+    ---@return Command
+    function self:Constructor(name, callback, isClient)
+        self.name = name;
+        self.callback = callback;
+        self.client_only = isClient;
+    end
 
-    return self
-end
+    ---@return string
+    function self:GetName()
+        return self.name;
+    end
 
----@return string
-function Command:getName()
-    return self.name
-end
+    ---@return boolean
+    function self:IsClient()
+        return self.client_only;
+    end
 
----@return boolean
-function Command:isClient()
-    return self.client_only
-end
+    ---@return fun(player: Player, args: string[])
+    function self:GetCallback()
+        return self.callback;
+    end
 
----@return fun(player: Player, args: string[])
-function Command:getCallback()
-    return self.callback
-end
+    return self;
+end);

@@ -13,75 +13,73 @@
 ----
 --]]
 
----@class ThreadManager
-local ThreadManager = {};
 
----@return ThreadManager
-function ThreadManager:new()
-    ---@type ThreadManager
-    local self = {};
-    setmetatable(self, { __index = ThreadManager});
+---@type ThreadManager
+ThreadManager = Class.new(function(class)
 
-    self.threads = {};
-    self.waiting_coroutines = {};
-    self.to_resume = {};
+    ---@class ThreadManager: BaseObject
+    local self = class;
 
-    self:initialize();
+    function self:Constructor()
+        self.threads = {};
+        self.waiting_coroutines = {};
+        self.to_resume = {};
 
-    return self;
-end
+        self:initialize();
+    end
 
----Return time in milliseconds
----@return number
-function ThreadManager:getTime()
-    if (Server) then return Server.GetTime() end
-    if (Client) then return Client.GetTime() end
-end
+    ---Return time in milliseconds
+    ---@return number
+    function self:getTime()
+        if (Server) then return Server.GetTime() end
+        if (Client) then return Client.GetTime() end
+    end
 
----Clear or resume coroutines
----@private
-function ThreadManager:initialize()
-    Timer.SetInterval(function()
-        self:checkWaiting();
-        self:clear();
-    end, 0);
-end
+    ---Clear or resume coroutines
+    ---@private
+    function self:initialize()
+        Timer.SetInterval(function()
+            self:checkWaiting();
+            self:clear();
+        end, 0);
+    end
 
----Check if coroutine need to resume
----@private
-function ThreadManager:checkWaiting()
-    for co, routineTime in pairs(self.waiting_coroutines) do
-        if (routineTime < self:getTime()) then
-            self.to_resume[#self.to_resume + 1] = co;
+    ---Check if coroutine need to resume
+    ---@private
+    function self:checkWaiting()
+        for co, routineTime in pairs(self.waiting_coroutines) do
+            if (routineTime < self:getTime()) then
+                self.to_resume[#self.to_resume + 1] = co;
+            end
         end
     end
-end
 
----Clear all cached coroutines
----@private
-function ThreadManager:clear()
-    for _, co in ipairs(self.to_resume) do
-        self.waiting_coroutines[co] = nil
-        coroutine.resume(co);
+    ---Clear all cached coroutines
+    ---@private
+    function self:clear()
+        for _, co in ipairs(self.to_resume) do
+            self.waiting_coroutines[co] = nil
+            coroutine.resume(co);
+        end
     end
-end
 
----@param callback function
-function ThreadManager:register(callback)
-    local id = #self.threads + 1
-    self.threads[id] = coroutine.create(callback);
-    coroutine.resume(self.threads[id]);
-end
+    ---@param callback function
+    function self:register(callback)
+        local id = #self.threads + 1
+        self.threads[id] = coroutine.create(callback);
+        coroutine.resume(self.threads[id]);
+    end
 
----Waiting in a coroutine
----@param ms number
----@return void
-function ThreadManager:wait(ms)
-    local co = coroutine.running()
-    assert(co ~= nil, "Cannot wait on main thread")
-    local timeToWait = self:getTime() + ms
-    self.waiting_coroutines[co] = timeToWait
-    return coroutine.yield(co);
-end
-
-jShared.utils.thread = ThreadManager:new();
+    ---Waiting in a coroutine
+    ---@param ms number
+    ---@return void
+    function self:wait(ms)
+        local co = coroutine.running()
+        assert(co ~= nil, "Cannot wait on main thread")
+        local timeToWait = self:getTime() + ms
+        self.waiting_coroutines[co] = timeToWait
+        return coroutine.yield(co);
+    end
+    
+    return self;
+end);

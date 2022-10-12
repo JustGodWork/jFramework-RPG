@@ -14,9 +14,9 @@
 ---@param player Player
 ---@param inventoryName string
 Events.Subscribe(SharedEnums.Events.inventory.get, function(player, inventoryName)
-    local inventory = jServer.inventoryManager:getByOwner(player:GetSteamID(), inventoryName);
+    local inventory = GM.Server.inventoryManager:GetByOwner(player:GetSteamID(), inventoryName);
     if (inventory) then
-        Events.CallRemote(SharedEnums.Events.inventory.receive, player, inventory:getItems(), inventory:getNumberOfSlots());
+        Events.CallRemote(SharedEnums.Events.inventory.receive, player, inventory:GetItems(), inventory:GetNumberOfSlots());
     end
 end);
 
@@ -24,9 +24,9 @@ end);
 ---@param inventoryName string
 ---@param item table
 Events.Subscribe(SharedEnums.Events.inventory.addItem, function(player, inventoryName, item)
-    local inventory = jServer.inventoryManager:getByOwner(player:getCharacterId(), inventoryName)
+    local inventory = GM.Server.inventoryManager:GetByOwner(player:GetCharacterId(), inventoryName)
     if (inventory) then
-        inventory:addItem(item);
+        inventory:AddItem(item);
     end
 end);
 
@@ -35,8 +35,8 @@ end);
 ---@param slot number
 ---@param amount number
 Events.Subscribe(SharedEnums.Events.inventory.removeItem, function(player, inventoryName, slot, amount)
-    local inventory = jServer.inventoryManager:getByOwner(player:getCharacterId(), inventoryName)
+    local inventory = GM.Server.inventoryManager:GetByOwner(player:GetCharacterId(), inventoryName)
     if (inventory) then
-        inventory:removeItem(slot, amount);
+        inventory:RemoveItem(slot, amount);
     end
 end);

@@ -18,14 +18,14 @@ local trigger = Trigger(Vector(6301, 1171, 998), Rotator(), Vector(250, 250, 250
 trigger:Subscribe("BeginOverlap", function (self, entity)
     local player = jServer.utils.entity:isPlayerAndOfType(entity, Character);
     if (player) then
-        player:toggleNoClip();
+        player:ToggleNoClip();
     end
 end);
 
 trigger:Subscribe("EndOverlap", function (self, entity)
     local player = jServer.utils.entity:isPlayerAndOfType(entity, Character);
     if (player) then
-        player:toggleNoClip();
+        player:ToggleNoClip();
     end
 end)
 

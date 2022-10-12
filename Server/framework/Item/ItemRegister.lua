@@ -11,7 +11,7 @@
 ---via any medium is strictly prohibited. This code is confidential.
 ---
     
-jServer.itemManager:addItem(
+GM.Server.itemManager:AddItem(
         "water",
         "Water",
         nil,
@@ -19,7 +19,7 @@ jServer.itemManager:addItem(
         10
 );
 
-jServer.itemManager:addItem(
+GM.Server.itemManager:AddItem(
         "bread",
         "Bread",
         nil,

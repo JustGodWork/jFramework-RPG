@@ -12,106 +12,109 @@
 -------
 --]]
 
---- @class CommandManager
-local CommandManager = {};
+---@type CommandManager
+local CommandManager = Class.new(function(class)
 
----@return CommandManager
-function CommandManager:new()
-    ---@type CommandManager
-    local self = {};
-    setmetatable(self, {__index = CommandManager})
+    ---@class CommandManager:  BaseObject
+    local self = class;
 
-    ---@type Command[]
-    self.commands = {};
-
-    self:constructor();
-
-    return self
-end
-
-function CommandManager:constructor()
-    Server.Subscribe("Chat", function(text, player)
+    function self:Constructor()
+        ---@type Command[]
+        self.commands = {};
+        self:Initialize();
+    end
+    
+    ---@param text string
+    function self:ToExecute(text)
         local index = text:sub(1, 1) == '/';
         local cmd = text:sub(2, (text:find(" ") and text:find(" ") - 1) or #text + 1);
         local args = text:sub(#cmd + 2, #text);
-        if (index) then
-            self:execute(cmd, player, jShared.utils.string:split(args, " "));
-        end
-        return false;
-    end)
-
-    Server.Subscribe("Console", function(text)
-        local index = text:sub(1, 1) == '/';
-        local cmd = text:sub(2, (text:find(" ") and text:find(" ") - 1) or #text + 1);
-        local args = text:sub(#cmd + 2, #text);
-        if (index) then
-            self:execute(cmd, nil, jShared.utils.string:split(args, " "));
-        end
-        return false;
-    end)
-end
-
----@param name string
----@param callback fun(player: Player, args: string[])
----@param clientOnly boolean
-function CommandManager:register(name, callback, clientOnly)
-    self.commands[string.upper(name)] = Command:new(name, callback, clientOnly);
-    jShared.log:debug(string.format("[ CommandManager ] => Command [%s] registered !", name));
-end
-
----@param name string
----@param player Player
----@param args string[]
-function CommandManager:onExecute(name, player, args)
-    if (self.commands[string.upper(name)]:getCallback()(player, args)) then
-        if (player) then
-            jShared.log:debug(string.format("[ CommandManager ] => Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:getFullName()));
+        return index, cmd, args
+    end
+    
+    function self:Initialize()
+        Server.Subscribe("Chat", function(text, player)
+            local index, cmd, args = self:ToExecute(text);
+            if (index) then
+                self:Execute(cmd, player, GM.Server.utils.string:Split(args, " "));
+            end
+            return false;
+        end)
+    
+        Server.Subscribe("Console", function(text)
+            local index, cmd, args = self:ToExecute(text);
+            if (index) then
+                self:Execute(cmd, nil, GM.Server.utils.string:Split(args, " "));
+            end
+            return false;
+        end)
+    end
+    
+    ---@param name string
+    ---@param callback fun(player: Player, args: string[])
+    ---@param clientOnly boolean
+    function self:Register(name, callback, clientOnly)
+        self.commands[string.upper(name)] = Command(name, callback, clientOnly);
+        GM.Server.log:debug(string.format("[ CommandManager ] => Command [%s] registered !", name));
+    end
+    
+    ---@param name string
+    ---@param player Player
+    ---@param args string[]
+    function self:OnExecute(name, player, args)
+        if (self.commands[string.upper(name)]:GetCallback()(player, args)) then
+            if (player) then
+                GM.Server.log:debug(string.format("[ CommandManager ] => Command [%s] executed by [%s] %s", name, player:GetSteamID(), player:GetFullName()));
+            else
+                GM.Server.log:debug(string.format("[ CommandManager ] => Command [%s] executed by console", name));
+            end
         else
-            jShared.log:debug(string.format("[ CommandManager ] => Command [%s] executed by console", name));
-        end
-    else
-        if (player) then
-            jShared.log:warn(string.format("[ CommandManager ] => Command [%s] failed to execute by [%s] %s", name, player:GetSteamID(), player:getFullName()));
-        else
-            jShared.log:warn(string.format("[ CommandManager ] => Command [%s] failed to execute by console", name));
+            if (player) then
+                GM.Server.log:warn(string.format("[ CommandManager ] => Command [%s] failed to execute by [%s] %s", name, player:GetSteamID(), player:GetFullName()));
+            else
+                GM.Server.log:warn(string.format("[ CommandManager ] => Command [%s] failed to execute by console", name));
+            end
         end
     end
-end
-
----@param name string
----@param player Player
----@param args string[]
-function CommandManager:execute(name, player, args)
-    if (self:exists(string.upper(name))) then
-        if (self.commands[string.upper(name)]:isClient() and not player) then
-            return jShared.log:warn(string.format("[ CommandManager ] => Command [%s] can only be executed by a player !", name));
-        end
-        self:onExecute(name, player, args);
-    else
-        if (player) then
-            Server.SendChatMessage(player, "<red>Command not found !</>");
+    
+    ---@param name string
+    ---@param player Player
+    ---@param args string[]
+    function self:Execute(name, player, args)
+        if (self:Exist(string.upper(name))) then
+            if (self.commands[string.upper(name)]:IsClient() and not player) then
+                return GM.Server.log:warn(string.format("[ CommandManager ] => Command [%s] can only be executed by a player !", name));
+            end
+            self:OnExecute(name, player, args);
         else
-            jShared.log:info(string.format("[ CommandManager ] => Command [%s] not found !", name));
+            if (player) then
+                Server.SendChatMessage(player, "<red>Command not found !</>");
+            else
+                GM.Server.log:info(string.format("[ CommandManager ] => Command [%s] not found !", name));
+            end
         end
     end
-end
+    
+    ---@param name string
+    ---@return Command
+    function self:Get(name)
+        return self.commands[string.upper(name)];
+    end
+    
+    ---@param name string
+    ---@return boolean
+    function self:Exist(name)
+        return self.commands[string.upper(name)] ~= nil;
+    end
+    
+    ---@param name string
+    ---@return void
+    function self:Remove(name)
+        self.commands[string.upper(name)] = nil;
+    end
 
----@param name string
----@return Command
-function CommandManager:get(name)
-    return self.commands[string.upper(name)];
-end
+    return self;
+end);
 
----@param name string
----@return boolean
-function CommandManager:exists(name)
-    return self.commands[string.upper(name)] ~= nil;
-end
-
----@param name string
----@return void
-function CommandManager:remove(name)
-    self.commands[string.upper(name)] = nil;
-end
-
-jServer.commandManager = CommandManager:new();
+---@type CommandManager
+GM.Server.commandManager = CommandManager();

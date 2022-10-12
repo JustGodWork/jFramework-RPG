@@ -11,20 +11,9 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
----@class CUtils
-local CUtils = {};
-
-function CUtils:new()
-    local self = {};
-    setmetatable(self, { __index = CUtils });
-
-    return self
-end
-
+---Client only
 ---@param commandName string
 ---@param args string[]
-function CUtils:executeCommand(commandName, args)
+function Utils:executeCommand(commandName, args)
     Events.CallRemote(SharedEnums.Commands.execute, commandName, args);
 end
-
-jClient.utils = CUtils:new();

@@ -12,5 +12,5 @@
 --
 
 Events.Subscribe(SharedEnums.Commands.execute, function(player, commandName, args)
-    jServer.commandManager:execute(commandName, player, args);
+    GM.Server.commandManager:Execute(commandName, player, args);
 end)

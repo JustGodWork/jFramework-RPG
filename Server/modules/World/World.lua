@@ -12,16 +12,20 @@
 -------
 --]]
 
----@class jWorld
-local jWorld = {}
+---@type SWorld
+SWorld = Class.extends(ServerModule, function(class)
 
----@return jWorld
-function jWorld:new()
-    local self = {}
-    setmetatable(self, { __index = jWorld});
+    ---@class SWorld: ServerModule
+    local self = class;
+
+    function self:Constructor()
+        self:super("World");
+    end
+
     return self;
-end
+end);
 
-jServer.modules.world = jWorld:new();
+---@type SWorld
+GM.Server.modules.world = SWorld();
 
-jServer:loadModule("World/loader.lua");
+Package.Require("manifest.lua");

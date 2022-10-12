@@ -12,4 +12,4 @@
 -------
 --]]
 
-jClient:loadModule("World/Events.lua");
+Package.Require("Events.lua");

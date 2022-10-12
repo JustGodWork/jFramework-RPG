@@ -12,17 +12,19 @@
 -------
 --]]
 
----@class cWorld
-local cWorld = {};
+---@type cWorld
+local cWorld = Class.new(function(class)
+    
+    ---@class cWorld: BaseObject
+    local self = class;
 
----@return cWorld
-function cWorld:new()
-    local self = {};
-    setmetatable(self, { __index = cWorld});
+    function self:Constructor()
+        GM.Client.log:debug("[ cWorld ] initialized.");
+    end
 
     return self;
-end
+end);
 
-jClient.modules.world = cWorld:new();
+GM.Client.modules.world = cWorld();
 
-jClient:loadModule("World/loader.lua");
+Package.Require("manifest.lua");

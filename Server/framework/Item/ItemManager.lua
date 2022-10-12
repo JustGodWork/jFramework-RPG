@@ -11,55 +11,55 @@
 ---via any medium is strictly prohibited. This code is confidential.
 ---
 
----@class ItemManager
-local ItemManager = {}
+---@type ItemManager
+local ItemManager = Class.new(function(class)
 
----@return ItemManager
-function ItemManager:new()
-    ---@type ItemManager
-    local self = {}
-    setmetatable(self, { __index = ItemManager});
+    ---@class ItemManager: BaseObject
+    local self = class;
 
-    self.items = {};
+    ---@return ItemManager
+    function self:Constructor()
+        self.items = {};
+        GM.Server.log:debug("[ ItemManager ] initialized.");
+    end
 
-    jShared.log:debug("[ ItemManager ] initialized.");
+    ---@param name string
+    ---@param label string
+    ---@param description string
+    ---@param weight number
+    ---@param maxSize number
+    ---@param durability number
+    ---@param maxDurability number
+    ---@param level number
+    ---@param maxLevel number
+    function self:AddItem(name, label, description, weight, maxSize, durability, maxDurability, level, maxLevel)
+        self.items[name] = {
+            name = name,
+            label = label,
+            description = description, --metadata
+            weight = weight,
+            durability = durability, --metadata
+            maxDurability = maxDurability, --metadata
+            maxSize = maxSize,
+            level = level, --metadata
+            maxLevel = maxLevel --metadata
+        };
+    end
 
-    return self
-end
+    ---@param name string
+    ---@return table
+    function self:GetItem(name)
+        return self.items[name];
+    end
 
----@param name string
----@param label string
----@param description string
----@param weight number
----@param maxSize number
----@param durability number
----@param maxDurability number
----@param level number
----@param maxLevel number
-function ItemManager:addItem(name, label, description, weight, maxSize, durability, maxDurability, level, maxLevel)
-    self.items[name] = {
-        name = name,
-        label = label,
-        description = description, --metadata
-        weight = weight,
-        durability = durability, --metadata
-        maxDurability = maxDurability, --metadata
-        maxSize = maxSize,
-        level = level, --metadata
-        maxLevel = maxLevel --metadata
-    };
-end
+    ---@param name string
+    ---@return boolean
+    function self:Exist(name)
+        return self.items[name] ~= nil;
+    end
 
----@param name string
----@return table
-function ItemManager:getItem(name)
-    return self.items[name];
-end
+    return self;
+end);
 
----@param name string
----@return boolean
-function ItemManager:exist(name)
-    return self.items[name] ~= nil;
-end
-
-jServer.itemManager = ItemManager:new();
+---@type ItemManager
+GM.Server.itemManager = ItemManager();

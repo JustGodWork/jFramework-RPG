@@ -12,44 +12,38 @@
 -------
 --]]
 
----@class _Server
-local _Server = {}
+---@type _Server
+_Server = Class.extends(Shared, function(class)
 
----@return _Server
-function _Server:new()
-    local self = {}
-    setmetatable(self, { __index = _Server});
+    ---@class _Server: Shared
+    local self = class;
 
-    self.database = {
-        db = "jframework",
-        user = "root",
-        host = "localhost",
-        port = 3307
-    }
+    function self:Constructor()
 
-    self.modules = {};
+        self:super();
+        
+        self.database = {
+            db = "jframework",
+            user = "root",
+            host = "localhost",
+            port = 3307
+        }
+    
+        self.modules = {};
+    
+        self.log:debug("[ Server ] initialized.");
+    end
 
-    jShared.log:debug("[ jServer ] initialized.");
-
-    return self
-end
-
----@param module string
-function _Server:loadFrameworkModule(module)
-    Package.Require(string.format("./framework/%s", module));
-end
-
----@param module string
-function _Server:loadModule(module)
-    Package.Require(string.format("./modules/%s", module));
-end
+    return self;
+end);
 
 if (not Config.disclaimer) then
-    jServer = _Server:new();
+    ---@type _Server
+    GM.Server = _Server();
 
-    jServer:loadFrameworkModule("Database/MySQL.lua");
+    Package.Require("framework/Database/MySQL.lua");
 
-    if (jServer.mysql:isOpen()) then
-        Package.Require("./loader.lua");
+    if (GM.Server.mysql:IsOpen()) then
+        Package.Require("./manifest.lua");
     end
 end

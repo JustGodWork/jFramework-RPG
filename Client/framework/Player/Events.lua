@@ -16,7 +16,7 @@
 -- This event is called when the player is loaded
 -- You can use it to load modules only when player is loaded
 Events.Subscribe(SharedEnums.Player.loaded, function(playerData)
-    jShared.log:success("Client data initialized.");
-    jShared.log:info(playerData);
+    GM.Client.log:success("Client data initialized.");
+    GM.Client.log:info(playerData);
     Client.SendChatMessage("All your data have been loaded !");
 end);

@@ -12,32 +12,22 @@
 -------
 --]]
 
----@class jClient
-local _Client = {}
+---@type _Client
+local _Client = Class.extends(Shared, function(class)
 
----@return jClient
-function _Client:new()
-    local self = {}
-    setmetatable(self, { __index = _Client});
+    ---@class _Client: Shared
+    local self = class;
 
-    self.modules = {};
-    Client.SetMouseEnabled(false);
-
-    jShared.log:debug("[ jClient ] initialized.");
+    function self:Constructor()
+        self.modules = {};
+        Client.SetMouseEnabled(false);
+        self.log:debug("[ Client ] initialized.");
+    end
 
     return self;
-end
+end);
 
----@param module string
-function _Client:loadFrameworkModule(module)
-    Package.Require(string.format("./framework/%s", module));
-end
+---@type _Client
+GM.Client = _Client();
 
----@param module string
-function _Client:loadModule(module)
-    Package.Require(string.format("./modules/%s", module));
-end
-
-jClient = _Client:new();
-
-Package.Require("./loader.lua");
+Package.Require("./manifest.lua");

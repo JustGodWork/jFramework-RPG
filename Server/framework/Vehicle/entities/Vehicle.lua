@@ -13,11 +13,11 @@
 
 ---@param plate string
 ---@param syncWithClient boolean
-function Vehicle:setPlate(plate, syncWithClient)
+function Vehicle:SetPlate(plate, syncWithClient)
     self:SetValue("plate", plate, syncWithClient)
 end
 
 ---@return string
-function Vehicle:getPlate()
+function Vehicle:GetPlate()
     return self:GetValue("plate")
 end

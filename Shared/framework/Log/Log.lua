@@ -12,23 +12,24 @@
 -------
 --]]
 
----@class Log
-local Log = {};
+---@type Log
+Log = Class.new(function(class)
+    
+    ---@class Log: BaseObject
+    local self = class;
 
----@return Log
-function Log:new()
-    local self = {};
-    setmetatable(self, { __index = Log});
-
-    self.types = {
-        ["info"] = "INFO",
-        ["warn"] = "WARN",
-        ["error"] = "ERROR",
-        ["debug"] = "DEBUG",
-        ["success"] = "SUCCESS",
-    };
+    function self:Constructor()
+        self.types = {
+            ["info"] = "INFO",
+            ["warn"] = "WARN",
+            ["error"] = "ERROR",
+            ["debug"] = "DEBUG",
+            ["success"] = "SUCCESS",
+        };
+    end
 
     ---Get wheter the script is running on the server or the client
+    ---@private
     function self:getSide()
         if (Server) then
             return "SERVER";
@@ -37,6 +38,7 @@ function Log:new()
         end
     end
 
+    ---@private
     ---@param args table
     ---@return table | nil
     function self:convertArgs(args)
@@ -55,6 +57,7 @@ function Log:new()
         return argsConverted
     end
 
+    ---@private
     ---@param logType string
     ---@param message any
     ---@param messageType type
@@ -80,6 +83,7 @@ function Log:new()
         return msg;
     end
 
+    ---@private
     ---@param logType string
     ---@param message any
     ---@param ... any
@@ -94,39 +98,37 @@ function Log:new()
         end
     end
 
-    return self;
-end
-
----@param message any
----@param ... any
-function Log:info(message, ...)
-    self:send("info", message, ...);
-end
-
----@param message any
----@param ... any
-function Log:warn(message, ...)
-    self:send("warn", message, ...);
-end
-
----@param message any
----@param ... any
-function Log:error(message, ...)
-    self:send("error", message, ...);
-end
-
----@param message any
----@param ... any
-function Log:debug(message, ...)
-    if (Config.debug) then
-        self:send("debug", message, ...);
+    ---@param message any
+    ---@param ... any
+    function self:info(message, ...)
+        self:send("info", message, ...);
     end
-end
 
----@param message any
----@param ... any
-function Log:success(message, ...)
-    self:send("success", message, ...);
-end
+    ---@param message any
+    ---@param ... any
+    function self:warn(message, ...)
+        self:send("warn", message, ...);
+    end
 
-jShared.log = Log:new();
+    ---@param message any
+    ---@param ... any
+    function self:error(message, ...)
+        self:send("error", message, ...);
+    end
+
+    ---@param message any
+    ---@param ... any
+    function self:debug(message, ...)
+        if (Config.debug) then
+            self:send("debug", message, ...);
+        end
+    end
+
+    ---@param message any
+    ---@param ... any
+    function self:success(message, ...)
+        self:send("success", message, ...);
+    end
+
+    return self;
+end);

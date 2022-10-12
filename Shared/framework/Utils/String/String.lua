@@ -12,31 +12,26 @@
 -------
 --]]
 
----@class _String
-local String = {};
+---@type String
+String = Class.new(function(class)
 
----@return _String
-function String:new()
-    ---@type _String
-    local self = {};
-    setmetatable(self, {__index = String});
+    ---@class String: BaseObject
+    local self = class;
+    
+    ---@param str string string to split
+    ---@param sep string string separator
+    function self:Split(str, sep)
+        if sep == nil then
+            sep = "%s"
+        end
+
+        local strTable = {};
+        for newStr in string.gmatch(str, "([^"..sep.."]+)") do
+            table.insert(strTable, newStr)
+        end
+
+        return strTable;
+    end
 
     return self;
-end
-
----@param str string string to split
----@param sep string string separator
-function String:split(str, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-
-    local strTable = {};
-    for newStr in string.gmatch(str, "([^"..sep.."]+)") do
-        table.insert(strTable, newStr)
-    end
-
-    return strTable;
-end
-
-jShared.utils.string = String:new();
+end);

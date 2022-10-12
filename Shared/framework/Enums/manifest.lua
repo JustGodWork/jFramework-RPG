@@ -1,9 +1,9 @@
 --
---Created Date: 11:57 30/09/2022
+--Created Date: 17:17 29/09/2022
 --Author: JustGod
 --Made with ❤
 --
---File: [Utils]
+--File: [loader]
 --
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -11,15 +11,9 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
----@class SUtils
-local SUtils = {};
-
-function SUtils:new()
-    local self = {};
-    setmetatable(self, { __index = SUtils });
-    return self
-end
-
-jServer.utils = SUtils:new();
-
-jServer:loadFrameworkModule("Utils/loader.lua");
+Package.Require("Events/Player.lua");
+Package.Require("Events/Commands.lua");
+Package.Require("Events/inventory.lua");
+Package.Require("Events/Time.lua");
+Package.Require("Events/Weather.lua");
+Package.Require("Events/Input.lua");

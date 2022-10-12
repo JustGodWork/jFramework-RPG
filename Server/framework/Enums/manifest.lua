@@ -13,6 +13,6 @@
 
 Enums = {}
 
-jServer:loadFrameworkModule("Enums/eWeapons.lua");
-jServer:loadFrameworkModule("Enums/eVehicles.lua");
+Package.Require("eWeapons.lua");
+Package.Require("eVehicles.lua");
     

@@ -14,4 +14,4 @@
 SharedEnums = {};
 SharedEnums.Events = {};
 
-jShared:loadFrameworkModule("Enums/loader.lua");
+Package.Require("manifest.lua");

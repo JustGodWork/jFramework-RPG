@@ -12,5 +12,5 @@
 -------
 --]]
 
-jServer:loadModule("World/Time/Time.lua");
-jServer:loadModule("World/Weather/Weather.lua");
+GM.Server:LoadModule("World/Time/Time.lua");
+GM.Server:LoadModule("World/Weather/Weather.lua");

@@ -15,6 +15,6 @@
 Vehicle.Subscribe("Destroy", function(self)
     local vehicleId = self:GetValue("vehicleId")
     if (vehicleId) then
-        jServer.vehicleManager:deleteById(vehicleId);
+        GM.Server.vehicleManager:DeleteById(vehicleId);
     end
 end)

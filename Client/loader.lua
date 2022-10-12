@@ -13,11 +13,12 @@
 --]]
 
 --FRAMEWORK
-jClient:loadFrameworkModule("Utils/Utils.lua");
-jClient:loadFrameworkModule("input/Bind.lua");
-jClient:loadFrameworkModule("input/Events.lua");
-jClient:loadFrameworkModule("Player/Events.lua");
+GM.Client:loadFrameworkModule("Utils/Utils.lua");
+GM.Client:loadFrameworkModule("input/Bind.lua");
+GM.Client:loadFrameworkModule("input/Events.lua");
+GM.Client:loadFrameworkModule("Player/Events.lua");
 
 --MODULES
-jClient:loadModule("Discord/discord.lua");
-jClient:loadModule("World/World.lua");
+GM.Client:loadModule("Discord/discord.lua");
+GM.Client:loadModule("World/World.lua");
+GM.Client:loadModule("Menu/UI.lua");

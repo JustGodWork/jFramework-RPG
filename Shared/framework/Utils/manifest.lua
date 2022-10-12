@@ -1,6 +1,6 @@
 --[[
 ----
-----Created Date: 11:34 Friday September 30th 2022
+----Created Date: 2:36 Saturday October 1st 2022
 ----Author: JustGod
 ----Made with ❤
 ----
@@ -13,4 +13,6 @@
 ----
 --]]
 
-jServer:loadFrameworkModule("Utils/Entity/Entity.lua");
+Package.Require("Thread/ThreadManager.lua");
+Package.Require("String/String.lua");
+Package.Require("Math/Math.lua");

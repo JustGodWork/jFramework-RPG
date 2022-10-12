@@ -13,8 +13,11 @@
 --]]
 
 ---LOAD SHARED FRAMEWORK MODULES HERE
-jShared:loadFrameworkModule("Log/Log.lua");
-jShared:loadFrameworkModule("Utils/Utils.lua");
-jShared:loadFrameworkModule("Enums/SharedEnums.lua");
+Package.Require("./Config.lua");
+Package.Require("framework/Classes/BaseObject.lua");
+Package.Require("framework/Classes/Utils.lua");
+Package.Require("framework/Log/Log.lua");
+Package.Require("framework/Utils/Utils.lua");
+Package.Require("framework/Enums/SharedEnums.lua");
 
 ---LOAD SHARED MODULES HERE

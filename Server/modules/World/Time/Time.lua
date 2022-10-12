@@ -12,57 +12,51 @@
 -------
 --]]
 
----@class Time
-local Time = {}
+--[[---@class Time: ServerModule
+local Time = Class.Inherit(ServerModule);
 
----@return Time
-function Time:new()
-    local self = {}
-    setmetatable(self, { __index = Time});
-
+function Time:Constructor()
     self.hour = 12;
     self.minute = 0;
     self.second = 0;
     self.freeze = false;
 
-    self:constructor();
+    self:Initialize();
 
-    self:start();
-
-    return self;
+    self:Start();
 end
 
 -- todo sync time when more than one player connect to server
-function Time:constructor()
+function Time:Initialize()
     Events.Subscribe(SharedEnums.Player.connecting, function(player)
         Events.CallRemote(SharedEnums.Events.Time.sync, player, self.hour, self.minute)
     end)
 end
 
 ---@return number, number
-function Time:get()
+function Time:Get()
     return self.hour, self.minute;
 end
 
 ---@return number
-function Time:getHour()
+function Time:GetHour()
     return self.hour;
 end
 
 ---@return number
-function Time:getMinute()
+function Time:GetMinute()
     return self.minute;
 end
 
 ---Start time cycle
-function Time:start()
+function Time:Start()
     Timer.SetInterval(function()
-        self:execute();
+        self:Execute();
     end, (Config.Time.speed * 1000))
 end
 
 ---Execute time cycle
-function Time:execute()
+function Time:Execute()
     if (self.freeze) then return end
     self.second = self.second + 1;
     if (self.second >= 60) then
@@ -81,10 +75,11 @@ function Time:execute()
     --end
 end
 
-function Time:sync()
+function Time:Sync()
     print(string.format("Time: %s:%s", self.hour, self.minute))
     Events.BroadcastRemote(SharedEnums.Events.Time.sync, self.hour, self.minute)
 end
 
-jServer.modules.world.time = Time:new();
-
+---@type Time
+GM.Server.modules.world.time = Time("Time");
+]]

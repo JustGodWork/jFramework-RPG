@@ -11,19 +11,19 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
-jServer.commandManager:register("saveall", function(player)
-    jServer.playerManager:saveAll();
-    jShared.log:info(("All players saved by [%s] %s."):format(player:GetSteamID(), player:getFullName()));
+GM.Server.commandManager:Register("saveall", function(player)
+    GM.Server.playerManager:SaveAll();
+    GM.Server.log:info(("All players saved by [%s] %s."):format(player:GetSteamID(), player:GetFullName()));
     return true;
 end);
 
-jServer.commandManager:register("save", function(player)
-    jServer.playerManager:save(player);
-    jShared.log:info(("Player [%s] %s saved."):format(player:GetSteamID(), player:getFullName()));
+GM.Server.commandManager:Register("save", function(player)
+    GM.Server.playerManager:Save(player);
+    GM.Server.log:info(("Player [%s] %s saved."):format(player:GetSteamID(), player:GetFullName()));
     return true;
 end);
 
-jServer.commandManager:register("noclip", function(player)
-    player:toggleNoClip();
+GM.Server.commandManager:Register("noclip", function(player)
+    player:ToggleNoClip();
     return true;
 end);

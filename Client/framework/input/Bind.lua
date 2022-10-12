@@ -14,5 +14,5 @@
 Input.Register("[jFramework]: No Clip", "B");
 
 Input.Bind("[jFramework]: No Clip", InputEvent.Pressed, function()
-    jClient.utils:executeCommand("noclip");
+    GM.Client.utils:executeCommand("noclip");
 end);

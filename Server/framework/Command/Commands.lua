@@ -12,13 +12,13 @@
 -------
 --]]
 
-jServer.commandManager:register("setTime", function (player, args)
+GM.Server.commandManager:Register("setTime", function (player, args)
     --World.SetTime(9, 30)
     if (player) then
         Server.SendChatMessage(player, "This command is not available yet.");
         return true;
     else
-        jShared.log:warn("This command is not available yet.");
+        GM.Server.log:warn("This command is not available yet.");
         return false;
     end
 end)
@@ -28,11 +28,11 @@ local function getCoords(player)
     local rotation = player:GetControlledCharacter():GetRotation();
 
     location = {
-        X = jShared.utils.math:round(location.X, 2),
-        Y = jShared.utils.math:round(location.Y, 2),
-        Z = jShared.utils.math:round(location.Z, 2)
+        X = GM.Server.utils.math:Round(location.X, 2),
+        Y = GM.Server.utils.math:Round(location.Y, 2),
+        Z = GM.Server.utils.math:Round(location.Z, 2)
     };
-    rotation.Yaw = jShared.utils.math:round(rotation.Yaw, 2);
+    rotation.Yaw = GM.Server.utils.math:Round(rotation.Yaw, 2);
 
     local coords = ([[Player [%s] %s coords are:
 
@@ -43,7 +43,7 @@ local function getCoords(player)
     ]]
     ):format(
         player:GetSteamID(),
-        player:getFullName(),
+        player:GetFullName(),
         location.X,
         location.Y,
         location.Z,
@@ -57,30 +57,30 @@ local function getCoords(player)
     return coords;
 end
 
-jServer.commandManager:register("coords", function (player)
+GM.Server.commandManager:Register("coords", function (player)
     local coords = getCoords(player);
 
     Server.SendChatMessage(player, coords);
-    jShared.log:info(coords);
+    GM.Server.log:info(coords);
     return true;
 end, true)
 
-jServer.commandManager:register("playerCoords", function(player, args)
+GM.Server.commandManager:Register("playerCoords", function(player, args)
     if (player) then Server.SendChatMessage(player, "This command is server only."); return false; end
     if (args[1]) then
-        if (jShared.utils:isNumber(tonumber(args[1]))) then
-            local jPlayer = jServer.playerManager:getFromId(tonumber(args[1]));
+        if (GM.Server.utils:isNumber(tonumber(args[1]))) then
+            local jPlayer = GM.Server.playerManager:GetFromId(tonumber(args[1]));
 
             if (jPlayer) then
-                jShared.log:info(getCoords(jPlayer));
+                GM.Server.log:info(getCoords(jPlayer));
             else
-                jShared.log:warn(string.format("Player [%s] not found.", args[1]));
+                GM.Server.log:warn(string.format("Player [%s] not found.", args[1]));
             end
         else
-            jShared.log:warn("Invalid player id.");
+            GM.Server.log:warn("Invalid player id.");
         end
     else
-        jShared.log:warn("Missing player id.");
+        GM.Server.log:warn("Missing player id.");
     end
     return true;
 end)
