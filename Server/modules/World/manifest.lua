@@ -12,5 +12,5 @@
 -------
 --]]
 
-GM.Server:LoadModule("World/Time/Time.lua");
-GM.Server:LoadModule("World/Weather/Weather.lua");
+Package.Require("Time/Time.lua");
+Package.Require("Weather/Weather.lua");
