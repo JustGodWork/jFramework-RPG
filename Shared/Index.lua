@@ -29,7 +29,6 @@ Shared = Class.new(function(class)
         self.utils.string = String();
         self.utils.thread = ThreadManager();
         self:Disclaimer();
-        self.log:debug("[ Shared ] initialized.");
     end
     
     ---@return boolean

@@ -13,7 +13,7 @@
 --]]
 
 ---@type _Server
-_Server = Class.extends(Shared, function(class)
+local _Server = Class.extends(Shared, function(class)
 
     ---@class _Server: Shared
     local self = class;
@@ -38,7 +38,7 @@ _Server = Class.extends(Shared, function(class)
 end);
 
 if (not Config.disclaimer) then
-    ---@type _Server
+
     GM.Server = _Server();
 
     Package.Require("framework/Database/MySQL.lua");

@@ -54,13 +54,15 @@ end
 
 ---@param methodName string
 ---@param ... any
+---@return function | nil
 function BaseObject:CallParentMethod(methodName, ...)
     local metatable = getmetatable(self);
     local metasuper = metatable.__super;
     local method = rawget(metasuper, methodName);
     if (method) then
-        method(self, ...);
+        return method(self, ...);
     end
+    return nil
 end
 
 function BaseObject:Delete(...)

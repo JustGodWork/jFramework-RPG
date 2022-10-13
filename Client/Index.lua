@@ -19,6 +19,7 @@ local _Client = Class.extends(Shared, function(class)
     local self = class;
 
     function self:Constructor()
+        self:super();
         self.modules = {};
         Client.SetMouseEnabled(false);
         self.log:debug("[ Client ] initialized.");

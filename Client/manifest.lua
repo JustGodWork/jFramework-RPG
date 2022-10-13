@@ -13,12 +13,12 @@
 --]]
 
 --FRAMEWORK
-GM.Client:loadFrameworkModule("Utils/Utils.lua");
-GM.Client:loadFrameworkModule("input/Bind.lua");
-GM.Client:loadFrameworkModule("input/Events.lua");
-GM.Client:loadFrameworkModule("Player/Events.lua");
+Package.Require("framework/Utils/Utils.lua");
+Package.Require("framework/input/Bind.lua");
+Package.Require("framework/input/Events.lua");
+Package.Require("framework/Player/Events.lua");
 
 --MODULES
-GM.Client:loadModule("Discord/discord.lua");
-GM.Client:loadModule("World/World.lua");
-GM.Client:loadModule("Menu/UI.lua");
+Package.Require("modules/Discord/discord.lua");
+Package.Require("modules/World/World.lua");
+Package.Require("modules/Menu/UI.lua");
