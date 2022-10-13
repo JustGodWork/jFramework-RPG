@@ -3,7 +3,7 @@
 --Author: JustGod
 --Made with ❤
 -------
---Last Modified: Friday September 23rd 2022 2:27:24 pm
+--Last Modified: Friday September 23rd 2022 2:25:46 pm
 -------
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -12,17 +12,8 @@
 -------
 --]]
 
-Package.Require("manifest.lua");
-
----@type cWorld
-cWorld = Class.new(function(class)
-    
-    ---@class cWorld: BaseObject
-    local self = class;
-
-    function self:Constructor()
-        GM.Log:debug("[ cWorld ] initialized.");
-    end
-
-    return self;
-end);
+--FRAMEWORK
+Package.Require("Utils/Utils.lua");
+Package.Require("input/Bind.lua");
+Package.Require("input/Events.lua");
+Package.Require("Player/Events.lua");

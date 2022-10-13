@@ -12,8 +12,6 @@
 -------
 --]]
 
-Client.InitializeDiscord(Config.discord.APPLICATION_ID); -- Initialize application id
-
 --Set default rich presence
 Client.SetDiscordActivity(Config.discord.CURRENT_ACTIVITY, 
     Config.discord.CURRENT_ACTIVITY_DETAILS, 

@@ -1,9 +1,9 @@
 --
---Created Date: 10:54 30/09/2022
+--Created Date: 21:47 13/10/2022
 --Author: JustGod
 --Made with ❤
 --
---File: [Bind]
+--File: [_GM.lua]
 --
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -11,8 +11,11 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
-Input.Register("[jFramework]: No Clip", "B");
+_GM = {}
 
-Input.Bind("[jFramework]: No Clip", InputEvent.Pressed, function()
-    GM.Utils:executeCommand("noclip");
-end);
+_GM.DATABASE = { -- DATABASE CREDENTIAL
+    db = "jframework", -- DATABASE NAME
+    user = "root", -- DATABASE USER
+    host = "localhost", -- DATABASE HOST
+    port = 3307 -- DATABASE PORT
+}

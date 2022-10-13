@@ -12,6 +12,12 @@
 -------
 --]]
 
+--_GM
+Package.Require("_GM.lua");
+
+--Database
+Package.Require("Managers/Database/MySQL.lua");
+
 ---@type _Server
 local _Server = Class.extends(Shared, function(class)
 
@@ -19,31 +25,44 @@ local _Server = Class.extends(Shared, function(class)
     local self = class;
 
     function self:Constructor()
-
         self:super();
-        
-        self.database = {
-            db = "jframework",
-            user = "root",
-            host = "localhost",
-            port = 3307
-        }
+        if (not Config.disclaimer) then
+            self.MySQL = MySQL();
+            if (self.MySQL:IsOpen()) then
+                self.alive = true;
+                Package.Require("Managers/manifest.lua");
+            else
+                self:Delete();
+            end
+        end
+    end
     
-        self.modules = {};
-    
-        self.log:debug("[ Server ] initialized.");
+    ---@private
+    function self:LoadManagers()
+        self.CommandManager = CommandManager();
+        self.InventoryManager = InventoryManager();
+        self.ItemManager = ItemManager();
+        self.PlayerManager = PlayerManager();
+        self.VehicleManager = VehicleManager();
+        self.utils = {};
+        self.utils.Entity = Entity();
+    end
+
+    ---@private
+    function self:LoadModules()
+        Package.Require("modules/Modules.lua");
+    end
+
+    ---@private
+    function self:Initialize()
+        if (self.alive) then
+            self:LoadManagers();
+            self:LoadModules();
+        end
     end
 
     return self;
 end);
 
-if (not Config.disclaimer) then
-
-    GM.Server = _Server();
-
-    Package.Require("framework/Database/MySQL.lua");
-
-    if (GM.Server.mysql:IsOpen()) then
-        Package.Require("./manifest.lua");
-    end
-end
+GM.Server = _Server();
+GM.Server:Initialize();

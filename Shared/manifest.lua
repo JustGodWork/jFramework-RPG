@@ -14,10 +14,13 @@
 
 ---LOAD SHARED FRAMEWORK MODULES HERE
 Package.Require("./Config.lua");
-Package.Require("framework/Classes/BaseObject.lua");
-Package.Require("framework/Classes/Utils.lua");
-Package.Require("framework/Log/Log.lua");
-Package.Require("framework/Utils/Utils.lua");
-Package.Require("framework/Enums/SharedEnums.lua");
+Package.Require("Classes/BaseObject.lua");
+Package.Require("Classes/Utils.lua");
+Package.Require("Log/Log.lua");
+Package.Require("Utils/Utils.lua");
+Package.Require("Enums/SharedEnums.lua");
 
 ---LOAD SHARED MODULES HERE
+
+--SHARED CLASS
+Package.Require("Shared.lua");

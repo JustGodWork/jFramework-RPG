@@ -21,7 +21,7 @@ ServerModule = Class.extends(BaseObject, function(class)
 
     function self:Constructor(moduleName)
         self.name = moduleName or "UNDEFINED";
-        GM.Server.log:info(("[MODULE] [ %s ] initialized."):format(self.name));
+        GM.Log:info(("[MODULE] [ %s ] initialized."):format(self.name));
     end
     
     ---@return string
@@ -32,5 +32,4 @@ ServerModule = Class.extends(BaseObject, function(class)
     return self;
 end);
 
-Package.Require("World/World.lua");
-Package.Require("Test.lua");
+Package.Require("manifest.lua");

@@ -20,15 +20,30 @@ local _Client = Class.extends(Shared, function(class)
 
     function self:Constructor()
         self:super();
+        Client.InitializeDiscord(Config.discord.APPLICATION_ID); -- Initialize application id
         self.modules = {};
-        Client.SetMouseEnabled(false);
-        self.log:debug("[ Client ] initialized.");
+        GM.Log:debug("[ Client ] initialized.");
+    end
+
+    ---@private
+    function self:LoadManagers()
+        Package.Require("framework/manifest.lua");
+    end
+
+    ---@private
+    function self:LoadModules()
+        Package.Require("modules/manifest.lua");
+        self.modules.world = cWorld();
+    end
+
+    ---@private
+    function self:Initialize()
+       self:LoadManagers();
+       self:LoadModules();
     end
 
     return self;
-end);
+end)
 
----@type _Client
 GM.Client = _Client();
-
-Package.Require("./manifest.lua");
+GM.Client:Initialize();

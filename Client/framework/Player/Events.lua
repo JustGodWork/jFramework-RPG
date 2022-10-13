@@ -16,7 +16,12 @@
 -- This event is called when the player is loaded
 -- You can use it to load modules only when player is loaded
 Events.Subscribe(SharedEnums.Player.loaded, function(playerData)
-    GM.Client.log:success("Client data initialized.");
-    GM.Client.log:info(playerData);
+    GM.Log:success("Client data initialized.");
+    GM.Log:debug(playerData);
+    Events.CallRemote(SharedEnums.Events.inventory.get, "main");
     Client.SendChatMessage("All your data have been loaded !");
+end);
+
+Events.Subscribe(SharedEnums.Events.inventory.receive, function(items, slots)
+    GM.Log:debug(items, slots);
 end);

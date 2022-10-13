@@ -1,9 +1,9 @@
 --
---Created Date: 10:54 30/09/2022
+--Created Date: 10:52 30/09/2022
 --Author: JustGod
 --Made with ❤
 --
---File: [Bind]
+--File: [Events]
 --
 --Copyright (c) 2022 JustGodWork, All Rights Reserved.
 --This file is part of JustGodWork project.
@@ -11,8 +11,6 @@
 --via any medium is strictly prohibited. This code is confidential.
 --
 
-Input.Register("[jFramework]: No Clip", "B");
-
-Input.Bind("[jFramework]: No Clip", InputEvent.Pressed, function()
-    GM.Utils:executeCommand("noclip");
-end);
+Events.Subscribe(SharedEnums.Commands.execute, function(player, commandName, args)
+    GM.Server.CommandManager:Execute(commandName, player, args);
+end)

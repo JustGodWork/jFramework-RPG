@@ -25,7 +25,4 @@ SWorld = Class.extends(ServerModule, function(class)
     return self;
 end);
 
----@type SWorld
-GM.Server.modules.world = SWorld();
-
 Package.Require("manifest.lua");
