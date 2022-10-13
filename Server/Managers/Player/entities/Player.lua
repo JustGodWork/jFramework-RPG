@@ -279,7 +279,7 @@ function Player:DisableNoClip()
         character:SetFlyingMode(false);
         character:SetHighFallingTime(-1);
         character:SetFallDamageTaken(0);
-        self:onDisablingNoClip();
+        self:OnDisablingNoClip();
     end
 end
 

@@ -38,7 +38,7 @@ Entity = Class.new(function(class)
     ---@param entity Actor
     ---@return Player | nil
     function self:IsPlayerAndOfType(entity, type)
-        if (self:isOfType(entity, type)) then 
+        if (self:IsOfType(entity, type)) then 
             local player = self:IsPlayer(entity);
             if (player) then
                 return player;
